@@ -105,7 +105,7 @@ paths:
         '201':
           $ref: '#/components/responses/ProxyBindingResponse'
         '401':
-          description: "Unauthorized — invalid or missing API token"
+          description: 'Unauthorized — invalid or missing API token'
           $ref: '#/components/responses/ErrorResponse'
       security:
         - api_key:
@@ -125,13 +125,13 @@ paths:
       tags:
         - proxy-binding
       summary: Update a proxy email binding
-      description: Updates an existing proxy-email binding. real_addresses is a map of address string to boolean (true = add/enable, false = disable). Other attributes such as description and callback_url can also be updated.
+      description: Updates an existing proxy-email binding. real_addresses is a map of address string to boolean (true = add/enable, false = disable). proxy_address must also be included in attributes for the update to take effect. Other attributes such as description and callback_url can also be updated.
       operationId: patchProxyBinding
       responses:
         '200':
           $ref: '#/components/responses/ProxyBindingResponse'
         '401':
-          description: "Unauthorized — invalid or missing API token"
+          description: 'Unauthorized — invalid or missing API token'
           $ref: '#/components/responses/ErrorResponse'
       security:
         - api_key:
@@ -155,7 +155,7 @@ paths:
         '200':
           description: Proxy email binding deleted successfully
         '401':
-          description: "Unauthorized — invalid or missing API token"
+          description: 'Unauthorized — invalid or missing API token'
           $ref: '#/components/responses/ErrorResponse'
       security:
         - api_key:
@@ -195,9 +195,7 @@ externalDocs:
   url: http://swagger.io
 
 components:
-
   schemas:
-
     OauthAccessToken:
       description: OAuth Bearer token issued after successful authentication, used to obtain the long-lived API token via GET /api/v1/api-token.
       properties:
@@ -299,7 +297,7 @@ components:
             type:
               type: string
               enum:
-                - "proxy_bindings"
+                - 'proxy_bindings'
             attributes:
               type: object
               properties:
@@ -319,7 +317,7 @@ components:
                   description: Optional URL to POST to when a new email is received.
 
     ProxyBindingUpdate:
-      description: Request body for partially updating an existing proxy-email binding. real_addresses values are booleans — true to add or enable an address, false to disable it.
+      description: Request body for partially updating an existing proxy-email binding. real_addresses values are plain booleans — true to add/enable an address, false to disable it. proxy_address must be included in attributes for real_addresses changes to take effect.
       properties:
         data:
           type: object
@@ -330,9 +328,11 @@ components:
             type:
               type: string
               enum:
-                - "proxy_bindings"
+                - 'proxy_bindings'
             attributes:
               type: object
+              required:
+                - proxy_address
               properties:
                 real_addresses:
                   type: object
@@ -341,6 +341,7 @@ components:
                     type: boolean
                 proxy_address:
                   type: string
+                  description: The proxy address of this binding. Must be included when updating real_addresses.
                 description:
                   type: string
                 callback_url:
@@ -370,7 +371,7 @@ components:
             type:
               type: string
               enum:
-                - "auth-request"
+                - 'auth-request'
             attributes:
               type: object
               properties:
@@ -396,9 +397,8 @@ components:
           nullable: true
 
   responses:
-
     ErrorResponse:
-      description: "API error response — message and exception details are included in the body."
+      description: 'API error response — message and exception details are included in the body.'
       content:
         application/json:
           schema:
@@ -426,7 +426,7 @@ components:
                           format: int32
 
     ReceivedEmailLinksResponse:
-      description: "List of link objects for received emails associated with a proxy binding (up to the last 55)."
+      description: 'List of link objects for received emails associated with a proxy binding (up to the last 55).'
       content:
         application/json:
           schema:
@@ -464,7 +464,7 @@ components:
                           type: string
 
     ReceivedEmailDetailsResponse:
-      description: "Full message payload of a specific received email, including headers, HTML and plain-text body, and attachments."
+      description: 'Full message payload of a specific received email, including headers, HTML and plain-text body, and attachments.'
       content:
         application/json:
           schema:
@@ -519,14 +519,14 @@ components:
                         type: string
 
     CallbackCreatedResponse:
-      description: "Callback registration confirmation containing the webhook call URL and the retrieval URL."
+      description: 'Callback registration confirmation containing the webhook call URL and the retrieval URL.'
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/CallbackCreated'
 
     ProxyBindingListResponse:
-      description: "Paginated list of proxy-email bindings with account quota metadata (used and available slots)."
+      description: 'Paginated list of proxy-email bindings with account quota metadata (used and available slots).'
       content:
         application/json:
           schema:
@@ -549,7 +549,7 @@ components:
                   $ref: '#/components/schemas/ProxyBinding'
 
     ApiTokenResponse:
-      description: "Long-lived API token for use in the Token request header for all subsequent API calls."
+      description: 'Long-lived API token for use in the Token request header for all subsequent API calls.'
       content:
         application/json:
           schema:
@@ -559,7 +559,7 @@ components:
                 type: string
 
     ProxyBindingResponse:
-      description: "Single proxy-email binding returned after a successful create or update operation, with associated metadata."
+      description: 'Single proxy-email binding returned after a successful create or update operation, with associated metadata.'
       content:
         application/json:
           schema:
@@ -576,21 +576,20 @@ components:
                 $ref: '#/components/schemas/ProxyBinding'
 
     CallbackPayloadResponse:
-      description: "Callback entry including its processing status and the payload data received at the callback URL."
+      description: 'Callback entry including its processing status and the payload data received at the callback URL.'
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/CallbackPayload'
 
     OauthTokenResponse:
-      description: "OAuth Bearer token issued upon successful authentication. Pass this in the Authorization header to call GET /api/v1/api-token."
+      description: 'OAuth Bearer token issued upon successful authentication. Pass this in the Authorization header to call GET /api/v1/api-token.'
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/OauthAccessToken'
 
   requestBodies:
-
     ProxyBindingCreateRequest:
       description: Payload for creating a new proxy-email binding.
       content:

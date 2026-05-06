@@ -1,54 +1,62 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue'
 
-import type { ProxyBinding } from '../types/proxy-binding';
+import type { ProxyBinding } from '../types/proxy-binding'
 
-const proxyBindings = ref<ProxyBinding[]>([]);
-const loading = ref(false);
-const error = ref<string | null>(null);
-const refreshingId = ref<string | null>(null);
+const proxyBindings = ref<ProxyBinding[]>([])
+const loading = ref(false)
+const error = ref<string | null>(null)
+const refreshingId = ref<string | null>(null)
 
 async function fetchProxyBindings(opts?: { background?: boolean; highlightId?: string }) {
   if (opts?.background) {
     refreshingId.value = opts.highlightId ?? null
   } else {
-    loading.value = true;
+    loading.value = true
   }
-  error.value = null;
+  error.value = null
   try {
     const res = await fetch('/api/v1/proxy-bindings', {
       headers: {
-        'Token': localStorage.getItem('api_token') ?? ''
-      }
-    });
-    if (!res.ok) throw new Error('Failed to fetch proxy emails');
-    const data = await res.json();
-    proxyBindings.value = data.data.map((item: {
-      id: string;
-      attributes: {
-        proxy_address: string;
-        description?: string;
-        is_browsable?: boolean;
-        callback_url?: string;
-        received_emails?: number;
-        real_addresses?: Record<string, { is_enabled: boolean; is_verification_needed: boolean; is_verified: boolean }>;
-      };
-    }) => ({
-      id: item.id,
-      proxy_address: item.attributes.proxy_address,
-      description: item.attributes.description,
-      is_browsable: item.attributes.is_browsable,
-      callback_url: item.attributes.callback_url,
-      received_emails: item.attributes.received_emails,
-      real_addresses: item.attributes.real_addresses,
-    }));
+        Token: localStorage.getItem('api_token') ?? '',
+      },
+    })
+    if (!res.ok) throw new Error('Failed to fetch proxy emails')
+    const data = await res.json()
+    proxyBindings.value = data.data.map(
+      (item: {
+        id: string
+        attributes: {
+          proxy_address: string
+          description?: string
+          is_browsable?: boolean
+          callback_url?: string
+          received_emails?: number
+          real_addresses?: Record<
+            string,
+            { is_enabled: boolean; is_verification_needed: boolean; is_verified: boolean }
+          >
+        }
+      }) => ({
+        id: item.id,
+        proxy_address: item.attributes.proxy_address,
+        description: item.attributes.description,
+        is_browsable: item.attributes.is_browsable,
+        callback_url: item.attributes.callback_url,
+        received_emails: item.attributes.received_emails,
+        real_addresses: item.attributes.real_addresses,
+      }),
+    )
   } catch (e) {
-    error.value = e instanceof Error ? e.message : String(e);
+    error.value = e instanceof Error ? e.message : String(e)
   } finally {
-    loading.value = false;
-    refreshingId.value = null;
+    loading.value = false
+    refreshingId.value = null
   }
 }
+
+const enabledBindings = computed(() => proxyBindings.value.filter((b) => isEnabled(b)))
+const disabledBindings = computed(() => proxyBindings.value.filter((b) => !isEnabled(b)))
 
 const allRealAddresses = computed(() => {
   const set = new Set<string>()
@@ -75,7 +83,9 @@ const copiedId = ref<string | null>(null)
 async function copyAddress(binding: ProxyBinding) {
   await navigator.clipboard.writeText(binding.proxy_address)
   copiedId.value = binding.id
-  setTimeout(() => { copiedId.value = null }, 1500)
+  setTimeout(() => {
+    copiedId.value = null
+  }, 1500)
 }
 
 function isEnabled(binding: ProxyBinding): boolean {
@@ -87,9 +97,7 @@ async function toggleEnabled(binding: ProxyBinding) {
   togglingId.value = binding.id
   const nowEnabled = isEnabled(binding)
   const addrs = binding.real_addresses ?? {}
-  const patched = Object.fromEntries(
-    Object.keys(addrs).map((addr) => [addr, { is_enabled: !nowEnabled }])
-  )
+  const patched = Object.fromEntries(Object.keys(addrs).map((addr) => [addr, !nowEnabled]))
   try {
     const res = await fetch(`/api/v1/proxy-bindings/${binding.id}`, {
       method: 'PATCH',
@@ -99,9 +107,9 @@ async function toggleEnabled(binding: ProxyBinding) {
       },
       body: JSON.stringify({
         data: {
-          type: 'proxy_bindings',
-          attributes: { real_addresses: patched },
           id: binding.id,
+          type: 'proxy_bindings',
+          attributes: { real_addresses: patched, proxy_address: binding.proxy_address },
         },
       }),
     })
@@ -120,59 +128,214 @@ async function toggleEnabled(binding: ProxyBinding) {
   }
 }
 
-onMounted(fetchProxyBindings);
-defineExpose({ fetchProxyBindings, allRealAddresses, allDomains, refreshingId });
+onMounted(fetchProxyBindings)
+defineExpose({ fetchProxyBindings, allRealAddresses, allDomains, refreshingId })
 </script>
 
 <template>
   <section>
     <div v-if="loading" class="status">Loading…</div>
     <div v-else-if="error" class="status error">{{ error }}</div>
-    <ul v-else-if="proxyBindings.length" class="list">
-      <li v-for="binding in proxyBindings" :key="binding.id" class="item">
-        <div class="item-main">
-          <span class="proxy-address">{{ binding.proxy_address }}</span>
-          <span v-if="binding.description" class="description">{{ binding.description }}</span>
-        </div>
-        <div class="item-meta">
-          <span v-if="binding.is_browsable" class="badge">Browsable</span>
-          <span v-if="binding.received_emails" class="received">{{ binding.received_emails }} received</span>
-        </div>
-        <div class="item-actions">
-          <button
-            class="btn-icon btn-copy"
-            :class="{ copied: copiedId === binding.id }"
-            :title="copiedId === binding.id ? 'Copied!' : 'Copy address'"
-            @click="copyAddress(binding)"
-          >
-            <svg v-if="copiedId !== binding.id" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-            <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-          </button>
-          <button
-            class="btn-toggle"
-            :class="{ enabled: isEnabled(binding) }"
-            :disabled="togglingId === binding.id"
-            :aria-label="isEnabled(binding) ? 'Disable' : 'Enable'"
-            :title="isEnabled(binding) ? 'Disable' : 'Enable'"
-            @click="toggleEnabled(binding)"
-          >
-            <span class="toggle-track">
-              <span class="toggle-thumb" />
-            </span>
-          </button>
-          <button class="btn-icon btn-edit"
-            :disabled="refreshingId === binding.id"
-            :style="refreshingId === binding.id ? 'opacity:0.35;cursor:not-allowed' : ''"
-            title="Edit"
-            @click="$emit('edit', binding)">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-          </button>
-          <button class="btn-icon btn-delete" title="Delete" @click="$emit('delete', binding)">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-          </button>
-        </div>
-      </li>
-    </ul>
+    <div v-else-if="proxyBindings.length">
+      <ul class="list">
+        <li v-for="binding in enabledBindings" :key="binding.id" class="item">
+          <div class="item-main">
+            <span class="proxy-address">{{ binding.proxy_address }}</span>
+            <span v-if="binding.description" class="description">{{ binding.description }}</span>
+          </div>
+          <div class="item-meta">
+            <span v-if="binding.is_browsable" class="badge">Browsable</span>
+            <span v-if="binding.received_emails" class="received"
+              >{{ binding.received_emails }} received</span
+            >
+          </div>
+          <div class="item-actions">
+            <button
+              class="btn-icon btn-copy"
+              :class="{ copied: copiedId === binding.id }"
+              :title="copiedId === binding.id ? 'Copied!' : 'Copy address'"
+              @click="copyAddress(binding)"
+            >
+              <svg
+                v-if="copiedId !== binding.id"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <rect x="9" y="9" width="13" height="13" rx="2" />
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+              </svg>
+              <svg
+                v-else
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </button>
+            <button
+              class="btn-toggle"
+              :class="{ enabled: isEnabled(binding) }"
+              :disabled="togglingId === binding.id"
+              :aria-label="isEnabled(binding) ? 'Disable' : 'Enable'"
+              :title="isEnabled(binding) ? 'Disable' : 'Enable'"
+              @click="toggleEnabled(binding)"
+            >
+              <span class="toggle-track">
+                <span class="toggle-thumb" />
+              </span>
+            </button>
+            <button
+              class="btn-icon btn-edit"
+              :disabled="refreshingId === binding.id"
+              :style="refreshingId === binding.id ? 'opacity:0.35;cursor:not-allowed' : ''"
+              title="Edit"
+              @click="$emit('edit', binding)"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+              </svg>
+            </button>
+            <button class="btn-icon btn-delete" title="Delete" @click="$emit('delete', binding)">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polyline points="3 6 5 6 21 6" />
+                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                <path d="M10 11v6" />
+                <path d="M14 11v6" />
+                <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+              </svg>
+            </button>
+          </div>
+        </li>
+      </ul>
+
+      <details v-if="disabledBindings.length" class="disabled-section">
+        <summary class="disabled-summary">Disabled ({{ disabledBindings.length }})</summary>
+        <ul class="list disabled-list">
+          <li v-for="binding in disabledBindings" :key="binding.id" class="item item-disabled">
+            <div class="item-main">
+              <span class="proxy-address">{{ binding.proxy_address }}</span>
+              <span v-if="binding.description" class="description">{{ binding.description }}</span>
+            </div>
+            <div class="item-meta">
+              <span v-if="binding.is_browsable" class="badge">Browsable</span>
+              <span v-if="binding.received_emails" class="received"
+                >{{ binding.received_emails }} received</span
+              >
+            </div>
+            <div class="item-actions">
+              <button
+                class="btn-icon btn-copy"
+                :class="{ copied: copiedId === binding.id }"
+                :title="copiedId === binding.id ? 'Copied!' : 'Copy address'"
+                @click="copyAddress(binding)"
+              >
+                <svg
+                  v-if="copiedId !== binding.id"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <rect x="9" y="9" width="13" height="13" rx="2" />
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                </svg>
+                <svg
+                  v-else
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              </button>
+              <button
+                class="btn-toggle"
+                :class="{ enabled: isEnabled(binding) }"
+                :disabled="togglingId === binding.id"
+                :aria-label="isEnabled(binding) ? 'Disable' : 'Enable'"
+                :title="isEnabled(binding) ? 'Disable' : 'Enable'"
+                @click="toggleEnabled(binding)"
+              >
+                <span class="toggle-track">
+                  <span class="toggle-thumb" />
+                </span>
+              </button>
+              <button
+                class="btn-icon btn-edit"
+                :disabled="refreshingId === binding.id"
+                :style="refreshingId === binding.id ? 'opacity:0.35;cursor:not-allowed' : ''"
+                title="Edit"
+                @click="$emit('edit', binding)"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                </svg>
+              </button>
+              <button class="btn-icon btn-delete" title="Delete" @click="$emit('delete', binding)">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <polyline points="3 6 5 6 21 6" />
+                  <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                  <path d="M10 11v6" />
+                  <path d="M14 11v6" />
+                  <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                </svg>
+              </button>
+            </div>
+          </li>
+        </ul>
+      </details>
+    </div>
     <div v-else class="status">No proxy emails yet.</div>
   </section>
 </template>
@@ -287,7 +450,9 @@ button {
   height: 2rem;
   border-radius: 4px;
   flex-shrink: 0;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 
 .btn-icon svg {
@@ -299,7 +464,9 @@ button {
 .btn-copy {
   color: var(--color-text);
   opacity: 0.5;
-  transition: opacity 0.15s, color 0.15s;
+  transition:
+    opacity 0.15s,
+    color 0.15s;
 }
 
 .btn-copy:hover {
@@ -395,5 +562,49 @@ button {
 
 .btn-toggle.enabled .toggle-thumb {
   transform: translateX(0.9rem);
+}
+
+.disabled-section {
+  margin-top: 1rem;
+}
+
+.disabled-summary {
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--color-text);
+  opacity: 0.55;
+  padding: 0.35rem 0.25rem;
+  user-select: none;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.disabled-summary::-webkit-details-marker {
+  display: none;
+}
+
+.disabled-summary::before {
+  content: '▶';
+  font-size: 0.65rem;
+  transition: transform 0.15s;
+  display: inline-block;
+}
+
+details[open] > .disabled-summary::before {
+  transform: rotate(90deg);
+}
+
+.disabled-summary:hover {
+  opacity: 0.9;
+}
+
+.disabled-list {
+  margin-top: 0.5rem;
+}
+
+.item-disabled {
+  opacity: 0.5;
 }
 </style>
