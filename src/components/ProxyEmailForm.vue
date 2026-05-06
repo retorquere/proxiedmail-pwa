@@ -124,12 +124,12 @@ async function submit() {
       const res = await fetch(`/api/v1/proxy-bindings/${props.binding!.id}`, {
         method: 'PATCH',
         headers,
-        body: JSON.stringify([{
+        body: JSON.stringify({
           data: {
             type: 'proxy_bindings',
             attributes: { description: description.value, real_addresses: patchedAddresses },
           },
-        }]),
+        }),
       })
       if (!res.ok) throw new Error('Failed to update proxy email')
     } else {
