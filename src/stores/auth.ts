@@ -37,7 +37,10 @@ export const useAuthStore = defineStore('auth', () => {
 
     if (!authRes.ok) {
       let msg = 'Invalid credentials'
-      try { msg = JSON.parse(authText)?.[0]?.data?.attributes?.message ?? msg } catch {}
+      try {
+        msg = JSON.parse(authText)?.[0]?.data?.attributes?.message ?? msg
+      }
+      catch {}
       throw new Error(msg)
     }
 

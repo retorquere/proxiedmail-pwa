@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 
 import type { ProxyBinding } from '../types/proxy-binding'
 
@@ -8,10 +8,13 @@ const loading = ref(false)
 const error = ref<string | null>(null)
 const refreshingId = ref<string | null>(null)
 
-async function fetchProxyBindings(opts?: { background?: boolean; highlightId?: string }) {
+async function fetchProxyBindings(
+  opts?: { background?: boolean; highlightId?: string },
+) {
   if (opts?.background) {
     refreshingId.value = opts.highlightId ?? null
-  } else {
+  }
+  else {
     loading.value = true
   }
   error.value = null
@@ -34,7 +37,11 @@ async function fetchProxyBindings(opts?: { background?: boolean; highlightId?: s
           received_emails?: number
           real_addresses?: Record<
             string,
-            { is_enabled: boolean; is_verification_needed: boolean; is_verified: boolean }
+            {
+              is_enabled: boolean
+              is_verification_needed: boolean
+              is_verified: boolean
+            }
           >
         }
       }) => ({
@@ -47,16 +54,22 @@ async function fetchProxyBindings(opts?: { background?: boolean; highlightId?: s
         real_addresses: item.attributes.real_addresses,
       }),
     )
-  } catch (e) {
+  }
+  catch (e) {
     error.value = e instanceof Error ? e.message : String(e)
-  } finally {
+  }
+  finally {
     loading.value = false
     refreshingId.value = null
   }
 }
 
-const enabledBindings = computed(() => proxyBindings.value.filter((b) => isEnabled(b)))
-const disabledBindings = computed(() => proxyBindings.value.filter((b) => !isEnabled(b)))
+const enabledBindings = computed(() =>
+  proxyBindings.value.filter(b => isEnabled(b))
+)
+const disabledBindings = computed(() =>
+  proxyBindings.value.filter(b => !isEnabled(b))
+)
 
 const allRealAddresses = computed(() => {
   const set = new Set<string>()
@@ -90,14 +103,16 @@ async function copyAddress(binding: ProxyBinding) {
 
 function isEnabled(binding: ProxyBinding): boolean {
   const addrs = binding.real_addresses ?? {}
-  return Object.values(addrs).some((a) => a.is_enabled)
+  return Object.values(addrs).some(a => a.is_enabled)
 }
 
 async function toggleEnabled(binding: ProxyBinding) {
   togglingId.value = binding.id
   const nowEnabled = isEnabled(binding)
   const addrs = binding.real_addresses ?? {}
-  const patched = Object.fromEntries(Object.keys(addrs).map((addr) => [addr, !nowEnabled]))
+  const patched = Object.fromEntries(
+    Object.keys(addrs).map(addr => [addr, !nowEnabled]),
+  )
   try {
     const res = await fetch(`/api/v1/proxy-bindings/${binding.id}`, {
       method: 'PATCH',
@@ -109,7 +124,10 @@ async function toggleEnabled(binding: ProxyBinding) {
         data: {
           id: binding.id,
           type: 'proxy_bindings',
-          attributes: { real_addresses: patched, proxy_address: binding.proxy_address },
+          attributes: {
+            real_addresses: patched,
+            proxy_address: binding.proxy_address,
+          },
         },
       }),
     })
@@ -117,13 +135,15 @@ async function toggleEnabled(binding: ProxyBinding) {
     console.log('[toggle] PATCH', binding.id, res.status, text)
     if (!res.ok) throw new Error(`Failed to update (${res.status}): ${text}`)
     // Update local state immediately
-    Object.keys(addrs).forEach((addr) => {
+    Object.keys(addrs).forEach(addr => {
       const entry = binding.real_addresses?.[addr]
       if (entry) entry.is_enabled = !nowEnabled
     })
-  } catch (e) {
+  }
+  catch (e) {
     error.value = e instanceof Error ? e.message : String(e)
-  } finally {
+  }
+  finally {
     togglingId.value = null
   }
 }
@@ -141,13 +161,15 @@ defineExpose({ fetchProxyBindings, allRealAddresses, allDomains, refreshingId })
         <li v-for="binding in enabledBindings" :key="binding.id" class="item">
           <div class="item-main">
             <span class="proxy-address">{{ binding.proxy_address }}</span>
-            <span v-if="binding.description" class="description">{{ binding.description }}</span>
+            <span v-if="binding.description" class="description">{{
+              binding.description
+            }}</span>
           </div>
           <div class="item-meta">
             <span v-if="binding.is_browsable" class="badge">Browsable</span>
-            <span v-if="binding.received_emails" class="received"
-              >{{ binding.received_emails }} received</span
-            >
+            <span v-if="binding.received_emails" class="received">{{
+                binding.received_emails
+              }} received</span>
           </div>
           <div class="item-actions">
             <button
@@ -214,7 +236,11 @@ defineExpose({ fetchProxyBindings, allRealAddresses, allDomains, refreshingId })
                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
               </svg>
             </button>
-            <button class="btn-icon btn-delete" title="Delete" @click="$emit('delete', binding)">
+            <button
+              class="btn-icon btn-delete"
+              title="Delete"
+              @click="$emit('delete', binding)"
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
@@ -236,18 +262,26 @@ defineExpose({ fetchProxyBindings, allRealAddresses, allDomains, refreshingId })
       </ul>
 
       <details v-if="disabledBindings.length" class="disabled-section">
-        <summary class="disabled-summary">Disabled ({{ disabledBindings.length }})</summary>
+        <summary class="disabled-summary">
+          Disabled ({{ disabledBindings.length }})
+        </summary>
         <ul class="list disabled-list">
-          <li v-for="binding in disabledBindings" :key="binding.id" class="item item-disabled">
+          <li
+            v-for="binding in disabledBindings"
+            :key="binding.id"
+            class="item item-disabled"
+          >
             <div class="item-main">
               <span class="proxy-address">{{ binding.proxy_address }}</span>
-              <span v-if="binding.description" class="description">{{ binding.description }}</span>
+              <span v-if="binding.description" class="description">{{
+                binding.description
+              }}</span>
             </div>
             <div class="item-meta">
               <span v-if="binding.is_browsable" class="badge">Browsable</span>
-              <span v-if="binding.received_emails" class="received"
-                >{{ binding.received_emails }} received</span
-              >
+              <span v-if="binding.received_emails" class="received">{{
+                  binding.received_emails
+                }} received</span>
             </div>
             <div class="item-actions">
               <button
@@ -314,7 +348,11 @@ defineExpose({ fetchProxyBindings, allRealAddresses, allDomains, refreshingId })
                   <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                 </svg>
               </button>
-              <button class="btn-icon btn-delete" title="Delete" @click="$emit('delete', binding)">
+              <button
+                class="btn-icon btn-delete"
+                title="Delete"
+                @click="$emit('delete', binding)"
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
@@ -450,9 +488,7 @@ button {
   height: 2rem;
   border-radius: 4px;
   flex-shrink: 0;
-  transition:
-    background 0.15s,
-    color 0.15s;
+  transition: background 0.15s, color 0.15s;
 }
 
 .btn-icon svg {
@@ -464,9 +500,7 @@ button {
 .btn-copy {
   color: var(--color-text);
   opacity: 0.5;
-  transition:
-    opacity 0.15s,
-    color 0.15s;
+  transition: opacity 0.15s, color 0.15s;
 }
 
 .btn-copy:hover {
@@ -586,7 +620,7 @@ button {
 }
 
 .disabled-summary::before {
-  content: '▶';
+  content: "▶";
   font-size: 0.65rem;
   transition: transform 0.15s;
   display: inline-block;

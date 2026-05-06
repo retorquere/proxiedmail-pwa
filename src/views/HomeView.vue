@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useAuthStore } from '../stores/auth'
 import { useRouter } from 'vue-router'
-import ProxyEmailList from '../components/ProxyEmailList.vue'
 import ProxyEmailForm from '../components/ProxyEmailForm.vue'
+import ProxyEmailList from '../components/ProxyEmailList.vue'
+import { useAuthStore } from '../stores/auth'
 import type { ProxyBinding } from '../types/proxy-binding'
 
 const auth = useAuthStore()
@@ -61,15 +61,22 @@ function onEdit(binding: ProxyBinding) {
   formVisible.value = true
 }
 
-const deleteModal = ref<{
-  binding: ProxyBinding
-  confirmed: boolean
-  deleting: boolean
-  error: string | null
-} | null>(null)
+const deleteModal = ref<
+  {
+    binding: ProxyBinding
+    confirmed: boolean
+    deleting: boolean
+    error: string | null
+  } | null
+>(null)
 
 function onDelete(binding: ProxyBinding) {
-  deleteModal.value = { binding, confirmed: false, deleting: false, error: null }
+  deleteModal.value = {
+    binding,
+    confirmed: false,
+    deleting: false,
+    error: null,
+  }
 }
 
 async function confirmDelete() {
@@ -77,14 +84,18 @@ async function confirmDelete() {
   deleteModal.value.deleting = true
   deleteModal.value.error = null
   try {
-    const res = await fetch(`/api/v1/proxy-bindings/${deleteModal.value.binding.id}`, {
-      method: 'DELETE',
-      headers: { Token: localStorage.getItem('api_token') ?? '' },
-    })
+    const res = await fetch(
+      `/api/v1/proxy-bindings/${deleteModal.value.binding.id}`,
+      {
+        method: 'DELETE',
+        headers: { Token: localStorage.getItem('api_token') ?? '' },
+      },
+    )
     if (!res.ok) throw new Error('Delete failed')
     deleteModal.value = null
     listRef.value?.fetchProxyBindings()
-  } catch (e) {
+  }
+  catch (e) {
     if (deleteModal.value) {
       deleteModal.value.error = e instanceof Error ? e.message : 'Delete failed'
       deleteModal.value.deleting = false
@@ -118,7 +129,10 @@ function logout() {
   >
     <div
       class="ptr-indicator"
-      :style="{ transform: `translateY(${pullY}px)`, opacity: pulling || refreshing ? 1 : 0 }"
+      :style="{
+        transform: `translateY(${pullY}px)`,
+        opacity: pulling || refreshing ? 1 : 0,
+      }"
       aria-hidden="true"
     >
       <svg
@@ -137,7 +151,9 @@ function logout() {
     <header class="page-header">
       <h1>ProxiedMail</h1>
       <div class="header-actions">
-        <button v-if="!formVisible" @click="showCreate">+ New proxy email</button>
+        <button v-if="!formVisible" @click="showCreate">
+          + New proxy email
+        </button>
         <button class="btn-logout" @click="logout">Sign out</button>
       </div>
     </header>
@@ -156,17 +172,31 @@ function logout() {
       @cancel="onCancel"
     />
 
-    <ProxyEmailList v-show="!formVisible" ref="listRef" @edit="onEdit" @delete="onDelete" />
+    <ProxyEmailList
+      v-show="!formVisible"
+      ref="listRef"
+      @edit="onEdit"
+      @delete="onDelete"
+    />
 
     <Teleport to="body">
-      <div v-if="deleteModal" class="modal-backdrop" @click.self="deleteModal = null">
-        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div
+        v-if="deleteModal"
+        class="modal-backdrop"
+        @click.self="deleteModal = null"
+      >
+        <div
+          class="modal"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="modal-title"
+        >
           <div class="modal-icon">⚠️</div>
           <h2 id="modal-title">Delete proxy email?</h2>
           <p class="modal-address">{{ deleteModal.binding.proxy_address }}</p>
           <p class="modal-warning">
-            This action is permanent and cannot be undone. Any emails sent to this address will stop
-            being forwarded.
+            This action is permanent and cannot be undone. Any emails sent to
+            this address will stop being forwarded.
           </p>
           <label class="modal-checkbox">
             <input
@@ -176,9 +206,15 @@ function logout() {
             />
             I understand this is permanent
           </label>
-          <p v-if="deleteModal.error" class="modal-error">{{ deleteModal.error }}</p>
+          <p v-if="deleteModal.error" class="modal-error">
+            {{ deleteModal.error }}
+          </p>
           <div class="modal-actions">
-            <button class="btn-cancel" :disabled="deleteModal.deleting" @click="deleteModal = null">
+            <button
+              class="btn-cancel"
+              :disabled="deleteModal.deleting"
+              @click="deleteModal = null"
+            >
               Cancel
             </button>
             <button

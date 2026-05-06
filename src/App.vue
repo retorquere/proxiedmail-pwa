@@ -1,4 +1,3 @@
-
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
 </script>
@@ -6,5 +5,3 @@ import { RouterView } from 'vue-router'
 <template>
   <RouterView />
 </template>
-
-

@@ -17,9 +17,11 @@ async function submit() {
   try {
     await auth.login(username.value, password.value)
     router.push('/')
-  } catch (e) {
+  }
+  catch (e) {
     error.value = e instanceof Error ? e.message : 'Login failed'
-  } finally {
+  }
+  finally {
     loading.value = false
   }
 }
@@ -33,7 +35,13 @@ async function submit() {
 
       <div class="field">
         <label for="username">Username</label>
-        <input id="username" v-model="username" type="text" autocomplete="username" required />
+        <input
+          id="username"
+          v-model="username"
+          type="text"
+          autocomplete="username"
+          required
+        />
       </div>
 
       <div class="field">

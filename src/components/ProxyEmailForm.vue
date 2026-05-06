@@ -1,10 +1,14 @@
 <script setup lang="ts">
-import { ref, computed, watch, nextTick } from 'vue'
 import { generateSlug } from 'random-word-slugs'
+import { computed, nextTick, ref, watch } from 'vue'
 import type { ProxyBinding, RealAddress } from '../types/proxy-binding'
 
-const props = defineProps<{ binding?: ProxyBinding; knownAddresses?: string[]; knownDomains?: string[] }>()
-const emit = defineEmits<{ (e: 'saved', id?: string): void; (e: 'cancel'): void }>()
+const props = defineProps<
+  { binding?: ProxyBinding; knownAddresses?: string[]; knownDomains?: string[] }
+>()
+const emit = defineEmits<
+  { (e: 'saved', id?: string): void; (e: 'cancel'): void }
+>()
 
 const isEdit = !!props.binding?.id
 
@@ -12,7 +16,14 @@ function makeSlug() {
   return generateSlug(3, {
     partsOfSpeech: ['adjective', 'noun', 'noun'],
     categories: {
-      noun: ['business', 'education', 'media', 'thing', 'technology', 'science'],
+      noun: [
+        'business',
+        'education',
+        'media',
+        'thing',
+        'technology',
+        'science',
+      ],
       adjective: ['appearance', 'condition', 'personality', 'quantity'],
     },
   })
@@ -26,7 +37,7 @@ const domain = ref(props.knownDomains?.[0] ?? '')
 const description = ref(props.binding?.description ?? '')
 // For edit: local copy of real_addresses to toggle is_enabled
 const editRealAddresses = ref<Record<string, RealAddress>>(
-  JSON.parse(JSON.stringify(props.binding?.real_addresses ?? {}))
+  JSON.parse(JSON.stringify(props.binding?.real_addresses ?? {})),
 )
 const selectedAddresses = ref<string[]>([])
 const inputValue = ref('')
@@ -35,25 +46,29 @@ const inputEl = ref<HTMLInputElement | null>(null)
 const loading = ref(false)
 const error = ref<string | null>(null)
 
-const editAddressCount = computed(() => Object.keys(editRealAddresses.value).length)
+const editAddressCount = computed(() =>
+  Object.keys(editRealAddresses.value).length
+)
 
 const filteredSuggestions = computed(() => {
   const val = inputValue.value.trim().toLowerCase()
   const inProxy = isEdit ? Object.keys(editRealAddresses.value) : []
   return (props.knownAddresses ?? []).filter(
-    (a) =>
-      !selectedAddresses.value.includes(a) &&
-      !inProxy.includes(a) &&
-      a.toLowerCase().includes(val),
+    a =>
+      !selectedAddresses.value.includes(a)
+      && !inProxy.includes(a)
+      && a.toLowerCase().includes(val),
   )
 })
 
 watch(
   () => props.binding,
-  (b) => {
+  b => {
     proxy_address.value = b?.proxy_address ?? ''
     description.value = b?.description ?? ''
-    editRealAddresses.value = JSON.parse(JSON.stringify(b?.real_addresses ?? {}))
+    editRealAddresses.value = JSON.parse(
+      JSON.stringify(b?.real_addresses ?? {}),
+    )
     selectedAddresses.value = []
     inputValue.value = ''
     localPart.value = ''
@@ -75,15 +90,19 @@ function onInputKeydown(e: KeyboardEvent) {
     e.preventDefault()
     const val = inputValue.value.trim()
     if (val) selectAddress(val)
-  } else if (e.key === 'Backspace' && !inputValue.value && selectedAddresses.value.length) {
+  }
+  else if (
+    e.key === 'Backspace' && !inputValue.value && selectedAddresses.value.length
+  ) {
     selectedAddresses.value.pop()
-  } else if (e.key === 'Escape') {
+  }
+  else if (e.key === 'Escape') {
     showDropdown.value = false
   }
 }
 
 function removeAddress(addr: string) {
-  selectedAddresses.value = selectedAddresses.value.filter((a) => a !== addr)
+  selectedAddresses.value = selectedAddresses.value.filter(a => a !== addr)
 }
 
 function removeEditAddress(addr: string) {
@@ -112,12 +131,13 @@ async function submit() {
     }
 
     if (isEdit) {
-      const patchedAddresses: Record<string, { is_enabled: boolean }> = Object.fromEntries(
-        Object.entries(editRealAddresses.value).map(([addr, val]) => [
-          addr,
-          { is_enabled: val.is_enabled },
-        ])
-      )
+      const patchedAddresses: Record<string, { is_enabled: boolean }> = Object
+        .fromEntries(
+          Object.entries(editRealAddresses.value).map(([addr, val]) => [
+            addr,
+            { is_enabled: val.is_enabled },
+          ]),
+        )
       for (const addr of selectedAddresses.value) {
         patchedAddresses[addr] = { is_enabled: true }
       }
@@ -127,13 +147,19 @@ async function submit() {
         body: JSON.stringify({
           data: {
             type: 'proxy_bindings',
-            attributes: { description: description.value, real_addresses: patchedAddresses },
+            attributes: {
+              description: description.value,
+              real_addresses: patchedAddresses,
+            },
           },
         }),
       })
       if (!res.ok) throw new Error('Failed to update proxy email')
-    } else {
-      const fullAddress = domain.value ? `${localPart.value}@${domain.value}` : localPart.value
+    }
+    else {
+      const fullAddress = domain.value
+        ? `${localPart.value}@${domain.value}`
+        : localPart.value
       const res = await fetch('/api/v1/proxy-bindings', {
         method: 'POST',
         headers,
@@ -152,9 +178,11 @@ async function submit() {
     }
 
     emit('saved', props.binding?.id)
-  } catch (e) {
+  }
+  catch (e) {
     error.value = e instanceof Error ? e.message : String(e)
-  } finally {
+  }
+  finally {
     loading.value = false
   }
 }
@@ -180,7 +208,14 @@ async function submit() {
           autocomplete="off"
           spellcheck="false"
         />
-        <button type="button" class="proxy-refresh" title="Generate new name" @click="localPart = makeSlug()">&#x21BA;</button>
+        <button
+          type="button"
+          class="proxy-refresh"
+          title="Generate new name"
+          @click="localPart = makeSlug()"
+        >
+          &#x21BA;
+        </button>
         <span class="proxy-at">@</span>
         <select v-model="domain" class="proxy-domain" required>
           <option v-for="d in knownDomains" :key="d" :value="d">{{ d }}</option>
@@ -202,7 +237,8 @@ async function submit() {
           class="real-address-row"
         >
           <span class="real-address-email">{{ addr }}</span>
-          <span v-if="!addrData.is_verified" class="badge-unverified">Unverified</span>
+          <span v-if="!addrData.is_verified" class="badge-unverified"
+          >Unverified</span>
           <button
             type="button"
             class="addr-toggle"
@@ -218,9 +254,14 @@ async function submit() {
             :disabled="editAddressCount <= 1"
             title="Remove address"
             @click="removeEditAddress(String(addr))"
-          >&#x2715;</button>
+          >
+            &#x2715;
+          </button>
         </div>
-        <div v-if="Object.keys(editRealAddresses).length === 0" class="no-addresses">
+        <div
+          v-if="Object.keys(editRealAddresses).length === 0"
+          class="no-addresses"
+        >
           No real addresses configured.
         </div>
       </div>
@@ -231,7 +272,13 @@ async function submit() {
       <div class="combobox" @click="inputEl?.focus()">
         <span v-for="addr in selectedAddresses" :key="addr" class="tag">
           {{ addr }}
-          <button type="button" class="tag-remove" @click.stop="removeAddress(addr)">&#x2715;</button>
+          <button
+            type="button"
+            class="tag-remove"
+            @click.stop="removeAddress(addr)"
+          >
+            &#x2715;
+          </button>
         </span>
         <div class="combobox-input-wrap">
           <input
@@ -263,7 +310,9 @@ async function submit() {
     <p v-if="error" class="error">{{ error }}</p>
 
     <div class="actions">
-      <button type="submit" :disabled="loading">{{ loading ? 'Saving…' : 'Save' }}</button>
+      <button type="submit" :disabled="loading">
+        {{ loading ? 'Saving…' : 'Save' }}
+      </button>
       <button type="button" @click="emit('cancel')">Cancel</button>
     </div>
   </form>
@@ -572,7 +621,7 @@ small {
   gap: 0.5rem;
 }
 
-button[type='submit'] {
+button[type="submit"] {
   padding: 0.5rem 1rem;
   border: none;
   border-radius: 4px;
@@ -582,7 +631,7 @@ button[type='submit'] {
   color: #fff;
 }
 
-button[type='button'] {
+button[type="button"] {
   padding: 0.5rem 1rem;
   border: none;
   border-radius: 4px;
