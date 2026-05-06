@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 
+const { t } = useI18n()
 const auth = useAuthStore()
 const router = useRouter()
 
@@ -19,7 +21,7 @@ async function submit() {
     router.push('/')
   }
   catch (e) {
-    error.value = e instanceof Error ? e.message : 'Login failed'
+    error.value = e instanceof Error ? e.message : t('login.failed')
   }
   finally {
     loading.value = false
@@ -30,11 +32,11 @@ async function submit() {
 <template>
   <div class="login-wrapper">
     <form class="login-form" @submit.prevent="submit">
-      <h1>ProxiedMail</h1>
-      <p>Sign in to manage your proxy emails.</p>
+      <h1>{{ t('app.name') }}</h1>
+      <p>{{ t('login.tagline') }}</p>
 
       <div class="field">
-        <label for="username">Username</label>
+        <label for="username">{{ t('login.username') }}</label>
         <input
           id="username"
           v-model="username"
@@ -45,7 +47,7 @@ async function submit() {
       </div>
 
       <div class="field">
-        <label for="password">Password</label>
+        <label for="password">{{ t('login.password') }}</label>
         <input
           id="password"
           v-model="password"
@@ -58,7 +60,7 @@ async function submit() {
       <p v-if="error" class="error">{{ error }}</p>
 
       <button type="submit" :disabled="loading">
-        {{ loading ? 'Signing in…' : 'Sign in' }}
+        {{ loading ? t('login.signingIn') : t('login.signIn') }}
       </button>
     </form>
   </div>

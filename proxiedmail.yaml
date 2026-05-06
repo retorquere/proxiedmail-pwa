@@ -125,7 +125,7 @@ paths:
       tags:
         - proxy-binding
       summary: Update a proxy email binding
-      description: Updates an existing proxy-email binding. real_addresses is a map of address string to boolean (true = add/enable, false = disable). proxy_address must also be included in attributes for the update to take effect. Other attributes such as description and callback_url can also be updated.
+      description: Updates an existing proxy-email binding. real_addresses is a map of address string to an object with is_enabled boolean (true = add/enable, false = disable). proxy_address and id must also be included for the update to take effect. Other attributes such as description and callback_url can also be updated.
       operationId: patchProxyBinding
       responses:
         "200":
@@ -317,7 +317,7 @@ components:
                   description: Optional URL to POST to when a new email is received.
 
     ProxyBindingUpdate:
-      description: Request body for partially updating an existing proxy-email binding. real_addresses values are plain booleans — true to add/enable an address, false to disable it. proxy_address must be included in attributes for real_addresses changes to take effect.
+      description: Request body for partially updating an existing proxy-email binding. real_addresses is a map of address string to an object with is_enabled boolean. proxy_address must be included in attributes for real_addresses changes to take effect.
       properties:
         data:
           type: object
@@ -336,9 +336,12 @@ components:
               properties:
                 real_addresses:
                   type: object
-                  description: Map of real email address to boolean — true to add/enable, false to disable.
+                  description: Map of real email address to its forwarding configuration — set is_enabled to true to add/enable, false to disable.
                   additionalProperties:
-                    type: boolean
+                    type: object
+                    properties:
+                      is_enabled:
+                        type: boolean
                 proxy_address:
                   type: string
                   description: The proxy address of this binding. Must be included when updating real_addresses.

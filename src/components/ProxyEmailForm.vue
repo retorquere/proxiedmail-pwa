@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { generateSlug } from 'random-word-slugs'
 import { computed, nextTick, ref, watch } from 'vue'
 import type { ProxyBinding, RealAddress } from '../types/proxy-binding'
@@ -9,6 +10,8 @@ const props = defineProps<
 const emit = defineEmits<
   { (e: 'saved', id?: string): void; (e: 'cancel'): void }
 >()
+
+const { t } = useI18n()
 
 const isEdit = !!props.binding?.id
 
@@ -146,15 +149,17 @@ async function submit() {
         headers,
         body: JSON.stringify({
           data: {
+            id: props.binding!.id,
             type: 'proxy_bindings',
             attributes: {
               description: description.value,
+              proxy_address: proxy_address.value,
               real_addresses: patchedAddresses,
             },
           },
         }),
       })
-      if (!res.ok) throw new Error('Failed to update proxy email')
+      if (!res.ok) throw new Error(t('form.errorUpdate'))
     }
     else {
       const fullAddress = domain.value
@@ -174,7 +179,7 @@ async function submit() {
           },
         }),
       })
-      if (!res.ok) throw new Error('Failed to create proxy email')
+      if (!res.ok) throw new Error(t('form.errorCreate'))
     }
 
     emit('saved', props.binding?.id)
@@ -190,15 +195,15 @@ async function submit() {
 
 <template>
   <form @submit.prevent="submit">
-    <h2>{{ isEdit ? 'Edit Proxy Email' : 'New Proxy Email' }}</h2>
+    <h2>{{ isEdit ? t('form.editTitle') : t('form.newTitle') }}</h2>
 
     <div v-if="isEdit" class="field">
-      <label for="proxy_address">Proxy Address</label>
+      <label for="proxy_address">{{ t('form.proxyAddress') }}</label>
       <input id="proxy_address" v-model="proxy_address" disabled />
     </div>
 
     <div v-else class="field">
-      <label>Proxy Address</label>
+      <label>{{ t('form.proxyAddress') }}</label>
       <div class="proxy-address-split">
         <input
           v-model="localPart"
@@ -211,7 +216,7 @@ async function submit() {
         <button
           type="button"
           class="proxy-refresh"
-          title="Generate new name"
+          :title="t('form.generateNew')"
           @click="localPart = makeSlug()"
         >
           &#x21BA;
@@ -224,12 +229,12 @@ async function submit() {
     </div>
 
     <div class="field">
-      <label for="description">Description</label>
+      <label for="description">{{ t('form.description') }}</label>
       <input id="description" v-model="description" />
     </div>
 
     <div v-if="isEdit" class="field">
-      <label>Real Addresses</label>
+      <label>{{ t('form.realAddresses') }}</label>
       <div class="real-address-list">
         <div
           v-for="(addrData, addr) in editRealAddresses"
@@ -237,13 +242,12 @@ async function submit() {
           class="real-address-row"
         >
           <span class="real-address-email">{{ addr }}</span>
-          <span v-if="!addrData.is_verified" class="badge-unverified"
-          >Unverified</span>
+          <span v-if="!addrData.is_verified" class="badge-unverified">{{ t('form.unverified') }}</span>
           <button
             type="button"
             class="addr-toggle"
             :class="{ enabled: addrData.is_enabled }"
-            :title="addrData.is_enabled ? 'Disable' : 'Enable'"
+            :title="addrData.is_enabled ? t('form.disable') : t('form.enable')"
             @click="addrData.is_enabled = !addrData.is_enabled"
           >
             <span class="toggle-track"><span class="toggle-thumb" /></span>
@@ -252,7 +256,7 @@ async function submit() {
             type="button"
             class="addr-remove"
             :disabled="editAddressCount <= 1"
-            title="Remove address"
+            :title="t('form.removeAddress')"
             @click="removeEditAddress(String(addr))"
           >
             &#x2715;
@@ -262,13 +266,13 @@ async function submit() {
           v-if="Object.keys(editRealAddresses).length === 0"
           class="no-addresses"
         >
-          No real addresses configured.
+          {{ t('form.noAddresses') }}
         </div>
       </div>
     </div>
 
     <div class="field">
-      <label>{{ isEdit ? 'Add New Address' : 'Real Addresses' }}</label>
+      <label>{{ isEdit ? t('form.addNewAddress') : t('form.realAddresses') }}</label>
       <div class="combobox" @click="inputEl?.focus()">
         <span v-for="addr in selectedAddresses" :key="addr" class="tag">
           {{ addr }}
@@ -285,7 +289,7 @@ async function submit() {
             ref="inputEl"
             v-model="inputValue"
             class="combobox-input"
-            placeholder="Type or pick an address…"
+            :placeholder="t('form.addressPlaceholder')"
             autocomplete="off"
             :required="!isEdit && selectedAddresses.length === 0"
             @focus="showDropdown = true"
@@ -304,16 +308,16 @@ async function submit() {
           </li>
         </ul>
       </div>
-      <small>Press Enter or comma to add. Click ✕ to remove.</small>
+      <small>{{ t('form.addressHint') }}</small>
     </div>
 
     <p v-if="error" class="error">{{ error }}</p>
 
     <div class="actions">
       <button type="submit" :disabled="loading">
-        {{ loading ? 'Saving…' : 'Save' }}
+        {{ loading ? t('form.saving') : t('form.save') }}
       </button>
-      <button type="button" @click="emit('cancel')">Cancel</button>
+      <button type="button" @click="emit('cancel')">{{ t('form.cancel') }}</button>
     </div>
   </form>
 </template>

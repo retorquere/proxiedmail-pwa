@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { computed, onMounted, ref } from 'vue'
 
 import type { ProxyBinding } from '../types/proxy-binding'
+
+const { t } = useI18n()
 
 const proxyBindings = ref<ProxyBinding[]>([])
 const loading = ref(false)
@@ -24,7 +27,7 @@ async function fetchProxyBindings(
         Token: localStorage.getItem('api_token') ?? '',
       },
     })
-    if (!res.ok) throw new Error('Failed to fetch proxy emails')
+    if (!res.ok) throw new Error(t('list.errorFetch'))
     const data = await res.json()
     proxyBindings.value = data.data.map(
       (item: {
@@ -64,11 +67,22 @@ async function fetchProxyBindings(
   }
 }
 
+const searchQuery = ref('')
+
+function matchesSearch(b: ProxyBinding): boolean {
+  const q = searchQuery.value.trim().toLowerCase()
+  if (!q) return true
+  if (b.proxy_address.toLowerCase().includes(q)) return true
+  if (b.description?.toLowerCase().includes(q)) return true
+  if (Object.keys(b.real_addresses ?? {}).some(a => a.toLowerCase().includes(q))) return true
+  return false
+}
+
 const enabledBindings = computed(() =>
-  proxyBindings.value.filter(b => isEnabled(b))
+  proxyBindings.value.filter(b => isEnabled(b) && matchesSearch(b))
 )
 const disabledBindings = computed(() =>
-  proxyBindings.value.filter(b => !isEnabled(b))
+  proxyBindings.value.filter(b => !isEnabled(b) && matchesSearch(b))
 )
 
 const allRealAddresses = computed(() => {
@@ -133,7 +147,7 @@ async function toggleEnabled(binding: ProxyBinding) {
     })
     const text = await res.text()
     console.log('[toggle] PATCH', binding.id, res.status, text)
-    if (!res.ok) throw new Error(`Failed to update (${res.status}): ${text}`)
+    if (!res.ok) throw new Error(t('list.errorToggle', { status: res.status, text }))
     // Update local state immediately
     Object.keys(addrs).forEach(addr => {
       const entry = binding.real_addresses?.[addr]
@@ -154,7 +168,15 @@ defineExpose({ fetchProxyBindings, allRealAddresses, allDomains, refreshingId })
 
 <template>
   <section>
-    <div v-if="loading" class="status">Loading…</div>
+    <div class="search-bar">
+      <input
+        v-model="searchQuery"
+        type="search"
+        :placeholder="t('list.filterPlaceholder')"
+        class="search-input"
+      />
+    </div>
+    <div v-if="loading" class="status">{{ t('list.loading') }}</div>
     <div v-else-if="error" class="status error">{{ error }}</div>
     <div v-else-if="proxyBindings.length">
       <ul class="list">
@@ -166,16 +188,16 @@ defineExpose({ fetchProxyBindings, allRealAddresses, allDomains, refreshingId })
             }}</span>
           </div>
           <div class="item-meta">
-            <span v-if="binding.is_browsable" class="badge">Browsable</span>
+            <span v-if="binding.is_browsable" class="badge">{{ t('list.browsable') }}</span>
             <span v-if="binding.received_emails" class="received">{{
-                binding.received_emails
-              }} received</span>
+                t('list.received', { count: binding.received_emails })
+              }}</span>
           </div>
           <div class="item-actions">
             <button
               class="btn-icon btn-copy"
               :class="{ copied: copiedId === binding.id }"
-              :title="copiedId === binding.id ? 'Copied!' : 'Copy address'"
+              :title="copiedId === binding.id ? t('list.copied') : t('list.copyAddress')"
               @click="copyAddress(binding)"
             >
               <svg
@@ -208,8 +230,8 @@ defineExpose({ fetchProxyBindings, allRealAddresses, allDomains, refreshingId })
               class="btn-toggle"
               :class="{ enabled: isEnabled(binding) }"
               :disabled="togglingId === binding.id"
-              :aria-label="isEnabled(binding) ? 'Disable' : 'Enable'"
-              :title="isEnabled(binding) ? 'Disable' : 'Enable'"
+              :aria-label="isEnabled(binding) ? t('list.disable') : t('list.enable')"
+              :title="isEnabled(binding) ? t('list.disable') : t('list.enable')"
               @click="toggleEnabled(binding)"
             >
               <span class="toggle-track">
@@ -220,7 +242,7 @@ defineExpose({ fetchProxyBindings, allRealAddresses, allDomains, refreshingId })
               class="btn-icon btn-edit"
               :disabled="refreshingId === binding.id"
               :style="refreshingId === binding.id ? 'opacity:0.35;cursor:not-allowed' : ''"
-              title="Edit"
+              :title="t('list.edit')"
               @click="$emit('edit', binding)"
             >
               <svg
@@ -238,7 +260,7 @@ defineExpose({ fetchProxyBindings, allRealAddresses, allDomains, refreshingId })
             </button>
             <button
               class="btn-icon btn-delete"
-              title="Delete"
+              :title="t('list.delete')"
               @click="$emit('delete', binding)"
             >
               <svg
@@ -261,9 +283,9 @@ defineExpose({ fetchProxyBindings, allRealAddresses, allDomains, refreshingId })
         </li>
       </ul>
 
-      <details v-if="disabledBindings.length" class="disabled-section">
+      <details v-if="disabledBindings.length" class="disabled-section" :open="!!searchQuery.trim()">
         <summary class="disabled-summary">
-          Disabled ({{ disabledBindings.length }})
+          {{ t('list.disabled', { count: disabledBindings.length }) }}
         </summary>
         <ul class="list disabled-list">
           <li
@@ -278,16 +300,16 @@ defineExpose({ fetchProxyBindings, allRealAddresses, allDomains, refreshingId })
               }}</span>
             </div>
             <div class="item-meta">
-              <span v-if="binding.is_browsable" class="badge">Browsable</span>
+              <span v-if="binding.is_browsable" class="badge">{{ t('list.browsable') }}</span>
               <span v-if="binding.received_emails" class="received">{{
-                  binding.received_emails
-                }} received</span>
+                  t('list.received', { count: binding.received_emails })
+                }}</span>
             </div>
             <div class="item-actions">
               <button
                 class="btn-icon btn-copy"
                 :class="{ copied: copiedId === binding.id }"
-                :title="copiedId === binding.id ? 'Copied!' : 'Copy address'"
+                :title="copiedId === binding.id ? t('list.copied') : t('list.copyAddress')"
                 @click="copyAddress(binding)"
               >
                 <svg
@@ -320,8 +342,8 @@ defineExpose({ fetchProxyBindings, allRealAddresses, allDomains, refreshingId })
                 class="btn-toggle"
                 :class="{ enabled: isEnabled(binding) }"
                 :disabled="togglingId === binding.id"
-                :aria-label="isEnabled(binding) ? 'Disable' : 'Enable'"
-                :title="isEnabled(binding) ? 'Disable' : 'Enable'"
+                :aria-label="isEnabled(binding) ? t('list.disable') : t('list.enable')"
+                :title="isEnabled(binding) ? t('list.disable') : t('list.enable')"
                 @click="toggleEnabled(binding)"
               >
                 <span class="toggle-track">
@@ -332,7 +354,7 @@ defineExpose({ fetchProxyBindings, allRealAddresses, allDomains, refreshingId })
                 class="btn-icon btn-edit"
                 :disabled="refreshingId === binding.id"
                 :style="refreshingId === binding.id ? 'opacity:0.35;cursor:not-allowed' : ''"
-                title="Edit"
+                :title="t('list.edit')"
                 @click="$emit('edit', binding)"
               >
                 <svg
@@ -350,7 +372,7 @@ defineExpose({ fetchProxyBindings, allRealAddresses, allDomains, refreshingId })
               </button>
               <button
                 class="btn-icon btn-delete"
-                title="Delete"
+                :title="t('list.delete')"
                 @click="$emit('delete', binding)"
               >
                 <svg
@@ -374,11 +396,32 @@ defineExpose({ fetchProxyBindings, allRealAddresses, allDomains, refreshingId })
         </ul>
       </details>
     </div>
-    <div v-else class="status">No proxy emails yet.</div>
+    <div v-else-if="searchQuery.trim()" class="status">{{ t('list.noResults', { query: searchQuery.trim() }) }}</div>
+    <div v-else class="status">{{ t('list.empty') }}</div>
   </section>
 </template>
 
 <style scoped>
+.search-bar {
+  margin-bottom: 0.75rem;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-background-soft);
+  color: var(--color-text);
+  font-size: 0.9rem;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.search-input:focus {
+  border-color: #4f46e5;
+}
+
 .status {
   padding: 2rem;
   text-align: center;

@@ -1,11 +1,14 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import ProxyEmailForm from '../components/ProxyEmailForm.vue'
 import ProxyEmailList from '../components/ProxyEmailList.vue'
+import SettingsMenu from '../components/SettingsMenu.vue'
 import { useAuthStore } from '../stores/auth'
 import type { ProxyBinding } from '../types/proxy-binding'
 
+const { t } = useI18n()
 const auth = useAuthStore()
 const router = useRouter()
 const listRef = ref<InstanceType<typeof ProxyEmailList> | null>(null)
@@ -97,7 +100,7 @@ async function confirmDelete() {
   }
   catch (e) {
     if (deleteModal.value) {
-      deleteModal.value.error = e instanceof Error ? e.message : 'Delete failed'
+      deleteModal.value.error = e instanceof Error ? e.message : t('delete.failed')
       deleteModal.value.deleting = false
     }
   }
@@ -149,12 +152,12 @@ function logout() {
       </svg>
     </div>
     <header class="page-header">
-      <h1>ProxiedMail</h1>
+      <h1>{{ t('app.name') }}</h1>
       <div class="header-actions">
         <button v-if="!formVisible" @click="showCreate">
-          + New proxy email
+          {{ t('home.newProxy') }}
         </button>
-        <button class="btn-logout" @click="logout">Sign out</button>
+        <SettingsMenu @signout="logout" />
       </div>
     </header>
 
@@ -192,19 +195,16 @@ function logout() {
           aria-labelledby="modal-title"
         >
           <div class="modal-icon">⚠️</div>
-          <h2 id="modal-title">Delete proxy email?</h2>
+          <h2 id="modal-title">{{ t('delete.title') }}</h2>
           <p class="modal-address">{{ deleteModal.binding.proxy_address }}</p>
-          <p class="modal-warning">
-            This action is permanent and cannot be undone. Any emails sent to
-            this address will stop being forwarded.
-          </p>
+          <p class="modal-warning">{{ t('delete.warning') }}</p>
           <label class="modal-checkbox">
             <input
               type="checkbox"
               v-model="deleteModal.confirmed"
               :disabled="deleteModal.deleting"
             />
-            I understand this is permanent
+            {{ t('delete.confirm') }}
           </label>
           <p v-if="deleteModal.error" class="modal-error">
             {{ deleteModal.error }}
@@ -215,14 +215,14 @@ function logout() {
               :disabled="deleteModal.deleting"
               @click="deleteModal = null"
             >
-              Cancel
+              {{ t('delete.cancel') }}
             </button>
             <button
               class="btn-confirm-delete"
               :disabled="!deleteModal.confirmed || deleteModal.deleting"
               @click="confirmDelete"
             >
-              {{ deleteModal.deleting ? 'Deleting…' : 'Delete' }}
+              {{ deleteModal.deleting ? t('delete.deleting') : t('delete.delete') }}
             </button>
           </div>
         </div>
