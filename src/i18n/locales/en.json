@@ -1,0 +1,66 @@
+{
+  "app": {
+    "name": "ProxiedMail"
+  },
+  "login": {
+    "tagline": "Sign in to manage your proxy emails.",
+    "username": "Username",
+    "password": "Password",
+    "signingIn": "Signing in\u2026",
+    "signIn": "Sign in",
+    "failed": "Login failed"
+  },
+  "home": {
+    "newProxy": "+ New proxy email",
+    "signOut": "Sign out"
+  },
+  "delete": {
+    "title": "Delete proxy email?",
+    "warning": "This action is permanent and cannot be undone. Any emails sent to this address will stop being forwarded.",
+    "confirm": "I understand this is permanent",
+    "cancel": "Cancel",
+    "deleting": "Deleting\u2026",
+    "delete": "Delete",
+    "failed": "Delete failed"
+  },
+  "form": {
+    "editTitle": "Edit Proxy Email",
+    "newTitle": "New Proxy Email",
+    "proxyAddress": "Proxy Address",
+    "generateNew": "Generate new name",
+    "description": "Description",
+    "realAddresses": "Real Addresses",
+    "addNewAddress": "Add New Address",
+    "unverified": "Unverified",
+    "enable": "Enable",
+    "disable": "Disable",
+    "removeAddress": "Remove address",
+    "noAddresses": "No real addresses configured.",
+    "addressPlaceholder": "Type or pick an address\u2026",
+    "addressHint": "Press Enter or comma to add. Click \u2715 to remove.",
+    "saving": "Saving\u2026",
+    "save": "Save",
+    "cancel": "Cancel",
+    "errorUpdate": "Failed to update proxy email",
+    "errorCreate": "Failed to create proxy email"
+  },
+  "list": {
+    "loading": "Loading\u2026",
+    "filterPlaceholder": "Filter by address, description or email\u2026",
+    "noResults": "No results for \"{query}\".",
+    "empty": "No proxy emails yet.",
+    "browsable": "Browsable",
+    "received": "{count} received",
+    "copied": "Copied!",
+    "copyAddress": "Copy address",
+    "enable": "Enable",
+    "disable": "Disable",
+    "edit": "Edit",
+    "delete": "Delete",
+    "disabled": "Disabled ({count})",
+    "errorFetch": "Failed to fetch proxy emails",
+    "errorToggle": "Failed to update ({status}): {text}"  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language"  }
+}

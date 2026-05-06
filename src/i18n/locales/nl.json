@@ -1,0 +1,68 @@
+{
+  "app": {
+    "name": "ProxiedMail"
+  },
+  "login": {
+    "tagline": "Meld je aan om je proxy-e-mailadressen te beheren.",
+    "username": "Gebruikersnaam",
+    "password": "Wachtwoord",
+    "signingIn": "Aanmelden\u2026",
+    "signIn": "Aanmelden",
+    "failed": "Aanmelden mislukt"
+  },
+  "home": {
+    "newProxy": "+ Nieuw proxy-e-mailadres",
+    "signOut": "Afmelden"
+  },
+  "delete": {
+    "title": "Proxy-e-mailadres verwijderen?",
+    "warning": "Deze actie is definitief en kan niet ongedaan worden gemaakt. E-mails naar dit adres worden niet langer doorgestuurd.",
+    "confirm": "Ik begrijp dat dit definitief is",
+    "cancel": "Annuleren",
+    "deleting": "Verwijderen\u2026",
+    "delete": "Verwijderen",
+    "failed": "Verwijderen mislukt"
+  },
+  "form": {
+    "editTitle": "Proxy-e-mailadres bewerken",
+    "newTitle": "Nieuw proxy-e-mailadres",
+    "proxyAddress": "Proxy-adres",
+    "generateNew": "Nieuwe naam genereren",
+    "description": "Omschrijving",
+    "realAddresses": "Echte adressen",
+    "addNewAddress": "Nieuw adres toevoegen",
+    "unverified": "Niet geverifieerd",
+    "enable": "Inschakelen",
+    "disable": "Uitschakelen",
+    "removeAddress": "Adres verwijderen",
+    "noAddresses": "Geen echte adressen geconfigureerd.",
+    "addressPlaceholder": "Typ of kies een adres\u2026",
+    "addressHint": "Druk op Enter of komma om toe te voegen. Klik op \u2715 om te verwijderen.",
+    "saving": "Opslaan\u2026",
+    "save": "Opslaan",
+    "cancel": "Annuleren",
+    "errorUpdate": "Bijwerken van proxy-e-mailadres mislukt",
+    "errorCreate": "Aanmaken van proxy-e-mailadres mislukt"
+  },
+  "list": {
+    "loading": "Laden\u2026",
+    "filterPlaceholder": "Filteren op adres, omschrijving of e-mail\u2026",
+    "noResults": "Geen resultaten voor \u201e{query}\u201c.",
+    "empty": "Nog geen proxy-e-mailadressen.",
+    "browsable": "Doorzoekbaar",
+    "received": "{count} ontvangen",
+    "copied": "Gekopieerd!",
+    "copyAddress": "Adres kopi\u00ebren",
+    "enable": "Inschakelen",
+    "disable": "Uitschakelen",
+    "edit": "Bewerken",
+    "delete": "Verwijderen",
+    "disabled": "Uitgeschakeld ({count})",
+    "errorFetch": "Ophalen van proxy-e-mailadressen mislukt",
+    "errorToggle": "Bijwerken mislukt ({status}): {text}"
+  },
+  "settings": {
+    "title": "Instellingen",
+    "language": "Taal"
+  }
+}
