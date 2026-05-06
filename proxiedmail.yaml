@@ -2,7 +2,7 @@ openapi: 3.0.0
 servers:
   - url: https://proxiedmail.com/
 info:
-  description: ProxiedMail API
+  description: ProxiedMail API — create and manage proxy email addresses that forward incoming mail to your real addresses, with support for webhooks and browsable email history.
   version: 1.0.0
   title: ProxiedMail API
   license:
@@ -13,12 +13,12 @@ paths:
     post:
       tags:
         - callback
-      summary: Auhtorization
-      description: ''
+      summary: Register a webhook callback URL
+      description: Registers a callback URL that will be called when a new email is received by a proxy binding that has a callback URL set.
       operationId: addCallback
       responses:
         '200':
-          $ref: '#/components/responses/responseCreateCallback'
+          $ref: '#/components/responses/CallbackCreatedResponse'
       security:
         - api_auth:
             - default
@@ -28,17 +28,17 @@ paths:
       parameters:
         - name: hash
           in: path
-          description: Callback hash
+          description: Hash identifier of the callback to retrieve
           required: true
           schema:
             type: string
       tags:
         - callback
-      summary: Auhtorization
-      description: ''
+      summary: Retrieve callback payload by hash
+      description: Returns the payload received by a registered callback, including processing status and any data sent to the callback URL.
       responses:
         '200':
-          $ref: '#/components/responses/responseGetCallback'
+          $ref: '#/components/responses/CallbackPayloadResponse'
       security:
         - api_key:
             - default
@@ -48,17 +48,17 @@ paths:
       parameters:
         - name: proxyBindingId
           in: path
-          description: proxyBindingId of proxy email that needs to be fetched
+          description: ID of the proxy binding whose received emails to list
           required: true
           schema:
             type: string
       tags:
         - received-email
       summary: Get received emails list by proxy email (last 55)
-      description: ''
+      description: Returns a list of the most recent 55 received-email link objects for the given proxy binding. The proxy binding must have is_browsable set to true.
       responses:
         '200':
-          $ref: '#/components/responses/getReceivedEmailsLinksJson'
+          $ref: '#/components/responses/ReceivedEmailLinksResponse'
       security:
         - api_key:
             - default
@@ -68,112 +68,108 @@ paths:
       parameters:
         - name: receivedEmailId
           in: path
-          description: receivedEmailId of received email that needs to be fetched
+          description: ID of the received email to retrieve
           required: true
           schema:
             type: string
       tags:
         - received-email
       summary: Get content of received email by id
-      description: ''
+      description: Returns the full message payload of a specific received email, including headers, body (HTML and plain-text), and attachments.
       responses:
         '200':
-          $ref: '#/components/responses/getReceivedEmailDetailsJson'
+          $ref: '#/components/responses/ReceivedEmailDetailsResponse'
       security:
         - api_key:
             - default
-
-
 
   /api/v1/proxy-bindings:
     get:
       tags:
         - proxy-binding
-      summary: List of proxy emails
-      description: ''
+      summary: List proxy email bindings
+      description: Returns all proxy-email bindings for the authenticated user, along with account quota metadata (used and available proxy bindings).
       responses:
         '200':
-          $ref: '#/components/responses/getProxyBindingJson'
+          $ref: '#/components/responses/ProxyBindingListResponse'
       security:
         - api_key:
             - default
     post:
       tags:
         - proxy-binding
-      summary: Create proxy-email
-      description: ''
+      summary: Create a proxy email binding
+      description: Creates a new proxy-email binding. Specify the desired proxy address, one or more real addresses to forward to, and optionally a callback URL and browsable flag.
       operationId: addProxyBinding
       responses:
-        '200':
-          $ref: '#/components/responses/responsePostProxyBinding'
+        '201':
+          $ref: '#/components/responses/ProxyBindingResponse'
         '401':
-          description: Invalid input
-          $ref: '#/components/responses/responseError'
+          description: "Unauthorized — invalid or missing API token"
+          $ref: '#/components/responses/ErrorResponse'
       security:
         - api_key:
             - default
       requestBody:
-        $ref: '#/components/requestBodies/postProxyBindingJson'
+        $ref: '#/components/requestBodies/ProxyBindingCreateRequest'
 
   /api/v1/proxy-bindings/{id}:
     patch:
       parameters:
         - name: id
           in: path
-          description: ID of proxy-email that needs to be fetched
+          description: ID of the proxy-email binding to update
           required: true
           schema:
             type: string
       tags:
         - proxy-binding
-      summary: Update proxy-email
-      description: ''
+      summary: Update a proxy email binding
+      description: Updates an existing proxy-email binding. real_addresses is a map of address string to boolean (true = add/enable, false = disable). Other attributes such as description and callback_url can also be updated.
       operationId: patchProxyBinding
       responses:
         '200':
-          $ref: '#/components/responses/responsePostProxyBinding'
+          $ref: '#/components/responses/ProxyBindingResponse'
         '401':
-          description: Invalid input
-          $ref: '#/components/responses/responseError'
+          description: "Unauthorized — invalid or missing API token"
+          $ref: '#/components/responses/ErrorResponse'
       security:
         - api_key:
             - default
       requestBody:
-        $ref: '#/components/requestBodies/patchProxyBindingJson'
+        $ref: '#/components/requestBodies/ProxyBindingUpdateRequest'
     delete:
       parameters:
         - name: id
           in: path
-          description: ID of proxy-email that needs to be deleted
+          description: ID of the proxy-email binding to delete
           required: true
           schema:
             type: string
       tags:
         - proxy-binding
-      summary: Delete proxy-email
-      description: ''
+      summary: Delete a proxy email binding
+      description: Permanently deletes the specified proxy-email binding. Incoming mail to the proxy address will no longer be forwarded.
       operationId: deleteProxyBinding
       responses:
         '200':
-          description: Proxy email deleted
+          description: Proxy email binding deleted successfully
         '401':
-          description: Invalid input
-          $ref: '#/components/responses/responseError'
+          description: "Unauthorized — invalid or missing API token"
+          $ref: '#/components/responses/ErrorResponse'
       security:
         - api_key:
             - default
-
-
 
   /api/v1/api-token:
     get:
       tags:
         - api
-      summary: Get api token
-      description: ''
+      summary: Get API token
+      description: Returns the long-lived API token for the authenticated user. Authenticate this request using the Bearer token obtained from POST /api/v1/auth. Use the returned token in the Token header for all subsequent requests.
       responses:
         '200':
-          $ref: '#/components/responses/responseTokenJson'
+          $ref: '#/components/responses/ApiTokenResponse'
       security:
         - api_auth:
             - default
@@ -182,24 +178,28 @@ paths:
     post:
       tags:
         - user
-      summary: Auhtorization
-      description: ''
+      summary: Authenticate and obtain a Bearer token
+      description: Authenticates with username and password and returns a short-lived OAuth Bearer token. Use this token to call GET /api/v1/api-token to obtain the long-lived API token.
       operationId: userAuth
       responses:
         '200':
-          $ref: '#/components/responses/responseAuthJson'
+          $ref: '#/components/responses/OauthTokenResponse'
         '401':
-          description: Invalid input
-          $ref: '#/components/responses/responseError'
+          description: Invalid username or password
+          $ref: '#/components/responses/ErrorResponse'
       requestBody:
-        $ref: '#/components/requestBodies/userAuthJson'
+        $ref: '#/components/requestBodies/AuthRequest'
+
 externalDocs:
   description: Find out more about Swagger
   url: http://swagger.io
+
 components:
 
   schemas:
+
     OauthAccessToken:
+      description: OAuth Bearer token issued after successful authentication, used to obtain the long-lived API token via GET /api/v1/api-token.
       properties:
         data:
           type: object
@@ -236,12 +236,13 @@ components:
                         id:
                           type: string
 
-
-
-    ProxyBindingList:
+    ProxyBinding:
+      description: A single proxy-email binding entity representing one proxy address that forwards incoming mail to one or more real addresses.
       properties:
         type:
           type: string
+          enum:
+            - proxy_bindings
         id:
           type: string
         attributes:
@@ -249,6 +250,7 @@ components:
           properties:
             real_addresses:
               type: object
+              description: Map of real email address to its forwarding configuration.
               additionalProperties:
                 type: object
                 properties:
@@ -262,6 +264,7 @@ components:
               type: string
             is_browsable:
               type: boolean
+              description: Whether received emails can be retrieved via the API.
             received_emails:
               type: integer
               format: int32
@@ -286,7 +289,9 @@ components:
                       type: string
                     id:
                       type: string
+
     ProxyBindingCreate:
+      description: Request body for creating a new proxy-email binding.
       properties:
         data:
           type: object
@@ -300,16 +305,52 @@ components:
               properties:
                 real_addresses:
                   type: array
+                  description: List of real email addresses to forward incoming mail to.
                   items:
                     type: string
                 proxy_address:
                   type: string
+                  description: The desired proxy email address (e.g. "alias@proxiedmail.com").
                 is_browsable:
                   type: boolean
+                  description: Whether received emails should be retrievable via the API.
                 callback_url:
                   type: string
+                  description: Optional URL to POST to when a new email is received.
 
-    CreatedCallback:
+    ProxyBindingUpdate:
+      description: Request body for partially updating an existing proxy-email binding. real_addresses values are booleans — true to add or enable an address, false to disable it.
+      properties:
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+              description: ID of the proxy-email binding being updated.
+            type:
+              type: string
+              enum:
+                - "proxy_bindings"
+            attributes:
+              type: object
+              properties:
+                real_addresses:
+                  type: object
+                  description: Map of real email address to boolean — true to add/enable, false to disable.
+                  additionalProperties:
+                    type: boolean
+                proxy_address:
+                  type: string
+                description:
+                  type: string
+                callback_url:
+                  type: string
+                received_emails:
+                  type: integer
+                  format: int32
+
+    CallbackCreated:
+      description: Confirmation payload returned when a callback URL is successfully registered.
       properties:
         status:
           type: string
@@ -320,7 +361,8 @@ components:
         id:
           type: string
 
-    AuthRequest:
+    AuthCredentials:
+      description: User credentials payload for the authentication endpoint.
       properties:
         data:
           type: object
@@ -336,25 +378,27 @@ components:
                   type: string
                 password:
                   type: string
-    GetCallback:
+
+    CallbackPayload:
+      description: Payload stored for a registered callback, including processing status and any data received.
       properties:
         status:
           type: string
         payload:
           type: object
-          format: nullable
+          nullable: true
         code:
           type: string
         is_received:
           type: boolean
         method:
           type: string
-          format: nullable
-
+          nullable: true
 
   responses:
-    responseError:
-      description: "Error"
+
+    ErrorResponse:
+      description: "API error response — message and exception details are included in the body."
       content:
         application/json:
           schema:
@@ -381,102 +425,108 @@ components:
                           type: integer
                           format: int32
 
-    getReceivedEmailsLinksJson:
-      description: "Payload of received emails list by proxy email"
+    ReceivedEmailLinksResponse:
+      description: "List of link objects for received emails associated with a proxy binding (up to the last 55)."
       content:
         application/json:
           schema:
             type: object
             properties:
-              type:
-                type: string
-              id:
-                type: string
-              attributes:
-                type: object
-                properties:
-                  recipient_email:
-                    type: string
-                  sender_email:
-                    type: string
-                  subject:
-                    type: string
-                  attachmentsCounter:
-                    type: integer
-                    format: int32
-                  link:
-                    type: string
-                  is_processed:
-                    type: boolean
-                  created_at:
-                    type: string
-                  updated_at:
-                    type: string
-
-    getReceivedEmailDetailsJson:
-      description: "Payload of received email details"
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              type:
-                type: string
-              id:
-                type: string
-              attributes:
-                type: object
-                properties:
-                  recipient_email:
-                    type: string
-                  sender_email:
-                    type: string
-                  payload:
-                    type: object
-                    properties:
-                      To:
-                        type: string
-                      From:
-                        type: string
-                      Subject:
-                        type: string
-                      recipient:
-                        type: string
-                      sender:
-                        type: string
-                      body-html:
-                        type: string
-                      body-plain:
-                        type: string
-                      attachments:
-                        type: string
-                        format: nullable
-                  attachments:
-                    type: array
-                    items:
+              data:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                    id:
+                      type: string
+                    attributes:
                       type: object
                       properties:
-                        url:
+                        recipient_email:
                           type: string
-                  is_processed:
-                    type: boolean
-                  created_at:
-                    type: string
-                  updated_at:
-                    type: string
+                        sender_email:
+                          type: string
+                        subject:
+                          type: string
+                        attachmentsCounter:
+                          type: integer
+                          format: int32
+                        link:
+                          type: string
+                          description: Relative path to the full email details endpoint.
+                        is_processed:
+                          type: boolean
+                        created_at:
+                          type: string
+                        updated_at:
+                          type: string
 
-
-    responseCreateCallback:
-      description: "Test"
+    ReceivedEmailDetailsResponse:
+      description: "Full message payload of a specific received email, including headers, HTML and plain-text body, and attachments."
       content:
         application/json:
           schema:
             type: object
-            $ref: '#/components/schemas/CreatedCallback'
+            properties:
+              data:
+                type: object
+                properties:
+                  type:
+                    type: string
+                  id:
+                    type: string
+                  attributes:
+                    type: object
+                    properties:
+                      recipient_email:
+                        type: string
+                      sender_email:
+                        type: string
+                      payload:
+                        type: object
+                        properties:
+                          To:
+                            type: string
+                          From:
+                            type: string
+                          Subject:
+                            type: string
+                          recipient:
+                            type: string
+                          sender:
+                            type: string
+                          body-html:
+                            type: string
+                          body-plain:
+                            type: string
+                          attachments:
+                            type: string
+                            nullable: true
+                      attachments:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            url:
+                              type: string
+                      is_processed:
+                        type: boolean
+                      created_at:
+                        type: string
+                      updated_at:
+                        type: string
 
+    CallbackCreatedResponse:
+      description: "Callback registration confirmation containing the webhook call URL and the retrieval URL."
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CallbackCreated'
 
-    getProxyBindingJson:
-      description: "Test"
+    ProxyBindingListResponse:
+      description: "Paginated list of proxy-email bindings with account quota metadata (used and available slots)."
       content:
         application/json:
           schema:
@@ -496,13 +546,10 @@ components:
               data:
                 type: array
                 items:
-                  type: object
-                  $ref: '#/components/schemas/ProxyBindingList'
+                  $ref: '#/components/schemas/ProxyBinding'
 
-
-
-    responseTokenJson:
-      description: "Test"
+    ApiTokenResponse:
+      description: "Long-lived API token for use in the Token request header for all subsequent API calls."
       content:
         application/json:
           schema:
@@ -511,10 +558,8 @@ components:
               token:
                 type: string
 
-
-
-    responsePostProxyBinding:
-      description: "Test"
+    ProxyBindingResponse:
+      description: "Single proxy-email binding returned after a successful create or update operation, with associated metadata."
       content:
         application/json:
           schema:
@@ -528,55 +573,44 @@ components:
                   firstProxyBinding:
                     type: boolean
               data:
-                type: object
-                properties:
-                $ref: '#/components/schemas/ProxyBindingList'
+                $ref: '#/components/schemas/ProxyBinding'
 
-
-    responseGetCallback:
-      description: "Test"
+    CallbackPayloadResponse:
+      description: "Callback entry including its processing status and the payload data received at the callback URL."
       content:
         application/json:
           schema:
-            type: object
-            $ref: '#/components/schemas/GetCallback'
+            $ref: '#/components/schemas/CallbackPayload'
 
-
-    responseAuthJson:
-      description: "Test"
+    OauthTokenResponse:
+      description: "OAuth Bearer token issued upon successful authentication. Pass this in the Authorization header to call GET /api/v1/api-token."
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/OauthAccessToken'
 
   requestBodies:
-    postProxyBindingJson:
+
+    ProxyBindingCreateRequest:
+      description: Payload for creating a new proxy-email binding.
       content:
         application/json:
           schema:
-            type: array
-            items:
-              $ref: '#/components/schemas/ProxyBindingCreate'
+            $ref: '#/components/schemas/ProxyBindingCreate'
 
-
-
-    userAuthJson:
+    AuthRequest:
+      description: User credentials for authentication.
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/AuthRequest'
+            $ref: '#/components/schemas/AuthCredentials'
 
-    patchProxyBindingJson:
+    ProxyBindingUpdateRequest:
+      description: Payload for partially updating an existing proxy-email binding. real_addresses values are booleans (true = add/enable, false = disable).
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              data:
-                type: object
-                $ref: '#/components/schemas/ProxyBindingList'
-
-
+            $ref: '#/components/schemas/ProxyBindingUpdate'
 
   securitySchemes:
     api_auth:
