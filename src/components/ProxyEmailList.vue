@@ -97,12 +97,13 @@ async function toggleEnabled(binding: ProxyBinding) {
         'Content-Type': 'application/json',
         Token: localStorage.getItem('api_token') ?? '',
       },
-      body: JSON.stringify([{
+      body: JSON.stringify({
         data: {
           type: 'proxy_bindings',
           attributes: { real_addresses: patched },
+          id: binding.id,
         },
-      }]),
+      }),
     })
     const text = await res.text()
     console.log('[toggle] PATCH', binding.id, res.status, text)
