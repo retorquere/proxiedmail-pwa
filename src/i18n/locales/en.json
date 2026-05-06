@@ -2,65 +2,67 @@
   "app": {
     "name": "ProxiedMail"
   },
-  "login": {
-    "tagline": "Sign in to manage your proxy emails.",
-    "username": "Username",
-    "password": "Password",
-    "signingIn": "Signing in\u2026",
-    "signIn": "Sign in",
-    "failed": "Login failed"
+  "delete": {
+    "cancel": "Cancel",
+    "confirm": "I understand this is permanent",
+    "delete": "Delete",
+    "deleting": "Deleting\u2026",
+    "failed": "Delete failed",
+    "title": "Delete proxy email?",
+    "warning": "This action is permanent and cannot be undone. Any emails sent to this address will stop being forwarded."
+  },
+  "form": {
+    "addNewAddress": "Add New Address",
+    "addressHint": "Press Enter or comma to add. Click \u2715 to remove.",
+    "addressPlaceholder": "Type or pick an address\u2026",
+    "cancel": "Cancel",
+    "description": "Description",
+    "disable": "Disable",
+    "editTitle": "Edit Proxy Email",
+    "enable": "Enable",
+    "errorCreate": "Failed to create proxy email",
+    "errorUpdate": "Failed to update proxy email",
+    "generateNew": "Generate new name",
+    "newTitle": "New Proxy Email",
+    "noAddresses": "No real addresses configured.",
+    "proxyAddress": "Proxy Address",
+    "realAddresses": "Real Addresses",
+    "removeAddress": "Remove address",
+    "save": "Save",
+    "saving": "Saving\u2026",
+    "unverified": "Unverified"
   },
   "home": {
     "newProxy": "+ New proxy email",
     "signOut": "Sign out"
   },
-  "delete": {
-    "title": "Delete proxy email?",
-    "warning": "This action is permanent and cannot be undone. Any emails sent to this address will stop being forwarded.",
-    "confirm": "I understand this is permanent",
-    "cancel": "Cancel",
-    "deleting": "Deleting\u2026",
-    "delete": "Delete",
-    "failed": "Delete failed"
-  },
-  "form": {
-    "editTitle": "Edit Proxy Email",
-    "newTitle": "New Proxy Email",
-    "proxyAddress": "Proxy Address",
-    "generateNew": "Generate new name",
-    "description": "Description",
-    "realAddresses": "Real Addresses",
-    "addNewAddress": "Add New Address",
-    "unverified": "Unverified",
-    "enable": "Enable",
-    "disable": "Disable",
-    "removeAddress": "Remove address",
-    "noAddresses": "No real addresses configured.",
-    "addressPlaceholder": "Type or pick an address\u2026",
-    "addressHint": "Press Enter or comma to add. Click \u2715 to remove.",
-    "saving": "Saving\u2026",
-    "save": "Save",
-    "cancel": "Cancel",
-    "errorUpdate": "Failed to update proxy email",
-    "errorCreate": "Failed to create proxy email"
-  },
   "list": {
-    "loading": "Loading\u2026",
-    "filterPlaceholder": "Filter by address, description or email\u2026",
-    "noResults": "No results for \"{query}\".",
-    "empty": "No proxy emails yet.",
     "browsable": "Browsable",
-    "received": "{count} received",
     "copied": "Copied!",
     "copyAddress": "Copy address",
-    "enable": "Enable",
-    "disable": "Disable",
-    "edit": "Edit",
     "delete": "Delete",
+    "disable": "Disable",
     "disabled": "Disabled ({count})",
+    "edit": "Edit",
+    "empty": "No proxy emails yet.",
+    "enable": "Enable",
     "errorFetch": "Failed to fetch proxy emails",
-    "errorToggle": "Failed to update ({status}): {text}"  },
+    "errorToggle": "Failed to update ({status}): {text}",
+    "filterPlaceholder": "Filter by address, description or email\u2026",
+    "loading": "Loading\u2026",
+    "noResults": "No results for \"{query}\".",
+    "received": "{count} received"
+  },
+  "login": {
+    "failed": "Login failed",
+    "password": "Password",
+    "signIn": "Sign in",
+    "signingIn": "Signing in\u2026",
+    "tagline": "Sign in to manage your proxy emails.",
+    "username": "Username"
+  },
   "settings": {
-    "title": "Settings",
-    "language": "Language"  }
+    "language": "Language",
+    "title": "Settings"
+  }
 }

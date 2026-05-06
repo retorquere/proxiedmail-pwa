@@ -2,67 +2,67 @@
   "app": {
     "name": "ProxiedMail"
   },
-  "login": {
-    "tagline": "Meld je aan om je proxy-e-mailadressen te beheren.",
-    "username": "Gebruikersnaam",
-    "password": "Wachtwoord",
-    "signingIn": "Aanmelden\u2026",
-    "signIn": "Aanmelden",
-    "failed": "Aanmelden mislukt"
+  "delete": {
+    "cancel": "Annuleren",
+    "confirm": "Ik begrijp dat dit definitief is",
+    "delete": "Verwijderen",
+    "deleting": "Verwijderen\u2026",
+    "failed": "Verwijderen mislukt",
+    "title": "Proxy-e-mailadres verwijderen?",
+    "warning": "Deze actie is definitief en kan niet ongedaan worden gemaakt. E-mails naar dit adres worden niet langer doorgestuurd."
+  },
+  "form": {
+    "addNewAddress": "Nieuw adres toevoegen",
+    "addressHint": "Druk op Enter of komma om toe te voegen. Klik op \u2715 om te verwijderen.",
+    "addressPlaceholder": "Typ of kies een adres\u2026",
+    "cancel": "Annuleren",
+    "description": "Omschrijving",
+    "disable": "Uitschakelen",
+    "editTitle": "Proxy-e-mailadres bewerken",
+    "enable": "Inschakelen",
+    "errorCreate": "Aanmaken van proxy-e-mailadres mislukt",
+    "errorUpdate": "Bijwerken van proxy-e-mailadres mislukt",
+    "generateNew": "Nieuwe naam genereren",
+    "newTitle": "Nieuw proxy-e-mailadres",
+    "noAddresses": "Geen echte adressen geconfigureerd.",
+    "proxyAddress": "Proxy-adres",
+    "realAddresses": "Echte adressen",
+    "removeAddress": "Adres verwijderen",
+    "save": "Opslaan",
+    "saving": "Opslaan\u2026",
+    "unverified": "Niet geverifieerd"
   },
   "home": {
     "newProxy": "+ Nieuw proxy-e-mailadres",
     "signOut": "Afmelden"
   },
-  "delete": {
-    "title": "Proxy-e-mailadres verwijderen?",
-    "warning": "Deze actie is definitief en kan niet ongedaan worden gemaakt. E-mails naar dit adres worden niet langer doorgestuurd.",
-    "confirm": "Ik begrijp dat dit definitief is",
-    "cancel": "Annuleren",
-    "deleting": "Verwijderen\u2026",
-    "delete": "Verwijderen",
-    "failed": "Verwijderen mislukt"
-  },
-  "form": {
-    "editTitle": "Proxy-e-mailadres bewerken",
-    "newTitle": "Nieuw proxy-e-mailadres",
-    "proxyAddress": "Proxy-adres",
-    "generateNew": "Nieuwe naam genereren",
-    "description": "Omschrijving",
-    "realAddresses": "Echte adressen",
-    "addNewAddress": "Nieuw adres toevoegen",
-    "unverified": "Niet geverifieerd",
-    "enable": "Inschakelen",
-    "disable": "Uitschakelen",
-    "removeAddress": "Adres verwijderen",
-    "noAddresses": "Geen echte adressen geconfigureerd.",
-    "addressPlaceholder": "Typ of kies een adres\u2026",
-    "addressHint": "Druk op Enter of komma om toe te voegen. Klik op \u2715 om te verwijderen.",
-    "saving": "Opslaan\u2026",
-    "save": "Opslaan",
-    "cancel": "Annuleren",
-    "errorUpdate": "Bijwerken van proxy-e-mailadres mislukt",
-    "errorCreate": "Aanmaken van proxy-e-mailadres mislukt"
-  },
   "list": {
-    "loading": "Laden\u2026",
-    "filterPlaceholder": "Filteren op adres, omschrijving of e-mail\u2026",
-    "noResults": "Geen resultaten voor \u201e{query}\u201c.",
-    "empty": "Nog geen proxy-e-mailadressen.",
     "browsable": "Doorzoekbaar",
-    "received": "{count} ontvangen",
     "copied": "Gekopieerd!",
     "copyAddress": "Adres kopi\u00ebren",
-    "enable": "Inschakelen",
-    "disable": "Uitschakelen",
-    "edit": "Bewerken",
     "delete": "Verwijderen",
+    "disable": "Uitschakelen",
     "disabled": "Uitgeschakeld ({count})",
+    "edit": "Bewerken",
+    "empty": "Nog geen proxy-e-mailadressen.",
+    "enable": "Inschakelen",
     "errorFetch": "Ophalen van proxy-e-mailadressen mislukt",
-    "errorToggle": "Bijwerken mislukt ({status}): {text}"
+    "errorToggle": "Bijwerken mislukt ({status}): {text}",
+    "filterPlaceholder": "Filteren op adres, omschrijving of e-mail\u2026",
+    "loading": "Laden\u2026",
+    "noResults": "Geen resultaten voor \u201e{query}\u201c.",
+    "received": "{count} ontvangen"
+  },
+  "login": {
+    "failed": "Aanmelden mislukt",
+    "password": "Wachtwoord",
+    "signIn": "Aanmelden",
+    "signingIn": "Aanmelden\u2026",
+    "tagline": "Meld je aan om je proxy-e-mailadressen te beheren.",
+    "username": "Gebruikersnaam"
   },
   "settings": {
-    "title": "Instellingen",
-    "language": "Taal"
+    "language": "Taal",
+    "title": "Instellingen"
   }
 }
