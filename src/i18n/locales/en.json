@@ -30,7 +30,17 @@
     "removeAddress": "Remove address",
     "save": "Save",
     "saving": "Saving\u2026",
-    "unverified": "Unverified"
+    "unverified": "Unverified",
+    "contacts": "Contacts",
+    "contactsHint": "To send as this proxy address, email the reverse proxy address shown here.",
+    "noContacts": "No contacts yet.",
+    "loadingContacts": "Loading contacts\u2026",
+    "contactEmailPlaceholder": "Contact email address",
+    "contactDescPlaceholder": "Description (optional)",
+    "addContact": "Add Contact",
+    "addingContact": "Adding\u2026",
+    "errorFetchContacts": "Failed to fetch contacts",
+    "errorAddContact": "Failed to add contact"
   },
   "home": {
     "newProxy": "+ New proxy email",
@@ -63,6 +73,10 @@
   },
   "settings": {
     "language": "Language",
+    "theme": "Theme",
+    "themeLight": "Light",
+    "themeSystem": "Auto",
+    "themeDark": "Dark",
     "title": "Settings"
   }
 }

@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import { generateSlug } from 'random-word-slugs'
-import { computed, nextTick, ref, watch } from 'vue'
-import type { ProxyBinding, RealAddress } from '../types/proxy-binding'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { Check, Copy } from '@lucide/vue'
+import type { ProxyBinding, ProxyBindingContact, RealAddress } from '../types/proxy-binding'
 
 const props = defineProps<
   { binding?: ProxyBinding; knownAddresses?: string[]; knownDomains?: string[] }
@@ -49,6 +50,101 @@ const inputEl = ref<HTMLInputElement | null>(null)
 const loading = ref(false)
 const error = ref<string | null>(null)
 
+const contacts = ref<ProxyBindingContact[]>([])
+const contactsLoading = ref(false)
+const contactsError = ref<string | null>(null)
+const newContactEmail = ref('')
+const newContactDescription = ref('')
+const addingContact = ref(false)
+const copiedContactId = ref<string | null>(null)
+
+async function copyContactEmail(c: ProxyBindingContact) {
+  try {
+    await navigator.clipboard.writeText(c.recipient_email)
+  }
+  catch {
+    return
+  }
+  copiedContactId.value = c.id
+  setTimeout(() => { copiedContactId.value = null }, 1500)
+}
+
+async function fetchContacts() {
+  if (!props.binding?.id) return
+  contactsLoading.value = true
+  contactsError.value = null
+  try {
+    const res = await fetch(`/api/v1/proxy-bindings/${props.binding.id}/contacts`, {
+      headers: { Token: localStorage.getItem('api_token') ?? '' },
+    })
+    if (!res.ok) throw new Error(t('form.errorFetchContacts'))
+    const data = await res.json()
+    contacts.value = data.data.map((item: {
+      id: string
+      attributes: { recipient_email: string; reverse_proxy_address: string; description: string; status: number }
+    }) => ({
+      id: item.id,
+      recipient_email: item.attributes.recipient_email,
+      reverse_proxy_address: item.attributes.reverse_proxy_address,
+      description: item.attributes.description ?? '',
+      status: item.attributes.status,
+    }))
+  }
+  catch (e) {
+    contactsError.value = e instanceof Error ? e.message : String(e)
+  }
+  finally {
+    contactsLoading.value = false
+  }
+}
+
+async function addContact() {
+  if (!newContactEmail.value.trim()) return
+  addingContact.value = true
+  contactsError.value = null
+  try {
+    const res = await fetch('/api/v1/contacts', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Token: localStorage.getItem('api_token') ?? '',
+      },
+      body: JSON.stringify({
+        data: {
+          type: 'proxy_binding_contacts',
+          attributes: {
+            recipient_email: newContactEmail.value.trim(),
+            description: newContactDescription.value.trim(),
+          },
+          relationships: {
+            proxy_binding: {
+              data: { type: 'proxy_bindings', id: props.binding!.id },
+            },
+          },
+        },
+      }),
+    })
+    if (!res.ok) throw new Error(t('form.errorAddContact'))
+    const data = await res.json()
+    const item = data.data
+    contacts.value.push({
+      id: item.id,
+      recipient_email: item.attributes.recipient_email,
+      reverse_proxy_address: item.attributes.reverse_proxy_address,
+      description: item.attributes.description ?? '',
+      status: item.attributes.status,
+    })
+    newContactEmail.value = ''
+    newContactDescription.value = ''
+  }
+  catch (e) {
+    contactsError.value = e instanceof Error ? e.message : String(e)
+  }
+  finally {
+    addingContact.value = false
+  }
+}
+
 const editAddressCount = computed(() =>
   Object.keys(editRealAddresses.value).length
 )
@@ -76,8 +172,17 @@ watch(
     inputValue.value = ''
     localPart.value = ''
     domain.value = props.knownDomains?.[0] ?? ''
+    contacts.value = []
+    newContactEmail.value = ''
+    newContactDescription.value = ''
+    contactsError.value = null
+    if (b?.id) fetchContacts()
   },
 )
+
+onMounted(() => {
+  if (isEdit) fetchContacts()
+})
 
 function selectAddress(addr: string) {
   if (!selectedAddresses.value.includes(addr)) {
@@ -309,6 +414,58 @@ async function submit() {
         </ul>
       </div>
       <small>{{ t('form.addressHint') }}</small>
+    </div>
+
+    <div v-if="isEdit" class="field">
+      <label>{{ t('form.contacts') }}</label>
+      <div class="contacts-list">
+        <div v-if="contactsLoading" class="contacts-status">{{ t('form.loadingContacts') }}</div>
+        <template v-else>
+          <div v-if="contacts.length === 0" class="contacts-status">{{ t('form.noContacts') }}</div>
+          <div v-for="c in contacts" :key="c.id" class="contact-row">
+            <div class="contact-row-top">
+              <div class="contact-main">
+                <span class="contact-email">{{ c.recipient_email }}</span>
+                <span v-if="c.description" class="contact-desc">{{ c.description }}</span>
+              </div>
+              <button
+                type="button"
+                class="contact-copy"
+                :class="{ copied: copiedContactId === c.id }"
+                :title="copiedContactId === c.id ? t('list.copied') : t('list.copyAddress')"
+                @click="copyContactEmail(c)"
+              >
+                <Copy v-if="copiedContactId !== c.id" :size="14" />
+                <Check v-else :size="14" />
+              </button>
+            </div>
+            <span class="contact-reverse" :title="t('form.contactsHint')">{{ c.reverse_proxy_address }}</span>
+          </div>
+        </template>
+      </div>
+      <div class="contact-add">
+        <input
+          v-model="newContactEmail"
+          type="email"
+          :placeholder="t('form.contactEmailPlaceholder')"
+          class="contact-input"
+          autocomplete="off"
+        />
+        <input
+          v-model="newContactDescription"
+          :placeholder="t('form.contactDescPlaceholder')"
+          class="contact-input"
+          autocomplete="off"
+        />
+        <button
+          type="button"
+          :disabled="addingContact || !newContactEmail.trim()"
+          @click="addContact"
+        >
+          {{ addingContact ? t('form.addingContact') : t('form.addContact') }}
+        </button>
+      </div>
+      <p v-if="contactsError" class="error">{{ contactsError }}</p>
     </div>
 
     <p v-if="error" class="error">{{ error }}</p>
@@ -648,6 +805,136 @@ button[type="button"] {
 button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.contacts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border, #ddd);
+  border-radius: 4px;
+  background: var(--color-background-soft, #f8f8f8);
+  min-height: 2.5rem;
+}
+
+.contacts-status {
+  font-size: 0.8rem;
+  opacity: 0.5;
+}
+
+.contact-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.contact-row-top {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+@media (min-width: 540px) {
+  .contact-row {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .contact-row-top {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .contact-reverse {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.contact-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.contact-email {
+  font-family: monospace;
+  font-size: 0.875rem;
+}
+
+.contact-desc {
+  font-size: 0.75rem;
+  opacity: 0.6;
+}
+
+.contact-reverse {
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: var(--color-text);
+  opacity: 0.55;
+  word-break: break-all;
+  cursor: help;
+}
+
+.contact-copy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 4px;
+  background: none;
+  cursor: pointer;
+  color: var(--color-text);
+  opacity: 0.45;
+  padding: 0;
+  transition: opacity 0.15s, color 0.15s;
+}
+
+/* Needs higher specificity than button[type="button"] */
+button.contact-copy {
+  display: inline-flex;
+  background: none;
+  padding: 0;
+}
+
+.contact-copy:hover {
+  opacity: 1;
+}
+
+.contact-copy.copied {
+  color: #059669;
+  opacity: 1;
+}
+
+@media (prefers-color-scheme: dark) {
+  .contact-copy.copied {
+    color: #6ee7b7;
+  }
+}
+
+.contact-add {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-top: 0.35rem;
+}
+
+.contact-input {
+  flex: 1;
+  min-width: 10rem;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--color-border, #ddd);
+  border-radius: 4px;
+  font-size: 0.875rem;
+  background: var(--color-background, #fff);
+  color: var(--color-text);
 }
 
 .error {

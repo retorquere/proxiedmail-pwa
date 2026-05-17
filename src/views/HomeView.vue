@@ -233,10 +233,16 @@ function logout() {
 
 <style scoped>
 .page {
-  max-width: 800px;
   margin: 0 auto;
-  padding: 1.5rem;
+  padding: 0.5rem;
   position: relative;
+}
+
+@media (min-width: 600px) {
+  .page {
+    max-width: 800px;
+    padding: 1.5rem;
+  }
 }
 
 /* Pull-to-refresh */
@@ -279,11 +285,14 @@ function logout() {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 .page-header h1 {
   margin: 0;
   font-size: 1.5rem;
+  flex-shrink: 0;
 }
 
 .header-actions {

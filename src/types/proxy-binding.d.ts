@@ -13,3 +13,11 @@ export interface ProxyBinding {
   received_emails?: number
   real_addresses?: Record<string, RealAddress>
 }
+
+export interface ProxyBindingContact {
+  id: string
+  recipient_email: string
+  reverse_proxy_address: string
+  description: string
+  status: number
+}

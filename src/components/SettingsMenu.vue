@@ -2,10 +2,12 @@
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useLocaleStore, type SupportedLocale } from '../stores/locale'
+import { useThemeStore } from '../stores/theme'
 
 const emit = defineEmits<{ (e: 'signout'): void }>()
 const { t } = useI18n()
 const localeStore = useLocaleStore()
+const themeStore = useThemeStore()
 const open = ref(false)
 
 const languages: { code: SupportedLocale; label: string }[] = [
@@ -59,6 +61,25 @@ function onBlur(e: FocusEvent) {
     </button>
 
     <div v-if="open" class="dropdown" role="menu">
+      <p class="dropdown-label">{{ t('settings.theme') }}</p>
+      <div class="theme-toggle" role="group" :aria-label="t('settings.theme')">
+        <button
+          class="theme-option"
+          :class="{ active: themeStore.theme === 'light' }"
+          @click="themeStore.setTheme('light')"
+        >{{ t('settings.themeLight') }}</button>
+        <button
+          class="theme-option"
+          :class="{ active: themeStore.theme === 'system' }"
+          @click="themeStore.setTheme('system')"
+        >{{ t('settings.themeSystem') }}</button>
+        <button
+          class="theme-option"
+          :class="{ active: themeStore.theme === 'dark' }"
+          @click="themeStore.setTheme('dark')"
+        >{{ t('settings.themeDark') }}</button>
+      </div>
+      <hr class="dropdown-divider" />
       <p class="dropdown-label">{{ t('settings.language') }}</p>
       <button
         v-for="lang in languages"
@@ -166,6 +187,42 @@ function onBlur(e: FocusEvent) {
   border: none;
   border-top: 1px solid var(--color-border);
   margin: 0.3rem 0;
+}
+
+.theme-toggle {
+  display: flex;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 0 0.25rem 0.4rem;
+}
+
+.theme-option {
+  flex: 1;
+  padding: 0.3rem 0;
+  border: none;
+  border-radius: 0;
+  background: none;
+  color: var(--color-text);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+  opacity: 0.6;
+}
+
+.theme-option + .theme-option {
+  border-left: 1px solid var(--color-border);
+}
+
+.theme-option:hover {
+  background: var(--color-border);
+  opacity: 1;
+}
+
+.theme-option.active {
+  background: #4f46e5;
+  color: #fff;
+  opacity: 1;
 }
 
 .signout-option {

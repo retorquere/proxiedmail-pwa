@@ -190,6 +190,49 @@ paths:
       requestBody:
         $ref: "#/components/requestBodies/AuthRequest"
 
+  /api/v1/proxy-bindings/{bindingId}/contacts:
+    get:
+      parameters:
+        - name: bindingId
+          in: path
+          description: ID of the proxy binding whose contacts to list
+          required: true
+          schema:
+            type: string
+      tags:
+        - contact
+      summary: List contacts for a proxy binding
+      description: Returns all contacts for a given proxy binding. Contacts are email addresses that can send mail via the proxy address using their assigned reverse proxy address.
+      operationId: listContacts
+      responses:
+        "200":
+          $ref: "#/components/responses/ProxyBindingContactListResponse"
+        "401":
+          description: "Unauthorized — invalid or missing API token"
+          $ref: "#/components/responses/ErrorResponse"
+      security:
+        - api_key:
+            - default
+
+  /api/v1/contacts:
+    post:
+      tags:
+        - contact
+      summary: Create a contact for a proxy binding
+      description: Creates a new contact linking a recipient email to a proxy binding. The contact is assigned a reverse proxy address they can send from so that outgoing mail appears to come from the proxy address.
+      operationId: createContact
+      responses:
+        "201":
+          $ref: "#/components/responses/ProxyBindingContactResponse"
+        "401":
+          description: "Unauthorized — invalid or missing API token"
+          $ref: "#/components/responses/ErrorResponse"
+      security:
+        - api_key:
+            - default
+      requestBody:
+        $ref: "#/components/requestBodies/ProxyBindingContactCreateRequest"
+
 externalDocs:
   description: Find out more about Swagger
   url: http://swagger.io
@@ -382,6 +425,102 @@ components:
                   type: string
                 password:
                   type: string
+
+    ProxyBindingContact:
+      description: A contact linking a recipient email to a proxy binding, with an assigned reverse proxy address for outbound sending.
+      properties:
+        type:
+          type: string
+          enum:
+            - proxy_binding_contacts
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            status:
+              type: integer
+              format: int32
+            recipient_email:
+              type: string
+            reverse_proxy_address:
+              type: string
+              description: The address the contact should send from to have mail appear as coming from the proxy address.
+            description:
+              type: string
+        relationships:
+          type: object
+          properties:
+            proxy_binding:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                    id:
+                      type: string
+            reverse_proxy_binding:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                    id:
+                      type: string
+            user:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                    id:
+                      type: string
+
+    ProxyBindingContactCreate:
+      description: Request body for creating a new contact for a proxy binding.
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+                - proxy_binding_contacts
+            attributes:
+              type: object
+              required:
+                - recipient_email
+              properties:
+                recipient_email:
+                  type: string
+                  description: The email address of the contact.
+                description:
+                  type: string
+                  description: Optional human-readable label for this contact.
+            relationships:
+              type: object
+              required:
+                - proxy_binding
+              properties:
+                proxy_binding:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                            - proxy_bindings
+                        id:
+                          type: string
+                          description: ID of the proxy binding this contact belongs to.
 
     CallbackPayload:
       description: Payload stored for a registered callback, including processing status and any data received.
@@ -578,6 +717,28 @@ components:
               data:
                 $ref: "#/components/schemas/ProxyBinding"
 
+    ProxyBindingContactListResponse:
+      description: "List of contacts for a proxy binding."
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProxyBindingContact"
+
+    ProxyBindingContactResponse:
+      description: "Single contact returned after successful creation."
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                $ref: "#/components/schemas/ProxyBindingContact"
+
     CallbackPayloadResponse:
       description: "Callback entry including its processing status and the payload data received at the callback URL."
       content:
@@ -613,6 +774,13 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/ProxyBindingUpdate"
+
+    ProxyBindingContactCreateRequest:
+      description: Payload for creating a new contact for a proxy binding.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ProxyBindingContactCreate"
 
   securitySchemes:
     api_auth:

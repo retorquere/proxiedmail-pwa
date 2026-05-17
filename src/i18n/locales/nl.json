@@ -30,7 +30,17 @@
     "removeAddress": "Adres verwijderen",
     "save": "Opslaan",
     "saving": "Opslaan\u2026",
-    "unverified": "Niet geverifieerd"
+    "unverified": "Niet geverifieerd",
+    "contacts": "Contacten",
+    "contactsHint": "Stuur e-mail via dit proxy-adres door te mailen naar het reverse proxy-adres hieronder.",
+    "noContacts": "Nog geen contacten.",
+    "loadingContacts": "Contacten laden\u2026",
+    "contactEmailPlaceholder": "E-mailadres contact",
+    "contactDescPlaceholder": "Omschrijving (optioneel)",
+    "addContact": "Contact toevoegen",
+    "addingContact": "Toevoegen\u2026",
+    "errorFetchContacts": "Ophalen van contacten mislukt",
+    "errorAddContact": "Toevoegen van contact mislukt"
   },
   "home": {
     "newProxy": "+ Nieuw proxy-e-mailadres",
@@ -63,6 +73,10 @@
   },
   "settings": {
     "language": "Taal",
+    "theme": "Thema",
+    "themeLight": "Licht",
+    "themeSystem": "Auto",
+    "themeDark": "Donker",
     "title": "Instellingen"
   }
 }
