@@ -233,6 +233,31 @@ paths:
       requestBody:
         $ref: "#/components/requestBodies/ProxyBindingContactCreateRequest"
 
+  /gapi/custom-domains:
+    get:
+      tags:
+        - domain
+      summary: List available custom domains
+      description: Returns the list of custom domains available to the authenticated user. The domains pdxmail.net, pdxmail.com and proxiedmail.com are always available and are not included in this response.
+      operationId: listCustomDomains
+      parameters:
+        - name: ignoreProcessing
+          in: query
+          description: When set to 1, includes domains that are still being processed.
+          required: false
+          schema:
+            type: integer
+            enum: [0, 1]
+      responses:
+        "200":
+          $ref: "#/components/responses/CustomDomainsResponse"
+        "401":
+          description: "Unauthorized — invalid or missing API token"
+          $ref: "#/components/responses/ErrorResponse"
+      security:
+        - api_key:
+            - default
+
 externalDocs:
   description: Find out more about Swagger
   url: http://swagger.io
@@ -522,6 +547,38 @@ components:
                           type: string
                           description: ID of the proxy binding this contact belongs to.
 
+    CustomDomain:
+      description: A custom domain available to the user for creating proxy email addresses.
+      properties:
+        id:
+          type: string
+        user_id:
+          type: integer
+          format: int32
+        domain:
+          type: string
+        display_name:
+          type: string
+        status:
+          type: integer
+          format: int32
+        isShared:
+          type: boolean
+        isPremium:
+          type: boolean
+        dkimKey:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        verification_hash:
+          type: string
+        spf:
+          type: string
+
     CallbackPayload:
       description: Payload stored for a registered callback, including processing status and any data received.
       properties:
@@ -752,6 +809,15 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/OauthAccessToken"
+
+    CustomDomainsResponse:
+      description: "Array of custom domains available to the authenticated user."
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/CustomDomain"
 
   requestBodies:
     ProxyBindingCreateRequest:

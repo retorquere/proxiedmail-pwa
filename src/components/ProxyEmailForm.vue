@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { generateSlug } from 'random-word-slugs'
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { Check, Copy } from '@lucide/vue'
 import type { ProxyBinding, ProxyBindingContact, RealAddress } from '../types/proxy-binding'
+import { apiFetch } from '../utils/api'
+import { makeLocalPart } from '../utils/generate'
 
 const props = defineProps<
   { binding?: ProxyBinding; knownAddresses?: string[]; knownDomains?: string[] }
@@ -16,27 +17,10 @@ const { t } = useI18n()
 
 const isEdit = !!props.binding?.id
 
-function makeSlug() {
-  return generateSlug(3, {
-    partsOfSpeech: ['adjective', 'noun', 'noun'],
-    categories: {
-      noun: [
-        'business',
-        'education',
-        'media',
-        'thing',
-        'technology',
-        'science',
-      ],
-      adjective: ['appearance', 'condition', 'personality', 'quantity'],
-    },
-  })
-}
-
 // In create mode, proxy_address is split into localPart + domain
 const existingProxyAddress = props.binding?.proxy_address ?? ''
 const proxy_address = ref(existingProxyAddress) // used in edit mode display only
-const localPart = ref(isEdit ? '' : makeSlug())
+const localPart = ref(isEdit ? '' : makeLocalPart())
 const domain = ref(props.knownDomains?.[0] ?? '')
 const description = ref(props.binding?.description ?? '')
 // For edit: local copy of real_addresses to toggle is_enabled
@@ -74,7 +58,7 @@ async function fetchContacts() {
   contactsLoading.value = true
   contactsError.value = null
   try {
-    const res = await fetch(`/api/v1/proxy-bindings/${props.binding.id}/contacts`, {
+    const res = await apiFetch(`/api/v1/proxy-bindings/${props.binding.id}/contacts`, {
       headers: { Token: localStorage.getItem('api_token') ?? '' },
     })
     if (!res.ok) throw new Error(t('form.errorFetchContacts'))
@@ -103,7 +87,7 @@ async function addContact() {
   addingContact.value = true
   contactsError.value = null
   try {
-    const res = await fetch('/api/v1/contacts', {
+    const res = await apiFetch('/api/v1/contacts', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -170,7 +154,7 @@ watch(
     )
     selectedAddresses.value = []
     inputValue.value = ''
-    localPart.value = ''
+    localPart.value = isEdit ? '' : makeLocalPart()
     domain.value = props.knownDomains?.[0] ?? ''
     contacts.value = []
     newContactEmail.value = ''
@@ -249,7 +233,7 @@ async function submit() {
       for (const addr of selectedAddresses.value) {
         patchedAddresses[addr] = { is_enabled: true }
       }
-      const res = await fetch(`/api/v1/proxy-bindings/${props.binding!.id}`, {
+      const res = await apiFetch(`/api/v1/proxy-bindings/${props.binding!.id}`, {
         method: 'PATCH',
         headers,
         body: JSON.stringify({
@@ -270,7 +254,7 @@ async function submit() {
       const fullAddress = domain.value
         ? `${localPart.value}@${domain.value}`
         : localPart.value
-      const res = await fetch('/api/v1/proxy-bindings', {
+      const res = await apiFetch('/api/v1/proxy-bindings', {
         method: 'POST',
         headers,
         body: JSON.stringify({
@@ -322,7 +306,7 @@ async function submit() {
           type="button"
           class="proxy-refresh"
           :title="t('form.generateNew')"
-          @click="localPart = makeSlug()"
+          @click="localPart = makeLocalPart()"
         >
           &#x21BA;
         </button>

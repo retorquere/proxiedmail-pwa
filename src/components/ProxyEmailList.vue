@@ -4,6 +4,7 @@ import { computed, onMounted, ref } from 'vue'
 import { Check, Copy, SquarePen, Trash2 } from '@lucide/vue'
 
 import type { ProxyBinding } from '../types/proxy-binding'
+import { apiFetch } from '../utils/api'
 
 const { t } = useI18n()
 
@@ -23,7 +24,7 @@ async function fetchProxyBindings(
   }
   error.value = null
   try {
-    const res = await fetch('/api/v1/proxy-bindings', {
+    const res = await apiFetch('/api/v1/proxy-bindings', {
       headers: {
         Token: localStorage.getItem('api_token') ?? '',
       },
@@ -96,12 +97,25 @@ const allRealAddresses = computed(() => {
   return [...set].sort()
 })
 
-const allDomains = computed(() => {
-  const set = new Set<string>()
-  for (const b of proxyBindings.value) {
-    const at = b.proxy_address.indexOf('@')
-    if (at !== -1) set.add(b.proxy_address.slice(at + 1))
+const ALWAYS_AVAILABLE_DOMAINS = ['pdxmail.net', 'pdxmail.com', 'proxiedmail.com']
+const customDomains = ref<string[]>([])
+
+async function fetchCustomDomains() {
+  try {
+    const res = await apiFetch('/gapi/custom-domains?ignoreProcessing=1', {
+      headers: { Token: localStorage.getItem('api_token') ?? '' },
+    })
+    if (!res.ok) return
+    const data: Array<{ domain: string }> = await res.json()
+    customDomains.value = data.map(d => d.domain)
   }
+  catch {
+    // silently ignore — always-available domains are still shown
+  }
+}
+
+const allDomains = computed(() => {
+  const set = new Set<string>([...ALWAYS_AVAILABLE_DOMAINS, ...customDomains.value])
   return [...set].sort()
 })
 
@@ -129,7 +143,7 @@ async function toggleEnabled(binding: ProxyBinding) {
     Object.keys(addrs).map(addr => [addr, !nowEnabled]),
   )
   try {
-    const res = await fetch(`/api/v1/proxy-bindings/${binding.id}`, {
+    const res = await apiFetch(`/api/v1/proxy-bindings/${binding.id}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -163,7 +177,10 @@ async function toggleEnabled(binding: ProxyBinding) {
   }
 }
 
-onMounted(fetchProxyBindings)
+onMounted(() => {
+  fetchProxyBindings()
+  fetchCustomDomains()
+})
 defineExpose({ fetchProxyBindings, allRealAddresses, allDomains, refreshingId })
 </script>
 

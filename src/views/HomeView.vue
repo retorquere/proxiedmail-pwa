@@ -7,6 +7,7 @@ import ProxyEmailList from '../components/ProxyEmailList.vue'
 import SettingsMenu from '../components/SettingsMenu.vue'
 import { useAuthStore } from '../stores/auth'
 import type { ProxyBinding } from '../types/proxy-binding'
+import { apiFetch } from '../utils/api'
 
 const { t } = useI18n()
 const auth = useAuthStore()
@@ -87,7 +88,7 @@ async function confirmDelete() {
   deleteModal.value.deleting = true
   deleteModal.value.error = null
   try {
-    const res = await fetch(
+    const res = await apiFetch(
       `/api/v1/proxy-bindings/${deleteModal.value.binding.id}`,
       {
         method: 'DELETE',
