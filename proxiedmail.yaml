@@ -233,6 +233,25 @@ paths:
       requestBody:
         $ref: "#/components/requestBodies/ProxyBindingContactCreateRequest"
 
+  /gapi/passwords/proxy-binding:
+    post:
+      tags:
+        - password
+      summary: Set a password for a proxy binding
+      description: Sets or replaces the password associated with a proxy binding.
+      operationId: setProxyBindingPassword
+      responses:
+        "200":
+          $ref: "#/components/responses/ProxyBindingPasswordResponse"
+        "401":
+          description: "Unauthorized — invalid or missing API token"
+          $ref: "#/components/responses/ErrorResponse"
+      security:
+        - api_key:
+            - default
+      requestBody:
+        $ref: "#/components/requestBodies/ProxyBindingPasswordSetRequest"
+
   /gapi/custom-domains:
     get:
       tags:
@@ -547,6 +566,19 @@ components:
                           type: string
                           description: ID of the proxy binding this contact belongs to.
 
+    ProxyBindingPasswordSet:
+      description: Request body for setting a password on a proxy binding.
+      properties:
+        proxy_binding_id:
+          type: string
+          description: ID of the proxy binding to set the password for.
+        password:
+          type: string
+          description: The password to set.
+      required:
+        - proxy_binding_id
+        - password
+
     CustomDomain:
       description: A custom domain available to the user for creating proxy email addresses.
       properties:
@@ -796,6 +828,16 @@ components:
               data:
                 $ref: "#/components/schemas/ProxyBindingContact"
 
+    ProxyBindingPasswordResponse:
+      description: "Confirmation that the password was set successfully."
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+
     CallbackPayloadResponse:
       description: "Callback entry including its processing status and the payload data received at the callback URL."
       content:
@@ -840,6 +882,13 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/ProxyBindingUpdate"
+
+    ProxyBindingPasswordSetRequest:
+      description: Payload for setting a password on a proxy binding.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ProxyBindingPasswordSet"
 
     ProxyBindingContactCreateRequest:
       description: Payload for creating a new contact for a proxy binding.

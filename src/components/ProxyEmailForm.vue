@@ -42,6 +42,27 @@ const newContactDescription = ref('')
 const pendingContacts = ref<Array<{ email: string; description: string }>>([])
 const copiedContactId = ref<string | null>(null)
 
+const password = ref('')
+const pwLength = ref(16)
+const pwLetters = ref(true)
+const pwNumbers = ref(true)
+const pwSymbols = ref(true)
+const showPassword = ref(false)
+
+function generatePassword() {
+  const letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+  const numbers = '0123456789'
+  const symbols = '!@#$%^&*()-_=+[]{}|;:,.<>?'
+  let charset = ''
+  if (pwLetters.value) charset += letters
+  if (pwNumbers.value) charset += numbers
+  if (pwSymbols.value) charset += symbols
+  if (!charset) return
+  const buf = new Uint32Array(pwLength.value)
+  crypto.getRandomValues(buf)
+  password.value = Array.from(buf, x => charset[x % charset.length]).join('')
+}
+
 function addToPending() {
   const email = newContactEmail.value.trim()
   if (!email) return
@@ -127,6 +148,8 @@ watch(
     newContactDescription.value = ''
     pendingContacts.value = []
     contactsError.value = null
+    password.value = ''
+    showPassword.value = false
     if (b?.id) fetchContacts()
   },
 )
@@ -237,6 +260,18 @@ async function submit() {
           }),
         })
         if (!contactRes.ok) throw new Error(t('form.errorAddContact'))
+      }
+
+      if (password.value) {
+        const pwRes = await apiFetch('/gapi/passwords/proxy-binding', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            proxy_binding_id: props.binding!.id,
+            password: password.value,
+          }),
+        })
+        if (!pwRes.ok) throw new Error(t('form.errorSavePassword'))
       }
     }
     else {
@@ -455,6 +490,34 @@ async function submit() {
         </button>
       </div>
       <p v-if="contactsError" class="error">{{ contactsError }}</p>
+    </div>
+
+    <div v-if="isEdit" class="field">
+      <label>{{ t('form.password') }}</label>
+      <div class="pw-row">
+        <input
+          v-model="password"
+          :type="showPassword ? 'text' : 'password'"
+          class="pw-input"
+          autocomplete="new-password"
+          :placeholder="t('form.passwordPlaceholder')"
+        />
+        <button type="button" class="pw-toggle" @click="showPassword = !showPassword">
+          {{ showPassword ? t('form.hidePassword') : t('form.showPassword') }}
+        </button>
+      </div>
+      <div class="pw-generator">
+        <button type="button" class="pw-generate" @click="generatePassword">
+          {{ t('form.generatePassword') }}
+        </button>
+        <label class="pw-opt">
+          {{ t('form.pwLength') }}
+          <input v-model.number="pwLength" type="number" min="8" max="128" class="pw-length" />
+        </label>
+        <label class="pw-opt"><input v-model="pwLetters" type="checkbox" /> {{ t('form.pwLetters') }}</label>
+        <label class="pw-opt"><input v-model="pwNumbers" type="checkbox" /> {{ t('form.pwNumbers') }}</label>
+        <label class="pw-opt"><input v-model="pwSymbols" type="checkbox" /> {{ t('form.pwSymbols') }}</label>
+      </div>
     </div>
 
     <p v-if="error" class="error">{{ error }}</p>
@@ -986,5 +1049,77 @@ button.contact-copy {
 .error {
   color: #dc2626;
   font-size: 0.875rem;
+}
+
+.pw-row {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.pw-input {
+  flex: 1;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--color-border, #ccc);
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.9rem;
+  background: var(--color-background, #fff);
+  color: var(--color-text);
+  min-width: 0;
+}
+
+.pw-toggle {
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--color-border, #ccc);
+  border-radius: 4px;
+  background: var(--color-background-soft);
+  color: var(--color-text);
+  font-size: 0.8rem;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.pw-generator {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.35rem;
+}
+
+.pw-generate {
+  padding: 0.35rem 0.75rem;
+  border: none;
+  border-radius: 4px;
+  background: #4f46e5;
+  color: #fff;
+  font-size: 0.8rem;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.pw-generate:hover {
+  background: #4338ca;
+}
+
+.pw-opt {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+  color: var(--color-text);
+  cursor: pointer;
+  user-select: none;
+}
+
+.pw-length {
+  width: 3.5rem;
+  padding: 0.2rem 0.35rem;
+  border: 1px solid var(--color-border, #ccc);
+  border-radius: 4px;
+  font-size: 0.8rem;
+  background: var(--color-background, #fff);
+  color: var(--color-text);
+  text-align: center;
 }
 </style>
