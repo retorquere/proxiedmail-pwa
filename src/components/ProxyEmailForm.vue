@@ -39,8 +39,20 @@ const contactsLoading = ref(false)
 const contactsError = ref<string | null>(null)
 const newContactEmail = ref('')
 const newContactDescription = ref('')
-const addingContact = ref(false)
+const pendingContacts = ref<Array<{ email: string; description: string }>>([])
 const copiedContactId = ref<string | null>(null)
+
+function addToPending() {
+  const email = newContactEmail.value.trim()
+  if (!email) return
+  pendingContacts.value.push({ email, description: newContactDescription.value.trim() })
+  newContactEmail.value = ''
+  newContactDescription.value = ''
+}
+
+function removePending(index: number) {
+  pendingContacts.value.splice(index, 1)
+}
 
 async function copyContactEmail(c: ProxyBindingContact) {
   try {
@@ -82,52 +94,6 @@ async function fetchContacts() {
   }
 }
 
-async function addContact() {
-  if (!newContactEmail.value.trim()) return
-  addingContact.value = true
-  contactsError.value = null
-  try {
-    const res = await apiFetch('/api/v1/contacts', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Token: localStorage.getItem('api_token') ?? '',
-      },
-      body: JSON.stringify({
-        data: {
-          type: 'proxy_binding_contacts',
-          attributes: {
-            recipient_email: newContactEmail.value.trim(),
-            description: newContactDescription.value.trim(),
-          },
-          relationships: {
-            proxy_binding: {
-              data: { type: 'proxy_bindings', id: props.binding!.id },
-            },
-          },
-        },
-      }),
-    })
-    if (!res.ok) throw new Error(t('form.errorAddContact'))
-    const data = await res.json()
-    const item = data.data
-    contacts.value.push({
-      id: item.id,
-      recipient_email: item.attributes.recipient_email,
-      reverse_proxy_address: item.attributes.reverse_proxy_address,
-      description: item.attributes.description ?? '',
-      status: item.attributes.status,
-    })
-    newContactEmail.value = ''
-    newContactDescription.value = ''
-  }
-  catch (e) {
-    contactsError.value = e instanceof Error ? e.message : String(e)
-  }
-  finally {
-    addingContact.value = false
-  }
-}
 
 const editAddressCount = computed(() =>
   Object.keys(editRealAddresses.value).length
@@ -159,6 +125,7 @@ watch(
     contacts.value = []
     newContactEmail.value = ''
     newContactDescription.value = ''
+    pendingContacts.value = []
     contactsError.value = null
     if (b?.id) fetchContacts()
   },
@@ -249,12 +216,34 @@ async function submit() {
         }),
       })
       if (!res.ok) throw new Error(t('form.errorUpdate'))
+
+      if (newContactEmail.value.trim()) {
+        const contactRes = await apiFetch('/api/v1/contacts', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            data: {
+              type: 'proxy_binding_contacts',
+              attributes: {
+                recipient_email: newContactEmail.value.trim(),
+                description: newContactDescription.value.trim(),
+              },
+              relationships: {
+                proxy_binding: {
+                  data: { type: 'proxy_bindings', id: props.binding!.id },
+                },
+              },
+            },
+          }),
+        })
+        if (!contactRes.ok) throw new Error(t('form.errorAddContact'))
+      }
     }
     else {
       const fullAddress = domain.value
         ? `${localPart.value}@${domain.value}`
         : localPart.value
-      const res = await apiFetch('/api/v1/proxy-bindings', {
+      const res = await apiFetch('/api/v1/proxy-bindings?fast-mode=1', {
         method: 'POST',
         headers,
         body: JSON.stringify({
@@ -427,6 +416,21 @@ async function submit() {
           </div>
         </template>
       </div>
+      <div v-if="pendingContacts.length" class="pending-contacts">
+        <div v-for="(p, i) in pendingContacts" :key="i" class="pending-row">
+          <div class="pending-main">
+            <span class="contact-email">{{ p.email }}</span>
+            <span v-if="p.description" class="contact-desc">{{ p.description }}</span>
+          </div>
+          <span class="pending-badge">{{ t('form.pendingContact') }}</span>
+          <button
+            type="button"
+            class="pending-remove"
+            :title="t('form.removeAddress')"
+            @click="removePending(i)"
+          >&#x2715;</button>
+        </div>
+      </div>
       <div class="contact-add">
         <input
           v-model="newContactEmail"
@@ -434,6 +438,7 @@ async function submit() {
           :placeholder="t('form.contactEmailPlaceholder')"
           class="contact-input"
           autocomplete="off"
+          @keydown.enter.prevent="addToPending"
         />
         <input
           v-model="newContactDescription"
@@ -443,10 +448,10 @@ async function submit() {
         />
         <button
           type="button"
-          :disabled="addingContact || !newContactEmail.trim()"
-          @click="addContact"
+          :disabled="!newContactEmail.trim()"
+          @click="addToPending"
         >
-          {{ addingContact ? t('form.addingContact') : t('form.addContact') }}
+          {{ t('form.addContact') }}
         </button>
       </div>
       <p v-if="contactsError" class="error">{{ contactsError }}</p>
@@ -901,6 +906,63 @@ button.contact-copy {
   .contact-copy.copied {
     color: #6ee7b7;
   }
+}
+
+.pending-contacts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-top: 0.35rem;
+}
+
+.pending-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  background: var(--color-background-soft);
+  border: 1px dashed var(--color-border);
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+.pending-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.pending-badge {
+  font-size: 0.7rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  background: #fef3c7;
+  color: #92400e;
+  flex-shrink: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .pending-badge {
+    background: #451a03;
+    color: #fde68a;
+  }
+}
+
+.pending-remove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text);
+  opacity: 0.5;
+  padding: 0.1rem 0.25rem;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+
+.pending-remove:hover {
+  opacity: 1;
 }
 
 .contact-add {

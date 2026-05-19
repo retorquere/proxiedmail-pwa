@@ -39,12 +39,23 @@
     "contactDescPlaceholder": "Omschrijving (optioneel)",
     "addContact": "Contact toevoegen",
     "addingContact": "Toevoegen\u2026",
+    "pendingContact": "in afwachting",
     "errorFetchContacts": "Ophalen van contacten mislukt",
     "errorAddContact": "Toevoegen van contact mislukt"
   },
+  "contacts": {
+    "empty": "Nog geen contacten.",
+    "errorFetch": "Ophalen van contacten mislukt",
+    "filterPlaceholder": "Filteren op e-mail, omschrijving of proxy\u2026",
+    "loading": "Contacten laden\u2026",
+    "noResults": "Geen resultaten voor \u201e{query}\u201c.",
+    "via": "via"
+  },
   "home": {
     "newProxy": "+ Nieuw proxy-e-mailadres",
-    "signOut": "Afmelden"
+    "signOut": "Afmelden",
+    "tabContacts": "Contacten",
+    "tabProxies": "Proxy's"
   },
   "list": {
     "browsable": "Doorzoekbaar",

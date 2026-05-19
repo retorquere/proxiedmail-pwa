@@ -181,7 +181,7 @@ onMounted(() => {
   fetchProxyBindings()
   fetchCustomDomains()
 })
-defineExpose({ fetchProxyBindings, allRealAddresses, allDomains, refreshingId })
+defineExpose({ fetchProxyBindings, allRealAddresses, allDomains, refreshingId, proxyBindings })
 </script>
 
 <template>

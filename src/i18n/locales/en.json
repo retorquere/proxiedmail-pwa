@@ -39,12 +39,23 @@
     "contactDescPlaceholder": "Description (optional)",
     "addContact": "Add Contact",
     "addingContact": "Adding\u2026",
+    "pendingContact": "pending",
     "errorFetchContacts": "Failed to fetch contacts",
     "errorAddContact": "Failed to add contact"
   },
+  "contacts": {
+    "empty": "No contacts yet.",
+    "errorFetch": "Failed to fetch contacts",
+    "filterPlaceholder": "Filter by email, description or proxy\u2026",
+    "loading": "Loading contacts\u2026",
+    "noResults": "No results for \"{query}\".",
+    "via": "via"
+  },
   "home": {
     "newProxy": "+ New proxy email",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "tabContacts": "Contacts",
+    "tabProxies": "Proxies"
   },
   "list": {
     "browsable": "Browsable",

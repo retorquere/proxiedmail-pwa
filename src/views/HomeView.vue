@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import ContactList from '../components/ContactList.vue'
 import ProxyEmailForm from '../components/ProxyEmailForm.vue'
 import ProxyEmailList from '../components/ProxyEmailList.vue'
 import SettingsMenu from '../components/SettingsMenu.vue'
@@ -52,6 +53,12 @@ async function onTouchEnd() {
 }
 // --- end pull-to-refresh ---
 
+const activeTab = ref<'proxies' | 'contacts'>('proxies')
+const contactsActivated = ref(false)
+watch(activeTab, (tab) => {
+  if (tab === 'contacts') contactsActivated.value = true
+})
+
 const formVisible = ref(false)
 const editingBinding = ref<ProxyBinding | undefined>(undefined)
 
@@ -63,6 +70,11 @@ function showCreate() {
 function onEdit(binding: ProxyBinding) {
   editingBinding.value = binding
   formVisible.value = true
+}
+
+function onOpenProxy(binding: ProxyBinding) {
+  activeTab.value = 'proxies'
+  onEdit(binding)
 }
 
 const deleteModal = ref<
@@ -155,12 +167,29 @@ function logout() {
     <header class="page-header">
       <h1>{{ t('app.name') }}</h1>
       <div class="header-actions">
-        <button v-if="!formVisible" @click="showCreate">
+        <button v-if="!formVisible && activeTab === 'proxies'" @click="showCreate">
           {{ t('home.newProxy') }}
         </button>
         <SettingsMenu @signout="logout" />
       </div>
     </header>
+
+    <nav v-if="!formVisible" class="tabs">
+      <button
+        class="tab"
+        :class="{ active: activeTab === 'proxies' }"
+        @click="activeTab = 'proxies'"
+      >
+        {{ t('home.tabProxies') }}
+      </button>
+      <button
+        class="tab"
+        :class="{ active: activeTab === 'contacts' }"
+        @click="activeTab = 'contacts'"
+      >
+        {{ t('home.tabContacts') }}
+      </button>
+    </nav>
 
     <ProxyEmailForm
       v-if="formVisible"
@@ -177,10 +206,17 @@ function logout() {
     />
 
     <ProxyEmailList
-      v-show="!formVisible"
+      v-show="!formVisible && activeTab === 'proxies'"
       ref="listRef"
       @edit="onEdit"
       @delete="onDelete"
+    />
+
+    <ContactList
+      v-if="contactsActivated"
+      v-show="!formVisible && activeTab === 'contacts'"
+      :proxy-bindings="listRef?.proxyBindings ?? []"
+      @open-proxy="onOpenProxy"
     />
 
     <Teleport to="body">
@@ -285,9 +321,47 @@ function logout() {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   flex-wrap: wrap;
   gap: 0.5rem;
+}
+
+.tabs {
+  display: flex;
+  margin-bottom: 1.25rem;
+  border-bottom: 2px solid var(--color-border);
+}
+
+.tab {
+  padding: 0.5rem 1.25rem;
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: none;
+  color: var(--color-text);
+  font-size: 0.9rem;
+  cursor: pointer;
+  opacity: 0.6;
+  margin-bottom: -2px;
+  transition: opacity 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.tab:hover {
+  opacity: 0.9;
+}
+
+.tab.active {
+  border-bottom-color: #4f46e5;
+  color: #4f46e5;
+  opacity: 1;
+  font-weight: 600;
+}
+
+@media (prefers-color-scheme: dark) {
+  .tab.active {
+    color: #a5b4fc;
+    border-bottom-color: #a5b4fc;
+  }
 }
 
 .page-header h1 {
