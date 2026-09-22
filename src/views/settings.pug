@@ -1,0 +1,46 @@
+wa-dialog#settings-dialog(label=t('account.settings'))
+  .modal-heading
+    p.eyebrow= t('account.settings')
+    h2= t('account.settingsHeading')
+  .settings-form
+    wa-select#locale-select(label=t('i18n.language') size='s' value='en')
+      wa-option(value='en')= t('i18n.english')
+      wa-option(value='es')= t('i18n.spanish')
+    .settings-section.retention-group
+      h3= t('account.messageRetentionHeading')
+      p.muted= t('account.messageRetentionDescription')
+      wa-select#message-retention(label=t('account.messageRetentionLabel') value=messageRetention)
+        wa-option(value='1-day')= t('account.messageRetentionOneDay')
+        wa-option(value='3-days')= t('account.messageRetentionThreeDays')
+        wa-option(value='never')= t('account.messageRetentionNever')
+    wa-button#bitwarden-button(appearance='outlined')= t('account.bitwardenIntegration')
+    wa-dialog#bitwarden-dialog(label=t('account.bitwardenIntegration'))
+      .settings-section
+        h3= t('account.bitwardenHeading')
+        p.muted= t('account.bitwardenIntro')
+        ol.integration-steps
+          li= t('account.bitwardenStepOne')
+          li= t('account.bitwardenStepTwo')
+          li= t('account.bitwardenStepThree')
+          li= t('account.bitwardenStepFour')
+          li= t('account.bitwardenStepFive')
+        wa-input(label=t('account.bitwardenService') readonly value='Addy.io')
+        wa-select(label=t('account.bitwardenDomain') value=bitwardenDomain)
+          each domain in availableDomains
+            wa-option(value=domain)= domain
+        wa-input(label=t('account.bitwardenApiKey') readonly value=token)
+        wa-input(label=t('account.bitwardenServerUrl') readonly value='https://proxiedmail.com')
+    .settings-section.target-replace-group
+      h3= t('account.replaceTarget')
+      p.muted= t('account.replaceTargetHint')
+      wa-select#old-email(label=t('account.oldTarget') required)
+        each target in targetEmails
+          wa-option(value=target)= target
+      wa-input#new-email(label=t('account.newTarget') type='email' placeholder=t('create.forwardPlaceholder'))
+      wa-button#replace-email(appearance='outlined')= t('account.replaceTargetAction')
+    wa-switch#hide-iam-rich(checked=hideIamRich)= t('account.hideIamRich')
+    p.muted= t('account.hideIamRichHint')
+    wa-switch#mail-info-banner(checked=mailInfoEnabled)= t('account.mailInfoBanner')
+    p.muted= t('account.mailInfoHint')
+    #settings-error.error-message(hidden)
+    wa-button#save-settings(variant='brand')= t('detail.save')

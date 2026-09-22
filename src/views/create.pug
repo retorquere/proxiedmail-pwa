@@ -1,0 +1,17 @@
+wa-dialog#create-dialog(label=t('create.title'))
+  .modal-heading
+    p.eyebrow= t('create.title')
+    h2= t('create.heading')
+    p.muted= t('create.description')
+  form#create-form.detail-form
+    .address-row
+      .address-input-row
+        wa-input#proxy-address(label=t('create.address') required pattern='[a-zA-Z0-9._%+-]+' placeholder=t('create.addressPlaceholder'))
+        wa-button#generate-address(appearance='outlined' size='s' type='button' aria-label=t('create.generateAddress'))!= icon('Sparkles', 16)
+      wa-select#domain-select(label=t('create.domain') required)
+        wa-option(value='')= t('create.loadingDomains')
+    wa-input#real-address(label=t('create.forwardTo') type='email' required placeholder=t('create.forwardPlaceholder'))
+    #create-error.error-message(hidden)
+    .dialog-actions
+      wa-button#cancel-create(appearance='outlined' type='button')= t('create.cancel')
+      wa-button(variant='brand' type='submit')!= icon('ArrowRight', 17) + ' ' + t('create.submit')

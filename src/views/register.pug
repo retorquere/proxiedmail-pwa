@@ -1,0 +1,11 @@
+wa-dialog#register-dialog(label=t('auth.createAccount'))
+  .modal-heading
+    p.eyebrow= t('auth.createAccount')
+    h2= t('auth.registerHeading')
+    p.muted= t('auth.registerDescription')
+  form#register-form.detail-form
+    wa-input#register-username(label=t('auth.email') type='email' required autocomplete='username' placeholder='you@example.com')
+    wa-input#register-password(label=t('auth.password') type='password' required password-toggle autocomplete='new-password' placeholder='Your password')
+    wa-input#register-password-confirm(label=t('auth.confirmPassword') type='password' required password-toggle autocomplete='new-password' placeholder=t('auth.confirmPasswordPlaceholder'))
+    #register-error.error-message(hidden)
+    wa-button#register-submit(variant='brand' type='submit' disabled)= t('auth.createAccount')

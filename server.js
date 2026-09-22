@@ -1,0 +1,21 @@
+import express from 'express';
+import { createProxyMiddleware } from 'http-proxy-middleware';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
+
+const root = path.dirname(fileURLToPath(import.meta.url));
+const app = express();
+const port = Number(process.env.PORT || 4173);
+
+for (const prefix of ['/api/v1', '/gapi']) {
+  app.use(prefix, createProxyMiddleware({ target: 'https://proxiedmail.com', changeOrigin: true, secure: true }));
+}
+
+app.use(express.static(path.join(root, 'dist')));
+app.use((request, response, next) => {
+  if (request.method === 'GET' && request.accepts('html')) {
+    return response.sendFile(path.join(root, 'dist', 'index.html'));
+  }
+  return next();
+});
+app.listen(port, '127.0.0.1', () => console.log(`Mailroom available at http://127.0.0.1:${port}`));

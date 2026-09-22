@@ -1,0 +1,28 @@
+{
+  "name": "proxiedmail-dashboard",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "npm run compile:pug && vite",
+    "build": "npm run compile:pug && vite build",
+    "serve": "npm run build && node server.js",
+    "start": "node server.js",
+    "compile:pug": "node scripts/compile-pug.mjs",
+    "check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@awesome.me/webawesome": "^3.13.0",
+    "@fluent/bundle": "^0.19.1",
+    "express": "^5.2.1",
+    "http-proxy-middleware": "^4.2.0",
+    "lucide": "^1.47.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.1.0",
+    "pug": "^3.0.4",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.0"
+  }
+}

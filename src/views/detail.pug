@@ -1,0 +1,29 @@
+wa-dialog#detail-dialog(label=t('detail.title'))
+  wa-dropdown(slot='header-actions')
+    wa-button(slot='trigger' appearance='plain' size='s' type='button' aria-label=t('detail.advanced'))!= icon('Ellipsis', 19)
+    .advanced-fields
+      wa-input#binding-callback(label=t('detail.callback') type='url' value=binding.callback_url || '' placeholder=t('detail.callbackPlaceholder'))
+      wa-input#binding-password(label=t('detail.sitePassword') type='password' password-toggle autocomplete='new-password' placeholder=t('detail.sitePasswordPlaceholder'))
+      wa-input#binding-used-on(label=t('detail.usedOn') placeholder=t('detail.usedOnPlaceholder'))
+      small.muted= t('detail.usedOnHint')
+  .modal-heading
+    p.eyebrow= t('detail.title')
+    h2= binding.proxy_address
+    wa-button#copy-address(appearance='plain' size='s' type='button')!= icon('Copy', 15) + ' ' + t('detail.copy')
+  .detail-layout
+    .detail-summary
+      .detail-stat
+        label= t('detail.forwardingTo')
+        strong= recipients.length ? recipients.join(', ') : t('detail.noRecipient')
+      .detail-stat
+        label= t('detail.messagesForwarded')
+        strong= binding.received_emails || 0
+    form#edit-binding.detail-form
+      wa-input#binding-description(label=t('detail.description') value=binding.description || '' placeholder=t('detail.descriptionPlaceholder'))
+      wa-input#binding-recipient(label=t('detail.recipient') type='email' required value=recipients[0] || '' placeholder=t('detail.recipientPlaceholder'))
+      #detail-error.error-message(hidden)
+      wa-button(variant='brand' type='submit')!= icon('Check', 17) + ' ' + t('detail.save')
+    .detail-actions
+      wa-button#received-button(appearance='outlined' disabled=!binding.is_browsable type='button')!= icon('Inbox', 17) + ' ' + (binding.is_browsable ? t('detail.viewMessages') : t('detail.messagesOff'))
+      wa-button#delete-binding(appearance='plain' variant='danger' type='button')!= icon('Trash2', 17) + ' ' + t('detail.delete')
+    #received-list.message-list(hidden)

@@ -1,0 +1,26 @@
+main.auth-shell
+  .auth-layout
+    section.auth-story
+      .brand-lockup!= icon('Mail', 22) + ' ' + t('brand.name')
+      p.eyebrow= t('auth.privateMailroom')
+      h1= t('auth.headlineOne')
+        br
+        strong= t('auth.headlineTwo')
+      p.lede= t('auth.lede')
+      .story-notes
+        span!= icon('ShieldCheck', 17) + ' ' + t('auth.privateByDefault')
+        span!= icon('Zap', 17) + ' ' + t('auth.instantControl')
+    section.auth-card
+      p.eyebrow= t('auth.access')
+      h2= t('auth.welcome')
+      p.muted= t('auth.signInDescription')
+      form#auth-form.auth-form
+        wa-input#username(label=t('auth.email') type='email' required autocomplete='username' placeholder='you@example.com')
+        wa-input#password(label=t('auth.password') type='password' required password-toggle autocomplete='current-password' placeholder='Your password')
+        #auth-error.error-message(hidden)
+        .auth-actions
+          wa-button(variant='brand' size='l' type='submit')!= icon('ArrowUpRight', 18) + ' ' + t('auth.open')
+      .auth-divider= t('auth.or')
+      wa-button#account-button(variant='neutral' appearance='outlined' size='l')= t('auth.createAccount')
+    #auth-modal-root
+      p.muted= t('auth.signupHint')
