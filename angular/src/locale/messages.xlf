@@ -24,10 +24,25 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/layout/default-layout/default-layout.component.html</context>
-          <context context-type="linenumber">9,10</context>
+          <context context-type="linenumber">10,11</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/views/settings/settings.component.html</context>
+          <context context-type="linenumber">4,5</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8143267823133938052" datatype="html">
+        <source>Domains</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.routes.ts</context>
+          <context context-type="linenumber">28</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/layout/default-layout/default-layout.component.html</context>
+          <context context-type="linenumber">9,10</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/domains/domains.component.html</context>
           <context context-type="linenumber">4,5</context>
         </context-group>
       </trans-unit>
@@ -46,7 +61,7 @@
         <source>Sign out</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/layout/default-layout/default-layout.component.html</context>
-          <context context-type="linenumber">12,13</context>
+          <context context-type="linenumber">13,14</context>
         </context-group>
       </trans-unit>
       <trans-unit id="5829895782217005252" datatype="html">
@@ -405,6 +420,10 @@
           <context context-type="sourcefile">src/app/views/dashboard/dashboard.component.html</context>
           <context context-type="linenumber">75,76</context>
         </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/proxy-binding-card/proxy-binding-card.component.html</context>
+          <context context-type="linenumber">72,73</context>
+        </context-group>
       </trans-unit>
       <trans-unit id="4971516674166640292" datatype="html">
         <source>Search aliases</source>
@@ -420,81 +439,420 @@
           <context context-type="linenumber">90,91</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="7585826646011739428" datatype="html">
-        <source>Edit</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/views/dashboard/dashboard.component.html</context>
-          <context context-type="linenumber">102,103</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="1883138045798839334" datatype="html">
-        <source>recipient(s)</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/views/dashboard/dashboard.component.html</context>
-          <context context-type="linenumber">106</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="2630346684249694851" datatype="html">
-        <source>forwarded</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/views/dashboard/dashboard.component.html</context>
-          <context context-type="linenumber">107</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="2223283913032152637" datatype="html">
-        <source>Forwarding</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/views/dashboard/dashboard.component.html</context>
-          <context context-type="linenumber">110,111</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="7121242430370139603" datatype="html">
-        <source>EDIT PROXY</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/views/dashboard/dashboard.component.html</context>
-          <context context-type="linenumber">121,122</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="2011811111835112405" datatype="html">
-        <source>Forward to</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/views/dashboard/dashboard.component.html</context>
-          <context context-type="linenumber">122,123</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="2159130950882492111" datatype="html">
-        <source>Cancel</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/views/dashboard/dashboard.component.html</context>
-          <context context-type="linenumber">125,126</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="7000649363168371045" datatype="html">
-        <source>Save changes</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/views/dashboard/dashboard.component.html</context>
-          <context context-type="linenumber">126,127</context>
-        </context-group>
-      </trans-unit>
       <trans-unit id="8990769651805334695" datatype="html">
         <source>On</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/views/dashboard/dashboard.component.ts</context>
-          <context context-type="linenumber">35</context>
+          <context context-type="linenumber">34</context>
         </context-group>
       </trans-unit>
       <trans-unit id="3500458863157551898" datatype="html">
         <source>Off</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/views/dashboard/dashboard.component.ts</context>
-          <context context-type="linenumber">35</context>
+          <context context-type="linenumber">34</context>
         </context-group>
       </trans-unit>
       <trans-unit id="7268424205958108383" datatype="html">
         <source>Private forwarding address</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/views/dashboard/dashboard.component.ts</context>
-          <context context-type="linenumber">38</context>
+          <context context-type="linenumber">37</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/proxy-binding-card/proxy-binding-card.component.ts</context>
+          <context context-type="linenumber">48</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7121242430370139603" datatype="html">
+        <source>EDIT PROXY</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/proxy-binding-card/proxy-binding-card.component.html</context>
+          <context context-type="linenumber">6,7</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7022070615528435141" datatype="html">
+        <source>Delete</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/proxy-binding-card/proxy-binding-card.component.html</context>
+          <context context-type="linenumber">9</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2159130950882492111" datatype="html">
+        <source>Cancel</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/proxy-binding-card/proxy-binding-card.component.html</context>
+          <context context-type="linenumber">9</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/proxy-binding-card/proxy-binding-card.component.html</context>
+          <context context-type="linenumber">117</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4902817035128594900" datatype="html">
+        <source>Description</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/proxy-binding-card/proxy-binding-card.component.html</context>
+          <context context-type="linenumber">12,13</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2011811111835112405" datatype="html">
+        <source>Forward to</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/proxy-binding-card/proxy-binding-card.component.html</context>
+          <context context-type="linenumber">17,18</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6824252838256313323" datatype="html">
+        <source>Remove recipient</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/proxy-binding-card/proxy-binding-card.component.html</context>
+          <context context-type="linenumber">21</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5899010126475440722" datatype="html">
+        <source>Type a new email address</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/proxy-binding-card/proxy-binding-card.component.html</context>
+          <context context-type="linenumber">28,29</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8821221480638803282" datatype="html">
+        <source>Advanced settings</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/proxy-binding-card/proxy-binding-card.component.html</context>
+          <context context-type="linenumber">34,35</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="924662538456812418" datatype="html">
+        <source>Callback URL</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/proxy-binding-card/proxy-binding-card.component.html</context>
+          <context context-type="linenumber">36</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="830123351311902913" datatype="html">
+        <source>Used on site(s)</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/proxy-binding-card/proxy-binding-card.component.html</context>
+          <context context-type="linenumber">37</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3380142774132532024" datatype="html">
+        <source>example.com, shop.example</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/proxy-binding-card/proxy-binding-card.component.html</context>
+          <context context-type="linenumber">37</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3207435086939733836" datatype="html">
+        <source>Site password</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/proxy-binding-card/proxy-binding-card.component.html</context>
+          <context context-type="linenumber">39,40</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5796769216439483009" datatype="html">
+        <source>Generate password</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/proxy-binding-card/proxy-binding-card.component.html</context>
+          <context context-type="linenumber">41</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/proxy-binding-card/proxy-binding-card.component.html</context>
+          <context context-type="linenumber">41</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7000649363168371045" datatype="html">
+        <source>Save changes</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/proxy-binding-card/proxy-binding-card.component.html</context>
+          <context context-type="linenumber">46</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4519337332606498525" datatype="html">
+        <source>Copy proxy address</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/proxy-binding-card/proxy-binding-card.component.html</context>
+          <context context-type="linenumber">50</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/proxy-binding-card/proxy-binding-card.component.html</context>
+          <context context-type="linenumber">50</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7035910514625668718" datatype="html">
+        <source>Open contacts</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/proxy-binding-card/proxy-binding-card.component.html</context>
+          <context context-type="linenumber">50</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/proxy-binding-card/proxy-binding-card.component.html</context>
+          <context context-type="linenumber">50</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7585826646011739428" datatype="html">
+        <source>Edit</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/proxy-binding-card/proxy-binding-card.component.html</context>
+          <context context-type="linenumber">50,51</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1883138045798839334" datatype="html">
+        <source>recipient(s)</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/proxy-binding-card/proxy-binding-card.component.html</context>
+          <context context-type="linenumber">54</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2630346684249694851" datatype="html">
+        <source>forwarded</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/proxy-binding-card/proxy-binding-card.component.html</context>
+          <context context-type="linenumber">55</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2223283913032152637" datatype="html">
+        <source>Forwarding</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/proxy-binding-card/proxy-binding-card.component.html</context>
+          <context context-type="linenumber">56</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5397845829564444693" datatype="html">
+        <source>Create contact</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/proxy-binding-card/proxy-binding-card.component.html</context>
+          <context context-type="linenumber">66,67</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7819314041543176992" datatype="html">
+        <source>Close</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/proxy-binding-card/proxy-binding-card.component.html</context>
+          <context context-type="linenumber">67</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4362315159248031557" datatype="html">
+        <source>Proxy address:</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/proxy-binding-card/proxy-binding-card.component.html</context>
+          <context context-type="linenumber">69</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1018916089630945017" datatype="html">
+        <source>Where do you want to send the email?</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/proxy-binding-card/proxy-binding-card.component.html</context>
+          <context context-type="linenumber">70,71</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2518089105460264719" datatype="html">
+        <source>Created contacts</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/proxy-binding-card/proxy-binding-card.component.html</context>
+          <context context-type="linenumber">74,75</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1135854718740374199" datatype="html">
+        <source>Loading contacts...</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/proxy-binding-card/proxy-binding-card.component.html</context>
+          <context context-type="linenumber">76,77</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8536087068859233516" datatype="html">
+        <source>Copy contact address</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/proxy-binding-card/proxy-binding-card.component.html</context>
+          <context context-type="linenumber">84</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/proxy-binding-card/proxy-binding-card.component.html</context>
+          <context context-type="linenumber">84</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8359406288236166273" datatype="html">
+        <source>No contacts created yet.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/proxy-binding-card/proxy-binding-card.component.html</context>
+          <context context-type="linenumber">88,89</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1191521651694391452" datatype="html">
+        <source>How to use contacts</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/proxy-binding-card/proxy-binding-card.component.html</context>
+          <context context-type="linenumber">92,93</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1668188257971133786" datatype="html">
+        <source>To send an email from your alias to a contact, you need to create a reverse alias, a special email address.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/proxy-binding-card/proxy-binding-card.component.html</context>
+          <context context-type="linenumber">94,95</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="943368221655118162" datatype="html">
+        <source>When you send an email to the reverse alias, the email will be sent from your alias to the contact.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/proxy-binding-card/proxy-binding-card.component.html</context>
+          <context context-type="linenumber">95,96</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2040706873738519596" datatype="html">
+        <source>Reverse alias example</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/proxy-binding-card/proxy-binding-card.component.html</context>
+          <context context-type="linenumber">96</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4751509703489550821" datatype="html">
+        <source>This might seem like magic, but trust us: only the first time is a bit awkward.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/proxy-binding-card/proxy-binding-card.component.html</context>
+          <context context-type="linenumber">97,98</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7810244051116006676" datatype="html">
+        <source>Make sure you send the email from your mailbox</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/proxy-binding-card/proxy-binding-card.component.html</context>
+          <context context-type="linenumber">99</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7515883357904500238" datatype="html">
+        <source>Are you sure?</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/proxy-binding-card/proxy-binding-card.component.html</context>
+          <context context-type="linenumber">115,116</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2307303478216430764" datatype="html">
+        <source>You are about to delete this proxy address. If you only want to stop receiving emails from it, turn off forwarding instead. Please note that deleted proxy addresses still count toward your usage.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/proxy-binding-card/proxy-binding-card.component.html</context>
+          <context context-type="linenumber">116,117</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2193204372662302002" datatype="html">
+        <source>Delete proxy</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/proxy-binding-card/proxy-binding-card.component.html</context>
+          <context context-type="linenumber">117</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3412836484609596161" datatype="html">
+        <source>Contact address copied.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/proxy-binding-card/proxy-binding-card.component.ts</context>
+          <context context-type="linenumber">85</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7971083672854304911" datatype="html">
+        <source>Proxy address copied.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/proxy-binding-card/proxy-binding-card.component.ts</context>
+          <context context-type="linenumber">99</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2139845219983837503" datatype="html">
+        <source>ACCOUNT DOMAINS</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/domains/domains.component.html</context>
+          <context context-type="linenumber">3,4</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2561388472599014145" datatype="html">
+        <source>Custom domains available for your proxy addresses.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/domains/domains.component.html</context>
+          <context context-type="linenumber">5,6</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6964362995091500544" datatype="html">
+        <source>Loading domains...</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/domains/domains.component.html</context>
+          <context context-type="linenumber">12,13</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="465416597323273567" datatype="html">
+        <source>Setup status</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/domains/domains.component.html</context>
+          <context context-type="linenumber">24,25</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7784264119438453052" datatype="html">
+        <source>Domain ownership verification</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/domains/domains.component.html</context>
+          <context context-type="linenumber">27,28</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6910408844063781916" datatype="html">
+        <source>MX record</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/domains/domains.component.html</context>
+          <context context-type="linenumber">31,32</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3830666717087670529" datatype="html">
+        <source>SPF</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/domains/domains.component.html</context>
+          <context context-type="linenumber">36</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8590866686979801424" datatype="html">
+        <source>DKIM</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/domains/domains.component.html</context>
+          <context context-type="linenumber">39,40</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2618084603155777207" datatype="html">
+        <source>DMARC</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/domains/domains.component.html</context>
+          <context context-type="linenumber">43,44</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3630856774407742977" datatype="html">
+        <source>No custom domains are available.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/domains/domains.component.html</context>
+          <context context-type="linenumber">52,54</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6660154447634557034" datatype="html">
+        <source>Unable to load custom domains.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/domains/domains.component.ts</context>
+          <context context-type="linenumber">27</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6871978162033547403" datatype="html">
+        <source>Not reported</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/domains/domains.component.ts</context>
+          <context context-type="linenumber">35</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5014960004929658159" datatype="html">
+        <source>Verified</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/domains/domains.component.ts</context>
+          <context context-type="linenumber">36</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="991761096918819245" datatype="html">
+        <source>Not verified</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/domains/domains.component.ts</context>
+          <context context-type="linenumber">36</context>
         </context-group>
       </trans-unit>
       <trans-unit id="5080775557941296581" datatype="html">
@@ -664,207 +1022,257 @@
           <context context-type="linenumber">12,13</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="1975336893361348045" datatype="html">
-        <source>This browser</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/views/settings/settings.component.html</context>
-          <context context-type="linenumber">26,27</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="1277092044903718527" datatype="html">
-        <source>These choices are saved only in this browser.</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/views/settings/settings.component.html</context>
-          <context context-type="linenumber">27,28</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="2826581353496868063" datatype="html">
-        <source>Language</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/views/settings/settings.component.html</context>
-          <context context-type="linenumber">29,30</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="651854741571738747" datatype="html">
-        <source>Hide iam-rich.net from the proxy domain list</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/views/settings/settings.component.html</context>
-          <context context-type="linenumber">37,38</context>
-        </context-group>
-      </trans-unit>
       <trans-unit id="4073760267688290583" datatype="html">
         <source>Your account</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/views/settings/settings.component.html</context>
-          <context context-type="linenumber">46,47</context>
+          <context context-type="linenumber">26,27</context>
         </context-group>
       </trans-unit>
       <trans-unit id="3540672678893696165" datatype="html">
         <source>These choices are saved to your ProxiedMail account.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/views/settings/settings.component.html</context>
-          <context context-type="linenumber">47,48</context>
+          <context context-type="linenumber">27,28</context>
         </context-group>
       </trans-unit>
       <trans-unit id="1647179447280058192" datatype="html">
         <source>Received-message retention</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/views/settings/settings.component.html</context>
-          <context context-type="linenumber">49,50</context>
+          <context context-type="linenumber">29,30</context>
         </context-group>
       </trans-unit>
       <trans-unit id="4776429682428363094" datatype="html">
         <source>1 day</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/views/settings/settings.component.html</context>
-          <context context-type="linenumber">51,52</context>
+          <context context-type="linenumber">31,32</context>
         </context-group>
       </trans-unit>
       <trans-unit id="867108466740792122" datatype="html">
         <source>3 days</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/views/settings/settings.component.html</context>
-          <context context-type="linenumber">52,53</context>
+          <context context-type="linenumber">32,33</context>
         </context-group>
       </trans-unit>
       <trans-unit id="8372007266188249803" datatype="html">
         <source>Never</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/views/settings/settings.component.html</context>
-          <context context-type="linenumber">53,54</context>
+          <context context-type="linenumber">33,34</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8974420223959678003" datatype="html">
+        <source>Default proxy domain</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/settings/settings.component.html</context>
+          <context context-type="linenumber">37,38</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4296248553106131476" datatype="html">
+        <source>Remove ProxiedMail mail-info banner in forwarded emails</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/settings/settings.component.html</context>
+          <context context-type="linenumber">44,45</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1819178446046454529" datatype="html">
+        <source>Password length</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/settings/settings.component.html</context>
+          <context context-type="linenumber">48,49</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6603445290087965451" datatype="html">
+        <source>Use letters</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/settings/settings.component.html</context>
+          <context context-type="linenumber">51</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="9025021289543280725" datatype="html">
+        <source>Use numbers</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/settings/settings.component.html</context>
+          <context context-type="linenumber">52</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="9065466775541845020" datatype="html">
+        <source>Use symbols</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/settings/settings.component.html</context>
+          <context context-type="linenumber">53</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1975336893361348045" datatype="html">
+        <source>This browser</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/settings/settings.component.html</context>
+          <context context-type="linenumber">61,62</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1277092044903718527" datatype="html">
+        <source>These choices are saved only in this browser.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/settings/settings.component.html</context>
+          <context context-type="linenumber">62,63</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2826581353496868063" datatype="html">
+        <source>Language</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/settings/settings.component.html</context>
+          <context context-type="linenumber">64,65</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="651854741571738747" datatype="html">
+        <source>Hide iam-rich.net from the proxy domain list</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/settings/settings.component.html</context>
+          <context context-type="linenumber">72,73</context>
         </context-group>
       </trans-unit>
       <trans-unit id="8878700331247603166" datatype="html">
         <source>Security</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/views/settings/settings.component.html</context>
-          <context context-type="linenumber">63,64</context>
+          <context context-type="linenumber">81,82</context>
         </context-group>
       </trans-unit>
       <trans-unit id="29442318690635301" datatype="html">
         <source>Two-factor authentication protects changes to your account.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/views/settings/settings.component.html</context>
-          <context context-type="linenumber">64,65</context>
+          <context context-type="linenumber">82,83</context>
         </context-group>
       </trans-unit>
       <trans-unit id="3892825090402620438" datatype="html">
         <source>Two-factor authentication</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/views/settings/settings.component.html</context>
-          <context context-type="linenumber">66,67</context>
+          <context context-type="linenumber">84,85</context>
         </context-group>
       </trans-unit>
       <trans-unit id="2658424416565652268" datatype="html">
         <source>Disable two-factor authentication</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/views/settings/settings.component.html</context>
-          <context context-type="linenumber">70,71</context>
+          <context context-type="linenumber">88,89</context>
         </context-group>
       </trans-unit>
       <trans-unit id="9215140276209199106" datatype="html">
         <source>Two-factor setup is not available in this client yet.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/views/settings/settings.component.html</context>
-          <context context-type="linenumber">72,73</context>
+          <context context-type="linenumber">90,91</context>
         </context-group>
       </trans-unit>
       <trans-unit id="283145638756863919" datatype="html">
         <source>INTEGRATION</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/views/settings/settings.component.html</context>
-          <context context-type="linenumber">82,83</context>
+          <context context-type="linenumber">100,101</context>
         </context-group>
       </trans-unit>
       <trans-unit id="4133860116578220565" datatype="html">
         <source>Bitwarden setup</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/views/settings/settings.component.html</context>
-          <context context-type="linenumber">83,84</context>
+          <context context-type="linenumber">101,102</context>
         </context-group>
       </trans-unit>
       <trans-unit id="1953100218726586153" datatype="html">
         <source>ProxiedMail currently emulates Bitwarden&apos;s Addy.io integration. Please ask Bitwarden to add a proper ProxiedMail integration in the <x id="START_LINK" ctype="x-a" equiv-text="&lt;a href=&quot;https://github.com/bitwarden/clients/pull/20766&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;"/>ProxiedMail integration request<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/>.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/views/settings/settings.component.html</context>
-          <context context-type="linenumber">87,88</context>
+          <context context-type="linenumber">105,106</context>
         </context-group>
       </trans-unit>
       <trans-unit id="81150266015662754" datatype="html">
         <source>In Bitwarden, open Generator, choose Username, then choose Forwarded email alias.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/views/settings/settings.component.html</context>
-          <context context-type="linenumber">89,90</context>
+          <context context-type="linenumber">107,108</context>
         </context-group>
       </trans-unit>
       <trans-unit id="4671562292257026998" datatype="html">
         <source>API key</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/views/settings/settings.component.html</context>
-          <context context-type="linenumber">91</context>
+          <context context-type="linenumber">109</context>
         </context-group>
       </trans-unit>
       <trans-unit id="3383222391266911755" datatype="html">
         <source>Email domain: one of</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/views/settings/settings.component.html</context>
-          <context context-type="linenumber">96,97</context>
+          <context context-type="linenumber">114,115</context>
         </context-group>
       </trans-unit>
       <trans-unit id="7459500313189963649" datatype="html">
         <source>Self-host server URL</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/views/settings/settings.component.html</context>
-          <context context-type="linenumber">102</context>
+          <context context-type="linenumber">120</context>
         </context-group>
       </trans-unit>
       <trans-unit id="2661655895393078244" datatype="html">
         <source>Select Generate to create the alias in ProxiedMail.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/views/settings/settings.component.html</context>
-          <context context-type="linenumber">103,104</context>
+          <context context-type="linenumber">121,122</context>
         </context-group>
       </trans-unit>
       <trans-unit id="2764815722505395699" datatype="html">
         <source>Treat this API key like a password. Anyone who has it can access your ProxiedMail account.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/views/settings/settings.component.html</context>
-          <context context-type="linenumber">105,106</context>
+          <context context-type="linenumber">123,124</context>
         </context-group>
       </trans-unit>
       <trans-unit id="412098242291426657" datatype="html">
         <source>Unable to load settings.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/views/settings/settings.component.ts</context>
-          <context context-type="linenumber">47</context>
+          <context context-type="linenumber">59</context>
         </context-group>
       </trans-unit>
       <trans-unit id="2037812837109831482" datatype="html">
         <source>Settings saved.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/views/settings/settings.component.ts</context>
-          <context context-type="linenumber">69</context>
+          <context context-type="linenumber">74</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/settings/settings.component.ts</context>
+          <context context-type="linenumber">104</context>
         </context-group>
       </trans-unit>
       <trans-unit id="8118866603612492394" datatype="html">
         <source>Unable to save settings.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/views/settings/settings.component.ts</context>
-          <context context-type="linenumber">72</context>
+          <context context-type="linenumber">77</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/settings/settings.component.ts</context>
+          <context context-type="linenumber">107</context>
         </context-group>
       </trans-unit>
       <trans-unit id="1776537486744869379" datatype="html">
         <source>Two-factor authentication disabled.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/views/settings/settings.component.ts</context>
-          <context context-type="linenumber">83</context>
+          <context context-type="linenumber">118</context>
         </context-group>
       </trans-unit>
       <trans-unit id="5767650259795109024" datatype="html">
         <source>Unable to disable two-factor authentication.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/views/settings/settings.component.ts</context>
-          <context context-type="linenumber">85</context>
+          <context context-type="linenumber">120</context>
         </context-group>
       </trans-unit>
     </body>

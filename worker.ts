@@ -18,6 +18,10 @@ export default {
       return proxyApiRequest(request, env, url);
     }
 
+    if (url.pathname === '/login' || url.pathname === '/login/') {
+      return Response.redirect(`${url.origin}/login.html${url.search}`, 302);
+    }
+
     return env.ASSETS.fetch(request);
   },
 };

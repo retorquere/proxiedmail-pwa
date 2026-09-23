@@ -46,7 +46,9 @@ jobs:
         run: npm run build
 
       - name: Verify Flutter artifact
-        run: test -f build/web/index.html
+        run: |
+          test -f build/web/index.html
+          test -f build/web/login.html
 
       - name: Prepare Flutter Cloudflare artifact
         run: |
@@ -90,7 +92,7 @@ jobs:
       - name: Prepare Angular Cloudflare artifact
         run: |
           artifact="$RUNNER_TEMP/angular"
-          output=$(find angular/dist/coreui-free-angular-admin-template -maxdepth 2 -name index.html -print -quit | xargs dirname)
+          output=$(find angular/dist/proxiedmail-angular -maxdepth 2 -name index.html -print -quit | xargs dirname)
           mkdir -p "$artifact/dist"
           cp -R "$output"/. "$artifact/dist/"
           cp angular/worker.ts angular/wrangler.jsonc "$artifact/"
