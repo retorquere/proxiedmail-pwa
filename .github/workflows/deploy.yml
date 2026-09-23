@@ -10,7 +10,7 @@ permissions:
   contents: write
 
 jobs:
-  deploy:
+  flutter:
     runs-on: ubuntu-latest
     env:
       FLUTTER_VERSION: 3.47.5
@@ -48,13 +48,6 @@ jobs:
       - name: Verify Flutter artifact
         run: test -f build/web/index.html
 
-      - name: Build Angular Web
-        working-directory: angular
-        run: |
-          npm ci
-          npx ng build --configuration production
-          npm run extract-i18n
-
       - name: Prepare Flutter Cloudflare artifact
         run: |
           artifact="$RUNNER_TEMP/flutter"
@@ -72,6 +65,27 @@ jobs:
           publish_branch: flutter
           publish_dir: ${{ runner.temp }}/flutter
           force_orphan: true
+
+  angular:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: angular/package-lock.json
+
+      - name: Build Angular Web
+        working-directory: angular
+        run: |
+          npm ci
+          npx ng build --configuration production
+          npm run extract-i18n
 
       - name: Prepare Angular Cloudflare artifact
         run: |
