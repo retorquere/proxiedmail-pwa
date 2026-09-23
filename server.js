@@ -8,13 +8,18 @@ const app = express();
 const port = Number(process.env.PORT || 4173);
 
 for (const prefix of ['/api/v1', '/gapi']) {
-  app.use(prefix, createProxyMiddleware({ target: 'https://proxiedmail.com', changeOrigin: true, secure: true }));
+  app.use(prefix, createProxyMiddleware({
+    target: 'https://proxiedmail.com',
+    changeOrigin: true,
+    secure: true,
+    pathRewrite: (path) => `${prefix}${path}`,
+  }));
 }
 
-app.use(express.static(path.join(root, 'dist')));
+app.use(express.static(path.join(root, 'build', 'web')));
 app.use((request, response, next) => {
   if (request.method === 'GET' && request.accepts('html')) {
-    return response.sendFile(path.join(root, 'dist', 'index.html'));
+    return response.sendFile(path.join(root, 'build', 'web', 'index.html'));
   }
   return next();
 });

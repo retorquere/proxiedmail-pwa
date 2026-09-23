@@ -4,29 +4,22 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "npm run compile:pug && vite",
-    "build": "npm run compile:pug && vite build",
+    "dev": "node server.js",
+    "build": "flutter build web",
     "serve": "npm run build && node server.js",
     "start": "node server.js",
-    "compile:pug": "node scripts/compile-pug.mjs",
-    "check": "tsc --noEmit",
+    "check": "flutter analyze",
     "deploy": "npm run build && wrangler deploy",
     "preview": "wrangler preview"
   },
   "dependencies": {
-    "@awesome.me/webawesome": "^3.13.0",
-    "@fluent/bundle": "^0.19.1",
     "express": "^5.2.1",
-    "http-proxy-middleware": "^4.2.0",
-    "lucide": "^1.47.0"
+    "http-proxy-middleware": "^4.2.0"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260922.1",
     "@types/express": "^5.0.6",
     "@types/node": "^26.6.2",
-    "pug": "^3.0.4",
-    "typescript": "^7.0.2",
-    "vite": "^8.3.0",
-    "@cloudflare/workers-types": "^5.20260922.1",
     "wrangler": "^4.136.3"
   },
   "allowScripts": {

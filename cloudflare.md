@@ -1,134 +1,193 @@
 # Cloudflare Deployment
 
-This project should be deployed as a Cloudflare Worker with static assets and
-an API proxy. The current Cloudflare dashboard's **Continue to Pages** option
-is the legacy Pages workflow and is not needed.
-
-The recommended production layout is:
+This project deploys as a Cloudflare Worker with static Flutter Web assets and a same-origin API proxy. The Worker is required in production: it serves the dashboard and forwards the documented API paths to ProxiedMail.
 
 ```text
-https://mailroom.example.com       Worker static assets and API proxy
-                                   Worker -> https://proxiedmail.com
+https://mailroom.example.com              Worker -> Flutter static assets
+https://mailroom.example.com/api/v1/*     Worker -> https://proxiedmail.com/api/v1/*
+https://mailroom.example.com/gapi/*       Worker -> https://proxiedmail.com/gapi/*
 ```
 
-Replace `example.com` with the domain used for the deployment.
+Replace `mailroom.example.com` with the hostname used for the deployment.
+
+## Files and responsibilities
+
+- `lib/`: Flutter application source.
+- `web/`: Flutter Web entrypoint, manifest, and icons.
+- `build/web/`: generated static Flutter output. This is the directory deployed by Wrangler.
+- `worker.ts`: production Worker. It proxies `/api/v1/*` and `/gapi/*`, handles preflight requests, forwards authentication headers, and serves all other requests through the static asset binding.
+- `wrangler.jsonc`: Worker name, compatibility date, and `build/web` asset binding.
+- `server.js`: local Express server. It provides the same API proxy behavior for local static preview and is not required in production.
+- `package.json`: local build, preview, and deployment commands.
+
+The Worker is not optional production plumbing. Flutter Web is a static client, and the Worker provides the same-origin production API route and proxy boundary.
 
 ## Prerequisites
 
-The frontend uses relative API paths such as `/api/v1/auth` and
-`/gapi/settings`. Keep these paths unchanged: the Worker serves the frontend
-and proxies those paths on the same hostname, so production does not need a
-separate API domain or browser CORS configuration.
+Install and authenticate both tools:
 
-For local development, Vite continues to proxy these paths to
-`https://proxiedmail.com`.
+- Flutter stable SDK
+- Node.js and npm
+- Wrangler, installed through the project dependencies
+- A Cloudflare account with permission to deploy Workers
 
-The Worker must be deployed before testing the production frontend.
-
-## Add the domain to Cloudflare
-
-1. Open the Cloudflare dashboard.
-2. Select **Websites** and choose **Add a site**.
-3. Enter the domain and select a plan.
-4. If the domain is registered elsewhere, change its nameservers to the ones
-   Cloudflare provides.
-5. Wait until the zone status is **Active**.
-
-Cloudflare will manage DNS and TLS for the Worker hostname below.
-
-## Open the Workers and Pages area
-
-From the Cloudflare account dashboard, open **Build > Compute > Workers & Pages**:
-
-```text
-https://dash.cloudflare.com/?to=/:account/workers-and-pages
-```
-
-From there, select **Create application**.
-
-## Create the Worker application
-
-1. Open **Build > Compute > Workers & Pages**.
-2. Select **Create application**.
-3. Choose **Continue with GitHub**.
-4. Authorize GitHub and select this repository.
-5. Configure the build form as follows:
-
-   - Build command: `npm run build`
-   - Deploy command: `npx wrangler deploy`
-   - Preview command: `npx wrangler preview`
-   - Enable preview builds: on
-   - Protect with Cloudflare Access: off
-   - Path: `/`
-   - API token: choose **Create new token**
-   - API token name: `proxiedmail-pwa-builds`
-   - Variable name/value: leave blank
-
-6. Save and deploy.
-
-The build runs `compile:pug` first. It creates the generated files in `gen/`,
-then Vite writes the static assets to `dist/`. The repository's `wrangler.jsonc`
-configures `dist/` as static assets, and `worker.ts` serves those assets while
-proxying the API paths. The current `server.js` remains local Express
-development tooling only.
-
-## Redeploy after GitHub changes
-
-Deployment is automatic after the GitHub connection is set up. To publish new
-code:
-
-1. Make and test the changes locally.
-2. Commit them to Git.
-3. Push the commit to the repository's default branch.
+Verify the local tools:
 
 ```sh
-git add -A
-git commit -m "Describe the change"
-git push origin main
+flutter --version
+npm --version
+npx wrangler whoami
 ```
 
-Cloudflare detects the push, runs `npm run build`, and then runs
-`npx wrangler deploy`. The new deployment becomes production if the push was
-to the default branch.
+## Build locally
 
-With preview builds enabled, pushes to other branches run `npx wrangler
-preview` and create or update a preview deployment instead. They do not replace
-the production deployment.
+Install JavaScript proxy/deployment dependencies and Dart dependencies:
 
-After the first deployment, add `mailroom.example.com` under the Worker
-application's **Settings > Domains & Routes > Custom Domains**.
+```sh
+npm install
+flutter pub get
+```
 
-No additional Worker routing, proxy, or CORS settings are required in the
-dashboard. They are implemented in `worker.ts`: it serves `dist/`, proxies
-`/api/v1/*` and `/gapi/*` to `https://proxiedmail.com`, and handles the API
-request headers and `OPTIONS` responses. The dashboard's same-origin setup
-does not require an `ALLOWED_ORIGIN` variable or any ProxiedMail API secret.
+Run validation:
 
-## Add the Worker hostname
+```sh
+flutter analyze
+flutter test
+```
 
-1. Open the Worker.
-2. Go to **Settings > Domains & Routes**.
-3. Select **Add Custom Domain**.
-4. Add `mailroom.example.com`.
-5. Let Cloudflare create the DNS record and certificate.
+Build the static Flutter app:
 
-The final request flow should be:
+```sh
+npm run build
+```
+
+This runs `flutter build web` and writes the deployable site to `build/web`.
+
+## Local preview and API proxy
+
+For local development, start the Node server:
+
+```sh
+npm start
+```
+
+The server listens at `http://127.0.0.1:4173` by default. Set `PORT` to choose another port:
+
+```sh
+PORT=5173 npm start
+```
+
+The local server:
+
+1. Proxies `/api/v1/*` to `https://proxiedmail.com/api/v1/*`.
+2. Proxies `/gapi/*` to `https://proxiedmail.com/gapi/*`.
+3. Serves the compiled Flutter files from `build/web`.
+4. Returns the Flutter entrypoint for browser navigation requests.
+
+The Flutter client must continue using relative paths such as `/api/v1/auth` and `/gapi/settings`. Do not change them to a development-only hostname.
+
+## Worker configuration
+
+`wrangler.jsonc` points Wrangler at the Flutter output:
+
+```jsonc
+{
+  "main": "worker.ts",
+  "assets": {
+    "directory": "./build/web",
+    "not_found_handling": "single-page-application"
+  }
+}
+```
+
+`worker.ts` handles API requests before static assets. For API paths it:
+
+- Handles `OPTIONS` preflight requests.
+- Forwards `Accept`, `Content-Type`, `Authorization`, and `Token` headers.
+- Preserves the HTTP method, request body, and query string.
+- Proxies to `https://proxiedmail.com`.
+- Returns the upstream status, status text, body, and response headers.
+- Adds the configured CORS response headers.
+
+For every other path it calls the Cloudflare `ASSETS` binding, which serves the compiled Flutter application.
+
+## Deploy manually
+
+Build and deploy from the repository root:
+
+```sh
+npm run build
+npx wrangler deploy
+```
+
+The `deploy` script performs both steps:
+
+```sh
+npm run deploy
+```
+
+Do not deploy `dist/`, `public/`, `web/`, or the Flutter source directory as the Worker asset directory. Wrangler must deploy `build/web`.
+
+## GitHub deployment
+
+When configuring a Cloudflare Git integration, use:
+
+- Build command: `npm run build`
+- Deploy command: `npx wrangler deploy`
+- Preview command: `npx wrangler dev --remote`
+- Root directory: `/`
+- Build output directory: `build/web` if the dashboard asks for one
+- Preview builds: enabled if desired
+
+The Worker configuration in `wrangler.jsonc` remains the source of truth for the asset binding and Worker entrypoint.
+
+## Add a custom domain
+
+1. Open Cloudflare Workers & Pages.
+2. Select the Worker created by Wrangler.
+3. Open **Settings > Domains & Routes**.
+4. Select **Add Custom Domain**.
+5. Add the production hostname, such as `mailroom.example.com`.
+6. Allow Cloudflare to create the DNS record and certificate.
+
+The expected production request flow is:
 
 ```text
-Browser -> mailroom.example.com       -> Worker static assets
-Browser -> mailroom.example.com/api/v1/* -> Worker -> proxiedmail.com
-Browser -> mailroom.example.com/gapi/*   -> Worker -> proxiedmail.com
+Browser -> mailroom.example.com
+       -> worker.ts
+       -> ASSETS for Flutter files
+
+Browser -> mailroom.example.com/api/v1/*
+       -> worker.ts
+       -> proxiedmail.com/api/v1/*
+
+Browser -> mailroom.example.com/gapi/*
+       -> worker.ts
+       -> proxiedmail.com/gapi/*
 ```
 
-## Verify the deployment
+No separate API domain, browser CORS configuration, dashboard backend, or production Express server is required.
 
-Check the following after deployment:
+## Verify deployment
 
-1. `https://mailroom.example.com` loads the dashboard.
-2. `https://mailroom.example.com/manifest.webmanifest` is reachable.
-3. `https://mailroom.example.com/sw.js` is reachable.
-4. Login reaches `https://mailroom.example.com/api/v1/auth`.
-5. `GET`, `POST`, `PATCH`, and `DELETE` API operations work through the Worker.
+After deployment, verify:
 
-The Worker deploys `dist/`; `gen/` contains build-time generated source and
-HTML and should remain ignored by Git.
+1. The root URL loads the Flutter application.
+2. The Flutter manifest is reachable at `/manifest.json`.
+3. Flutter service-worker assets are reachable from the root output.
+4. `OPTIONS /api/v1/auth` returns a successful preflight response.
+5. `POST /api/v1/auth` reaches `https://proxiedmail.com` through the Worker.
+6. `GET`, `POST`, `PATCH`, and `DELETE` resource requests preserve their methods and bodies.
+7. Both `Authorization: Bearer ...` and `Token: ...` headers reach the upstream API as required.
+8. Refreshing a browser route still returns the Flutter application shell.
+9. Authenticated API responses are not cached as current application data.
+
+Useful commands:
+
+```sh
+npx wrangler tail
+npx wrangler deployments list
+npx wrangler whoami
+```
+
+Do not commit API tokens or Cloudflare credentials. The Worker only needs to proxy the user's request credentials; it does not require a ProxiedMail API secret.

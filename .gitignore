@@ -1,5 +1,7 @@
 node_modules/
 dist/
 gen/
-assignment.md
-dash.md
+build/
+.dart_tool/
+.idea/
+*.iml

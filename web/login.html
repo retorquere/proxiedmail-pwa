@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#4169ef">
+  <title>Sign in | ProxiedMail</title>
+  <style>
+    :root { color-scheme: light; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; --blue: #4169ef; --ink: #202124; --muted: #777980; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-width: 320px; color: var(--ink); background: #fff; }
+    header { display: flex; align-items: center; justify-content: space-between; width: min(100% - 48px, 1160px); margin: 0 auto; padding: 22px 0; }
+    .brand { display: flex; align-items: center; gap: 10px; color: var(--ink); font-size: 21px; font-weight: 700; letter-spacing: -0.04em; text-decoration: none; }
+    .brand-mark { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--blue); color: #fff; font-size: 22px; }
+    .signup { color: var(--ink); font-size: 15px; text-decoration: none; }
+    .signup a { color: var(--blue); font-weight: 600; }
+    main { width: min(100% - 32px, 460px); margin: 7vh auto 70px; text-align: center; }
+    h1 { margin: 0 0 34px; font-size: 34px; letter-spacing: -0.05em; }
+    form { text-align: left; }
+    label { display: block; margin: 17px 0 7px; font-size: 14px; font-weight: 600; }
+    input { width: 100%; min-height: 48px; padding: 12px 14px; border: 1px solid #d9dbe0; border-radius: 6px; font: inherit; }
+    input:focus { outline: 3px solid #d7e1ff; border-color: var(--blue); }
+    .password-line { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+    .password-line a { color: var(--blue); font-size: 13px; }
+    .submit { width: 100%; min-height: 48px; margin-top: 24px; border: 0; border-radius: 26px; background: var(--blue); color: #fff; font: inherit; font-weight: 700; cursor: pointer; }
+    .submit:disabled { opacity: .65; cursor: wait; }
+    .google { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 48px; border: 1px solid #dadce0; border-radius: 5px; background: #fff; color: #3c4043; font: inherit; cursor: pointer; }
+    .google-mark { color: #4285f4; font-weight: 800; }
+    .divider { display: flex; align-items: center; gap: 14px; margin: 22px 0 4px; color: #777980; font-size: 13px; }
+    .divider::before, .divider::after { content: ''; height: 1px; flex: 1; background: #e2e3e6; }
+    #error { min-height: 20px; margin-top: 15px; color: #b3261e; font-size: 14px; }
+    .legal { margin-top: 24px; color: #7b7d83; font-size: 12px; line-height: 1.5; }
+    .legal a { color: var(--blue); }
+    footer { padding: 42px 24px; background: #f7f8fa; color: #777980; text-align: center; font-size: 13px; line-height: 1.6; }
+    @media (max-width: 520px) { header { width: calc(100% - 32px); } .signup { font-size: 13px; } main { margin-top: 5vh; } }
+  </style>
+</head>
+<body>
+  <header><a class="brand" href="/"><span class="brand-mark">✉</span><span>ProxiedMail</span></a><span class="signup">Do not have an account? <a href="/login.html?register=1" id="signup-link">Sign up</a></span></header>
+  <main>
+    <h1>Sign in to ProxiedMail</h1>
+    <button class="google" id="google-login" type="button"><span class="google-mark">G</span><span>Sign in with Google</span></button>
+    <div class="divider">or</div>
+    <form id="login-form" method="post" action="/api/v1/auth" autocomplete="on">
+      <label for="username">Email address</label>
+      <input id="username" name="username" type="email" autocomplete="username" inputmode="email" placeholder="example@gmail.com" required>
+      <div class="password-line"><label for="password">Password</label><a href="#" id="forgot-link">Forgot password?</a></div>
+      <input id="password" name="password" type="password" autocomplete="current-password" placeholder="6+ characters" minlength="6" required>
+      <div id="error" role="alert" aria-live="polite"></div>
+      <button class="submit" id="submit" type="submit">Sign in</button>
+    </form>
+    <p class="legal">This site is protected by the Google <a href="https://policies.google.com/privacy">Privacy Policy</a> and <a href="#">Terms of Service</a> apply.</p>
+  </main>
+  <footer>© 2026 ProxiedMail. Private forwarding addresses for every service.</footer>
+  <script>
+    const form = document.getElementById('login-form');
+    const username = document.getElementById('username');
+    const password = document.getElementById('password');
+    const submit = document.getElementById('submit');
+    const error = document.getElementById('error');
+    const heading = document.querySelector('h1');
+    const signupLink = document.getElementById('signup-link');
+    let registering = new URLSearchParams(location.search).get('register') === '1';
+
+    function setMode(next) {
+      registering = next;
+      heading.textContent = registering ? 'Create your ProxiedMail account' : 'Sign in to ProxiedMail';
+      submit.textContent = registering ? 'Create account' : 'Sign in';
+      username.autocomplete = registering ? 'new-username' : 'username';
+      password.autocomplete = registering ? 'new-password' : 'current-password';
+      signupLink.textContent = registering ? 'Sign in' : 'Sign up';
+      signupLink.href = registering ? '/login.html' : '/login.html?register=1';
+      error.textContent = '';
+    }
+
+    document.getElementById('google-login').addEventListener('click', (event) => event.preventDefault());
+    document.getElementById('forgot-link').addEventListener('click', (event) => event.preventDefault());
+    setMode(registering);
+
+    async function request(path, options) {
+      const response = await fetch(path, { ...options, headers: { Accept: 'application/json', 'Content-Type': 'application/json', ...(options.headers || {}) } });
+      const payload = await response.json().catch(() => null);
+      if (!response.ok) throw new Error(payload?.message || payload?.detail || `Request failed (${response.status})`);
+      return payload;
+    }
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      error.textContent = '';
+      submit.disabled = true;
+      try {
+        if (registering) {
+          await request('/api/v1/users', { method: 'POST', body: JSON.stringify({ data: { type: 'users', attributes: { username: username.value, password: password.value } } }) });
+          setMode(false);
+          error.style.color = '#4169ef';
+          error.textContent = 'Account created. Sign in to continue.';
+          return;
+        }
+        const auth = await request('/api/v1/auth', { method: 'POST', body: JSON.stringify({ data: { type: 'auth-request', attributes: { username: username.value, password: password.value } } }) });
+        const bearer = auth?.data?.attributes?.token;
+        if (!bearer) throw new Error('Login did not return a bearer token.');
+        const tokenResponse = await request('/api/v1/api-token', { headers: { Authorization: `Bearer ${bearer}` } });
+        const apiToken = tokenResponse?.token || tokenResponse?.data?.attributes?.token;
+        if (!apiToken) throw new Error('API token response was incomplete.');
+        localStorage.setItem('proxiedmail.apiToken', apiToken);
+        localStorage.setItem('proxiedmail.bearerToken', bearer);
+        localStorage.setItem('flutter.proxiedmail.apiToken', JSON.stringify(apiToken));
+        localStorage.setItem('flutter.proxiedmail.bearerToken', JSON.stringify(bearer));
+        location.replace('/');
+      } catch (cause) {
+        error.textContent = cause.message;
+      } finally {
+        submit.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
