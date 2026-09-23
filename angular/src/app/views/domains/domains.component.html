@@ -24,8 +24,8 @@
               <summary i18n>Setup status</summary>
               <dl>
                 <div>
-                  <dt i18n>Domain ownership verification</dt>
-                  <dd [class]="checkClass(domain, ['ownership_verified', 'ownershipVerified', 'verified', 'status'])">{{ checkValue(domain, ['ownership_verified', 'ownershipVerified', 'verified', 'status']) }}</dd>
+                  <dt i18n>Verification status</dt>
+                  <dd [class]="statusClass(domain)">{{ statusLabel(domain) }}</dd>
                 </div>
                 <div>
                   <dt i18n>MX record</dt>

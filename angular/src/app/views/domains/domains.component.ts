@@ -30,6 +30,23 @@ export class DomainsComponent implements OnInit {
       this.loading.set(false)
     }
   }
+  statusValue(domain: CustomDomain) {
+    const status = Number(domain['status'])
+    return Number.isFinite(status) ? status : 0
+  }
+  statusLabel(domain: CustomDomain) {
+    switch (this.statusValue(domain)) {
+      case 1: return $localize`Awaiting TXT verification`
+      case 2: return $localize`Awaiting MX verification`
+      case 3: return $localize`Awaiting SPF verification`
+      case 4: return $localize`Active, awaiting DKIM verification`
+      case 5: return $localize`Active`
+      default: return this.statusValue(domain) > 5 ? $localize`All set` : $localize`Not started`
+    }
+  }
+  statusClass(domain: CustomDomain) {
+    return this.statusValue(domain) >= 5 ? 'check-ok' : ''
+  }
   checkValue(domain: CustomDomain, keys: string[]) {
     const value = keys.map(key => domain[key]).find(value => value !== undefined && value !== null && value !== '')
     if (value === undefined) return $localize`Not reported`

@@ -74,7 +74,7 @@ export class ProxyApiService {
     return { twoFactor: Boolean(profile?.data?.attributes?.two_factor_enabled ?? profile?.data?.attributes?.twoFactorEnabled), domains: (Array.isArray(domains) ? domains : domains?.data ?? []).map((item: any) => item.domain ?? item.name ?? item).filter(Boolean), settings: Array.isArray(settings) ? settings : settings?.data ?? [] }
   }
   async customDomains(): Promise<CustomDomain[]> {
-    const response = await firstValueFrom(this.request<any>('/gapi/custom-domains', { bearer: true }))
+    const response = await firstValueFrom(this.request<any>('/gapi/custom-domains?ignoreProcessing=1', { bearer: true }))
     const entries = Array.isArray(response) ? response : response?.data ?? []
     return entries.map((item: any): CustomDomain => ({ ...(item.attributes ?? item), domain: item.domain ?? item.attributes?.domain ?? '' })).filter((item: CustomDomain) => item.domain)
   }
