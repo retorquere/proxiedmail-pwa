@@ -84,40 +84,13 @@
   </c-col>
 </c-row>
 
-<c-row class="g-3">
-  <c-col md="6" *ngFor="let binding of filtered">
-    <c-card>
-      <c-card-body>
-        <div class="binding-heading">
-          <svg cIcon name="cilAt" class="text-primary"></svg>
-          <strong>{{ binding.address }}</strong>
-          <span class="spacer"></span>
-          <button cButton color="light" size="sm" (click)="beginEdit(binding)" i18n>Edit</button>
-        </div>
-        <p class="description">{{ binding.description || fallbackDescription() }}</p>
-        <div class="binding-meta">
-          <span>{{ binding.recipients.length }} <ng-container i18n>recipient(s)</ng-container></span>
-          <span>{{ binding.received }} <ng-container i18n>forwarded</ng-container></span>
-          <c-form-check [switch]="true">
-            <input cFormCheckInput type="checkbox" [checked]="isEnabled(binding)" (change)="setRecipients(binding, $any($event.target).checked)" />
-            <label cFormCheckLabel i18n>Forwarding</label>
-          </c-form-check>
-        </div>
-      </c-card-body>
-    </c-card>
-  </c-col>
-</c-row>
-
-@if (editBinding()) {
-  <c-card class="edit-card mt-4">
-    <c-card-body>
-      <div class="eyebrow text-primary" i18n>EDIT PROXY</div>
-      <label cFormLabel i18n>Forward to</label>
-      <input cFormControl [(ngModel)]="editForwarding" />
-      <div class="mt-3 text-end">
-        <button cButton color="light" class="me-2" (click)="editBinding.set(null)" i18n>Cancel</button>
-        <button cButton color="primary" (click)="saveEdit()" i18n>Save changes</button>
-      </div>
-    </c-card-body>
-  </c-card>
+@if (loading()) {
+  <div class="dashboard-loading" role="status">
+    <c-spinner color="primary" aria-hidden="true" />
+    <span i18n>Loading proxies...</span>
+  </div>
 }
+
+<c-row class="g-3">
+  <c-col md="6" *ngFor="let binding of filtered"><app-proxy-binding-card [binding]="binding" [emails]="emails()" [passwordPreferences]="passwordPreferences()" (changed)="refresh()" /></c-col>
+</c-row>

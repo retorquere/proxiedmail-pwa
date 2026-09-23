@@ -1,25 +1,24 @@
 <main class="login-page">
-	<div class="login-card-shell">
-		<c-card>
-			<c-card-body>
-				<div class="login-logo">✉</div>
-				<h1 i18n>Welcome to ProxiedMail</h1>
-				<p class="intro" i18n>Manage private aliases without exposing your inbox.</p>
-				<form (submit)="submit(); $event.preventDefault()">
-					<label cLabel for="email" i18n>Email</label>
-					<input cFormControl id="email" name="email" type="email" autocomplete="username" placeholder="example@gmail.com" i18n-placeholder [ngModel]="email()" (ngModelChange)="email.set($event)" required>
-					<label cLabel for="password" i18n>Password</label>
-					<input cFormControl id="password" name="password" type="password" autocomplete="current-password" placeholder="Your password" i18n-placeholder [ngModel]="password()" (ngModelChange)="password.set($event)" required>
-					<div class="error" *ngIf="error()">{{ error() }}</div>
-					<button cButton color="primary" class="w-100 mt-4" type="submit" [disabled]="busy()">
-						{{ busy() ? busyLabel() : signInLabel() }}
-					</button>
-				</form>
-				<div class="divider" i18n>or</div>
-				<button cButton color="light" variant="outline" class="w-100" type="button" i18n>Sign in with Google</button>
-				<p class="signup" i18n>Need an account? <a routerLink="/authentication/register">Create one</a></p>
-			</c-card-body>
-		</c-card>
-	</div>
+  <div class="login-card-shell">
+    <c-card>
+      <c-card-body>
+        <div class="login-logo"><img src="/assets/favicon.png" alt="ProxiedMail" /></div>
+        <h1 i18n>Welcome to ProxiedMail</h1>
+        <p class="intro" i18n>Manage private aliases without exposing your inbox.</p>
+        <form (submit)="submit(); $event.preventDefault()">
+          <label cLabel for="email" i18n>Email</label>
+          <input cFormControl id="email" name="email" type="email" autocomplete="username" placeholder="example@gmail.com" i18n-placeholder [ngModel]="email()" (ngModelChange)="email.set($event)" required />
+          <label cLabel for="password" i18n>Password</label>
+          <input cFormControl id="password" name="password" type="password" autocomplete="current-password" placeholder="Your password" i18n-placeholder [ngModel]="password()" (ngModelChange)="password.set($event)" required />
+          <div class="error" *ngIf="error()">{{ error() }}</div>
+          <button cButton color="primary" class="w-100 mt-4" type="submit" [disabled]="busy()">
+            {{ busy() ? busyLabel() : signInLabel() }}
+          </button>
+        </form>
+        <div class="divider" i18n>or</div>
+        <button cButton color="light" variant="outline" class="w-100" type="button" i18n>Sign in with Google</button>
+        <p class="signup" i18n>Need an account? <a routerLink="/authentication/register">Create one</a></p>
+      </c-card-body>
+    </c-card>
+  </div>
 </main>
-<main class="login-page"><div class="login-card-shell"><c-card><c-card-body><div class="login-logo">✉</div><h1 i18n>Welcome to ProxiedMail</h1><p class="intro" i18n>Manage private aliases without exposing your inbox.</p><form (submit)="submit(); $event.preventDefault()"><label cLabel for="email" i18n>Email</label><input cFormControl id="email" name="email" type="email" autocomplete="username" placeholder="example@gmail.com" i18n-placeholder [ngModel]="email()" (ngModelChange)="email.set($event)" required><label cLabel for="password" i18n>Password</label><input cFormControl id="password" name="password" type="password" autocomplete="current-password" placeholder="Your password" i18n-placeholder [ngModel]="password()" (ngModelChange)="password.set($event)" required><div class="error" *ngIf="error()">{{ error() }}</div><button cButton color="primary" class="w-100 mt-4" type="submit" [disabled]="busy()">{{ busy() ? busyLabel() : signInLabel() }}</button></form><div class="divider" i18n>or</div><button cButton color="light" variant="outline" class="w-100" type="button" i18n>Sign in with Google</button><p class="signup" i18n>Need an account? <a routerLink="/authentication/register">Create one</a></p></c-card-body></c-card></div></main>

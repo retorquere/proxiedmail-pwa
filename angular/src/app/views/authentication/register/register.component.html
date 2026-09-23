@@ -11,61 +11,31 @@
             <form #f="ngForm" (ngSubmit)="handleSubmit(f)" cForm cRow class="gy-3">
               <c-col xs="12">
                 <label cLabel for="name" i18n>Name</label>
-                <input
-                  autocomplete="name"
-                  cFormControl
-                  id="name"
-                  name="name"
-                  ngModel
-                  placeholder="Your name"
-                  i18n-placeholder
-                  type="username"
-                />
+                <input autocomplete="name" cFormControl id="name" name="name" ngModel placeholder="Your name" i18n-placeholder type="username" />
               </c-col>
               <c-col xs="12">
                 <label cLabel for="email" i18n>Email address</label>
-                <input
-                  autocomplete="email"
-                  cFormControl
-                  id="email"
-                  name="email"
-                  ngModel
-                  placeholder="your@email.com"
-                  i18n-placeholder
-                  type="email"
-                />
+                <input autocomplete="email" cFormControl id="email" name="email" ngModel placeholder="your@email.com" i18n-placeholder type="email" />
               </c-col>
               <c-col xs="12">
                 <label cLabel for="password" i18n>Password</label>
                 <c-input-group>
                   <input autocomplete="new-password" cFormControl id="password" name="password" ngModel placeholder="Your password" i18n-placeholder type="password" />
                   <span cInputGroupText>
-                    <button
-                      aria-label="Show password"
-                      i18n-aria-label
-                      cButton
-                      cTooltip="Show password"
-                      i18n-cTooltip
-                      class="p-0 link-secondary"
-                      color="link"
-                      type="button"
-                    >
+                    <button aria-label="Show password" i18n-aria-label cButton cTooltip="Show password" i18n-cTooltip class="p-0 link-secondary" color="link" type="button">
                       <svg cIcon name="eye" size="sm"></svg>
-                     </button>
-                    </span>
+                    </button>
+                  </span>
                 </c-input-group>
               </c-col>
               <c-col xs="12">
                 <c-form-check>
                   <input cFormCheckInput id="acceptTerms" type="checkbox" />
-                  <label cFormCheckLabel for="acceptTerms" i18n>I accept the <a routerLink="./">terms and conditions</a>
-                  </label>
+                  <label cFormCheckLabel for="acceptTerms" i18n>I accept the <a routerLink="./">terms and conditions</a> </label>
                 </c-form-check>
               </c-col>
               <c-col xs="12">
-                <button cButton class="w-100" color="primary" type="submit">
-                  Create new account
-                </button>
+                <button cButton class="w-100" color="primary" type="submit">Create new account</button>
               </c-col>
             </form>
             <div class="position-relative">
@@ -90,11 +60,8 @@
             </c-row>
           </c-card-body>
         </c-card>
-        <div class="text-center text-body-secondary">
-          <span i18n>Already have an account?</span> <a routerLink="/authentication/login" i18n>Sign in</a>
-        </div>
+        <div class="text-center text-body-secondary"><span i18n>Already have an account?</span> <a routerLink="/authentication/login" i18n>Sign in</a></div>
       </div>
     </c-col>
   </c-row>
 </c-container>
-

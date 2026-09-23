@@ -1,14 +1,8 @@
-import { ApplicationConfig } from '@angular/core';
-import { provideHttpClient } from '@angular/common/http';
-import {
-  provideRouter,
-  withEnabledBlockingInitialNavigation,
-  withInMemoryScrolling,
-  withRouterConfig,
-  withViewTransitions,
-} from '@angular/router';
-import { IconSetService } from '@coreui/icons-angular';
-import { routes } from './app.routes';
+import { provideHttpClient } from '@angular/common/http'
+import { ApplicationConfig } from '@angular/core'
+import { provideRouter, withEnabledBlockingInitialNavigation, withInMemoryScrolling, withRouterConfig, withViewTransitions } from '@angular/router'
+import { IconSetService } from '@coreui/icons-angular'
+import { routes } from './app.routes'
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -27,4 +21,4 @@ export const appConfig: ApplicationConfig = {
     ),
     IconSetService,
   ],
-};
+}

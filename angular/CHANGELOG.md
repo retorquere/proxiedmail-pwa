@@ -139,7 +139,6 @@
 - docs(readme): add a Data Grid section (#286)
 - docs(readme): add a Scheduler section (#287)
 
-
 ---
 
 #### `5.7.16` for Angular 22.1
@@ -165,7 +164,7 @@
 #### `5.7.15` for Angular 22.1
 
 - fix(alerts): correct dismissible condition
-- chore(dependencies): update 
+- chore(dependencies): update
   - `@angular/build` to version 22.1.3
   - `@angular/cli` to version 22.1.3
   - `@angular/aria` to version 22.1.1
@@ -212,6 +211,7 @@
   - `@coreui/icons-angular` @ "5.7.9" (was "5.7.6")
 - chore(dependencies): patch vulnerabilities
   - `fast-uri`: https://github.com/advisories/GHSA-v2hh-gcrm-f6hx
+
 ---
 
 #### `5.7.6` for Angular 22
@@ -452,7 +452,7 @@
 - chore(dependencies): `tar` vulnerability https://github.com/advisories/GHSA-9ppj-qmqm-q256
 - chore(dependencies): `hono` vulnerability https://github.com/advisories/GHSA-v8w9-8mx6-g223
 - chore(dependencies): `express-rate-limit` vulnerability https://github.com/advisories/GHSA-46wh-pxpv-q5gq
-- chore(dependencies): remove jasmine-core 
+- chore(dependencies): remove jasmine-core
 
 ---
 
@@ -516,7 +516,7 @@
   - `@coreui/angular-chartjs` @ "5.6.15" (was "5.6.13")
   - `@coreui/icons-angular` @ "5.6.15" (was "5.6.13")
   - `jasmine-core` @ "6.1.0" (was "6.0.1")
-- chore(dependencies): remove override `ajv` 
+- chore(dependencies): remove override `ajv`
 
 ---
 
@@ -610,7 +610,7 @@
 
 #### `5.6.9`
 
-- chore(dependencies): update to 'Angular 21.1.1' 
+- chore(dependencies): update to 'Angular 21.1.1'
   - `@angular/build` @ "21.1.1" (was "21.1.0")
   - `@angular/cli` @ "21.1.1" (was "21.1.0")
   - `@angular/compiler-cli` @ "21.1.1" (was "21.1.0")
@@ -784,6 +784,7 @@
 ---
 
 #### `5.5.17`
+
 - chore(dependencies): update to Angular `20.3.3`
   - `@angular/build` @ "20.3.4" (was "20.3.2")
   - `@angular/cli` @ "20.3.4" (was "20.3.2")
@@ -916,13 +917,13 @@
   - migrate application project to the new build system with `application` builder
   - update imports of `DOCUMENT` from `@angular/common` to `@angular/core`
   - update Node.js version list to the supported versions
-  
+
 - fix(dashboard): `TS2307`: Cannot find module `chart.js/dist/types/utils` or its corresponding type declarations. `[plugin angular-compiler]` - tempfix
 - refactor: migrate to `inject` function (remove constructor-based dependency injection)
 - refactor(toasters): use ComponentRef `setInput()` api
 - refactor: migration to signal inputs, host bindings, cleanups
 - refactor: migration to signal queries
-- fix(mainChart): chart.js - Cannot read properties of undefined _clip (reading 'disabled')  - fixed by stop() current animations
+- fix(mainChart): chart.js - Cannot read properties of undefined _clip (reading 'disabled') - fixed by stop() current animations
 - test: remove deprecated RouterTestingModule, use provideRouter() instead
 - refactor: migration to lazy-loaded routes
 - refactor: migration to self-closing tags
@@ -1001,14 +1002,14 @@
 
 #### `5.3.2`
 
-- chore(dependencies): update 
+- chore(dependencies): update
 - chore(workflows): update with npm ci
 - fix(package-lock): rebuild
 
 ---
 
 #### `5.3.1`
- 
+
 - chore(dependencies): update to Angular 19
 - refactor: directives, components and pipes are now standalone by default
 - fix(dashboard-charts-data): brandInfoBg rgb is not a valid hex color
@@ -1104,40 +1105,39 @@ CoreUI v5 for Angular 17
 
 - chore: move to `application` builder
 - chore(dependencies): update to `Angular 17.2`
-    - `Angular 17.2`
-    - `TypeScript ~5.3`
-    - `zone.js ~0.14.4`
-    - `@coreui/angular ~4.7.15`
-    - `@coreui/angular-chartjs ~4.7.14`
-    - `@coreui/icons-angular ~4.7.14`
+  - `Angular 17.2`
+  - `TypeScript ~5.3`
+  - `zone.js ~0.14.4`
+  - `@coreui/angular ~4.7.15`
+  - `@coreui/angular-chartjs ~4.7.14`
+  - `@coreui/icons-angular ~4.7.14`
 
 ---
 
 #### `4.7.13`
 
 - chore(dependencies): update to `Angular 17.1`
-    - `Angular 17.1`
-    - `TypeScript ~5.2`
-    - `zone.js ~0.14.3`
-    - `@coreui/angular ~4.7.13`
-    - `@coreui/angular-chartjs ~4.7.13`
-    - `@coreui/icons-angular ~4.7.13`
+  - `Angular 17.1`
+  - `TypeScript ~5.2`
+  - `zone.js ~0.14.3`
+  - `@coreui/angular ~4.7.13`
+  - `@coreui/angular-chartjs ~4.7.13`
+  - `@coreui/icons-angular ~4.7.13`
 
 ---
 
 #### `4.7.0`
 
 - chore(dependencies): update to `Angular 17`
-    - `Angular 17`
-    - `TypeScript ~5.2`
-    - `zone.js ~0.14.2`
-    - `@coreui/angular ~4.7.0`
-    - `@coreui/angular-chartjs ~4.7.0`
-    - `@coreui/icons-angular ~4.7.0`
+  - `Angular 17`
+  - `TypeScript ~5.2`
+  - `zone.js ~0.14.2`
+  - `@coreui/angular ~4.7.0`
+  - `@coreui/angular-chartjs ~4.7.0`
+  - `@coreui/icons-angular ~4.7.0`
 
 ```shell
 ng update @angular/core@17 @angular/cli@17 @angular/cdk@17 @coreui/angular@~4.7 @coreui/angular-chartjs@~4.7 @coreui/icons-angular@~4.7
-
 ```
 
 ---
@@ -1204,9 +1204,9 @@ see: [Babel vulnerable to arbitrary code execution when compiling specifically c
 
 - chore(dependencies): update `@angular/*` to version `^15.2.7`
 - standalone components:
-    - chore(dependencies): update `@coreui/angular` to version `~4.4.1`
-    - chore(dependencies): update `@coreui/angular-chartjs` to version `~4.4.1`
-    - chore(dependencies): update `@coreui/icons-angular` to version `~4.4.1`
+  - chore(dependencies): update `@coreui/angular` to version `~4.4.1`
+  - chore(dependencies): update `@coreui/angular-chartjs` to version `~4.4.1`
+  - chore(dependencies): update `@coreui/icons-angular` to version `~4.4.1`
 - fix(widgets): breakpoints
 
 ---

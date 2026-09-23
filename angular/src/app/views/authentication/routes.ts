@@ -1,37 +1,37 @@
-import { Routes } from '@angular/router';
+import { Routes } from '@angular/router'
 
 export const routes: Routes = [
   {
     path: '',
     data: {
-      title: $localize`Authentication`
+      title: $localize`Authentication`,
     },
     children: [
       {
         path: '',
         redirectTo: 'login',
-        pathMatch: 'full'
+        pathMatch: 'full',
       },
       {
         path: 'login',
         loadComponent: () => import('./login/login.component').then(m => m.LoginComponent),
         data: {
-          title: $localize`Login`
-        }
+          title: $localize`Login`,
+        },
       },
       {
         path: 'register',
         loadComponent: () => import('./register/register.component').then(m => m.RegisterComponent),
         data: {
-          title: $localize`Register`
-        }
+          title: $localize`Register`,
+        },
       },
       {
         path: 'check-email',
         loadComponent: () => import('./check-email/check-email.component').then(m => m.CheckEmailComponent),
         data: {
-          title: $localize`Check Email`
-        }
+          title: $localize`Check Email`,
+        },
       },
       {
         path: 'password',
@@ -40,25 +40,25 @@ export const routes: Routes = [
             path: 'reset',
             loadComponent: () => import('./reset-password/reset-password.component').then(m => m.ResetPasswordComponent),
             data: {
-              title: $localize`Reset Password`
-            }
+              title: $localize`Reset Password`,
+            },
           },
           {
             path: 'change',
             loadComponent: () => import('./change-password/change-password.component').then(m => m.ChangePasswordComponent),
             data: {
-              title: $localize`Change Password`
-            }
+              title: $localize`Change Password`,
+            },
           },
           {
             path: 'changed',
             loadComponent: () => import('./password-changed/password-changed.component').then(m => m.PasswordChangedComponent),
             data: {
-              title: $localize`Password Changed`
-            }
-          }
-        ]
-      }
-    ]
-  }
-];
+              title: $localize`Password Changed`,
+            },
+          },
+        ],
+      },
+    ],
+  },
+]

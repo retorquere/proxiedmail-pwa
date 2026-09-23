@@ -1,0 +1,55 @@
+<c-row class="align-items-end mb-4">
+  <c-col>
+    <div class="eyebrow text-primary" i18n>ACCOUNT DOMAINS</div>
+    <h1 i18n>Domains</h1>
+    <p class="text-body-secondary mb-0" i18n>Custom domains available for your proxy addresses.</p>
+  </c-col>
+</c-row>
+
+@if (loading()) {
+  <div class="domains-loading" role="status">
+    <c-spinner color="primary" aria-hidden="true" />
+    <span i18n>Loading domains...</span>
+  </div>
+} @else if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+} @else {
+  <c-row class="g-3">
+    @for (domain of domains(); track domain.domain) {
+      <c-col md="6" lg="4">
+        <c-card
+          ><c-card-body
+            ><strong>{{ domain.domain }}</strong>
+            <details class="domain-checks">
+              <summary i18n>Setup status</summary>
+              <dl>
+                <div>
+                  <dt i18n>Domain ownership verification</dt>
+                  <dd [class]="checkClass(domain, ['ownership_verified', 'ownershipVerified', 'verified', 'status'])">{{ checkValue(domain, ['ownership_verified', 'ownershipVerified', 'verified', 'status']) }}</dd>
+                </div>
+                <div>
+                  <dt i18n>MX record</dt>
+                  <dd [class]="checkClass(domain, ['mx', 'mx_status', 'mxStatus'])">{{ checkValue(domain, ['mx', 'mx_status', 'mxStatus']) }}</dd>
+                </div>
+                <div>
+                  <dt i18n>SPF</dt>
+                  <dd [class]="checkClass(domain, ['spf', 'spf_status', 'spfStatus'])">{{ checkValue(domain, ['spf', 'spf_status', 'spfStatus']) }}</dd>
+                </div>
+                <div>
+                  <dt i18n>DKIM</dt>
+                  <dd [class]="checkClass(domain, ['dkim', 'dkim_status', 'dkimStatus', 'dkimKey'])">{{ checkValue(domain, ['dkim', 'dkim_status', 'dkimStatus', 'dkimKey']) }}</dd>
+                </div>
+                <div>
+                  <dt i18n>DMARC</dt>
+                  <dd [class]="checkClass(domain, ['dmarc', 'dmarc_status', 'dmarcStatus'])">{{ checkValue(domain, ['dmarc', 'dmarc_status', 'dmarcStatus']) }}</dd>
+                </div>
+              </dl>
+            </details></c-card-body
+          ></c-card
+        >
+      </c-col>
+    } @empty {
+      <p class="text-body-secondary" i18n>No custom domains are available.</p>
+    }
+  </c-row>
+}

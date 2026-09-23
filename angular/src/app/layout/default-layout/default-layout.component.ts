@@ -1,30 +1,9 @@
-import { Component, inject } from '@angular/core';
-import { Router, RouterLink, RouterOutlet } from '@angular/router';
-import { NgScrollbar } from 'ngx-scrollbar';
+import { Component, inject } from '@angular/core'
+import { Router, RouterLink, RouterOutlet } from '@angular/router'
 
-import { IconDirective } from '@coreui/icons-angular';
-import {
-  ContainerComponent,
-  ShadowOnScrollDirective,
-  SidebarBrandComponent,
-  SidebarComponent,
-  SidebarFooterComponent,
-  SidebarHeaderComponent,
-  SidebarNavComponent,
-  SidebarToggleDirective,
-  SidebarTogglerDirective
-} from '@coreui/angular';
+import { ContainerComponent } from '@coreui/angular'
 
-import { DefaultFooterComponent } from './';
-import { ProxyApiService } from '../../proxy-api.service';
-import { navItems } from './_nav';
-
-function isOverflown(element: HTMLElement) {
-  return (
-    element.scrollHeight > element.clientHeight ||
-    element.scrollWidth > element.clientWidth
-  );
-}
+import { ProxyApiService } from '../../proxy-api.service'
 
 @Component({
   selector: 'app-dashboard',
@@ -32,15 +11,16 @@ function isOverflown(element: HTMLElement) {
   styleUrls: ['./default-layout.component.scss'],
   imports: [
     ContainerComponent,
-    DefaultFooterComponent,
     RouterOutlet,
-    RouterLink
-  ]
+    RouterLink,
+  ],
 })
 export class DefaultLayoutComponent {
-  private readonly api = inject(ProxyApiService);
-  private readonly router = inject(Router);
-  public navItems = [...navItems];
+  private readonly api = inject(ProxyApiService)
+  private readonly router = inject(Router)
 
-  logout() { this.api.logout(); this.router.navigateByUrl('/authentication/login'); }
+  logout() {
+    this.api.logout()
+    this.router.navigateByUrl('/authentication/login')
+  }
 }

@@ -1,34 +1,33 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { ComponentFixture, TestBed } from '@angular/core/testing'
+import { provideRouter } from '@angular/router'
 
-import { ButtonModule, CardModule, FormModule, GridModule } from '@coreui/angular';
-import { IconModule, IconSetService } from '@coreui/icons-angular';
-import { iconSubset } from '../../../icons/icon-subset';
-import { RegisterComponent } from './register.component';
+import { ButtonModule, CardModule, FormModule, GridModule } from '@coreui/angular'
+import { IconModule, IconSetService } from '@coreui/icons-angular'
+import { iconSubset } from '../../../icons/icon-subset'
+import { RegisterComponent } from './register.component'
 
 describe('RegisterComponent', () => {
-  let component: RegisterComponent;
-  let fixture: ComponentFixture<RegisterComponent>;
-  let iconSetService: IconSetService;
+  let component: RegisterComponent
+  let fixture: ComponentFixture<RegisterComponent>
+  let iconSetService: IconSetService
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [CardModule, FormModule, GridModule, ButtonModule, IconModule, RegisterComponent],
-      providers: [IconSetService, provideRouter([])]
-    }).compileComponents();
-  });
+      providers: [IconSetService, provideRouter([])],
+    }).compileComponents()
+  })
 
   beforeEach(() => {
-    iconSetService = TestBed.inject(IconSetService);
-    iconSetService.icons = { ...iconSubset };
+    iconSetService = TestBed.inject(IconSetService)
+    iconSetService.icons = { ...iconSubset }
 
-    fixture = TestBed.createComponent(RegisterComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+    fixture = TestBed.createComponent(RegisterComponent)
+    component = fixture.componentInstance
+    fixture.detectChanges()
+  })
 
   it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-});
- 
+    expect(component).toBeTruthy()
+  })
+})

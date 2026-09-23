@@ -1,0 +1,130 @@
+<c-row class="align-items-end mb-4">
+  <c-col>
+    <div class="eyebrow text-primary" i18n>ACCOUNT SETTINGS</div>
+    <h1 i18n>Settings</h1>
+    <p class="text-body-secondary mb-0" i18n>Control account preferences and integrations.</p>
+  </c-col>
+</c-row>
+
+@if (loading()) {
+  <div class="settings-loading" role="status">
+    <c-spinner color="primary" aria-hidden="true" />
+    <span i18n>Loading settings...</span>
+  </div>
+} @else {
+  @if (error()) {
+    <div class="alert alert-danger" role="alert">{{ error() }}</div>
+  }
+  @if (message()) {
+    <div class="alert alert-success" role="status">{{ message() }}</div>
+  }
+
+  <c-row class="g-4">
+    <c-col xs="12">
+      <c-card>
+        <c-card-body>
+          <h2 class="h5" i18n>Your account</h2>
+          <p class="text-body-secondary" i18n>These choices are saved to your ProxiedMail account.</p>
+          <div class="settings-inline">
+            <label cFormLabel for="retention" i18n>Received-message retention</label>
+            <select cSelect class="settings-select" id="retention" [(ngModel)]="retention" (ngModelChange)="saveRetention()">
+              <option value="1-day" i18n>1 day</option>
+              <option value="3-days" i18n>3 days</option>
+              <option value="never" i18n>Never</option>
+            </select>
+          </div>
+          <div class="settings-row mt-3">
+            <label cFormLabel for="defaultDomain" i18n>Default proxy domain</label>
+            <select cSelect class="settings-select" id="defaultDomain" [(ngModel)]="selectedDomain" (ngModelChange)="saveDefaultDomain()">
+              <option *ngFor="let domain of availableDomains" [value]="domain">{{ domain }}</option>
+            </select>
+          </div>
+          <c-form-check [switch]="true">
+            <input cFormCheckInput id="removeMailInfoBanner" type="checkbox" [(ngModel)]="removeMailInfoBanner" (change)="saveMailInfoPreference()" />
+            <label cFormCheckLabel for="removeMailInfoBanner" i18n>Remove ProxiedMail mail-info banner in forwarded emails</label>
+          </c-form-check>
+          <hr />
+          <div class="settings-inline mt-3">
+            <label cFormLabel for="passwordLength" i18n>Password length</label>
+            <input cFormControl class="settings-number" id="passwordLength" type="number" min="6" max="128" [(ngModel)]="passwordLength" (ngModelChange)="savePasswordPreferences()" />
+          </div>
+          <c-form-check [switch]="true"><input cFormCheckInput id="useLetters" type="checkbox" [(ngModel)]="useLetters" (change)="savePasswordPreferences()" /><label cFormCheckLabel for="useLetters" i18n>Use letters</label></c-form-check>
+          <c-form-check [switch]="true"><input cFormCheckInput id="useNumbers" type="checkbox" [(ngModel)]="useNumbers" (change)="savePasswordPreferences()" /><label cFormCheckLabel for="useNumbers" i18n>Use numbers</label></c-form-check>
+          <c-form-check [switch]="true"><input cFormCheckInput id="useSymbols" type="checkbox" [(ngModel)]="useSymbols" (change)="savePasswordPreferences()" /><label cFormCheckLabel for="useSymbols" i18n>Use symbols</label></c-form-check>
+        </c-card-body>
+      </c-card>
+    </c-col>
+
+    <c-col xs="12">
+      <c-card>
+        <c-card-body>
+          <h2 class="h5" i18n>This browser</h2>
+          <p class="text-body-secondary" i18n>These choices are saved only in this browser.</p>
+          <div class="settings-inline">
+            <label cFormLabel for="locale" i18n>Language</label>
+            <select cSelect class="settings-select" id="locale" [(ngModel)]="locale" (change)="changeLocale()">
+              <option value="en">English</option>
+              <option value="es">Español</option>
+            </select>
+          </div>
+          <c-form-check [switch]="true">
+            <input cFormCheckInput id="hideIamRich" type="checkbox" [(ngModel)]="hideIamRich" (change)="saveLocalPreference()" />
+            <label cFormCheckLabel for="hideIamRich" i18n>Hide iam-rich.net from the proxy domain list</label>
+          </c-form-check>
+        </c-card-body>
+      </c-card>
+    </c-col>
+
+    <c-col lg="6">
+      <c-card>
+        <c-card-body>
+          <h2 class="h5" i18n>Security</h2>
+          <p class="text-body-secondary" i18n>Two-factor authentication protects changes to your account.</p>
+          <div class="security-state">
+            <strong i18n>Two-factor authentication</strong>
+            <span class="badge" [class.text-bg-success]="twoFactor()" [class.text-bg-secondary]="!twoFactor()">{{ twoFactor() ? ('Enabled' | uppercase) : ('Disabled' | uppercase) }}</span>
+          </div>
+          @if (twoFactor()) {
+            <button cButton color="danger" variant="outline" class="mt-3" type="button" (click)="removeTwoFactor()" i18n>Disable two-factor authentication</button>
+          } @else {
+            <p class="small text-body-secondary mt-3 mb-0" i18n>Two-factor setup is not available in this client yet.</p>
+          }
+        </c-card-body>
+      </c-card>
+    </c-col>
+
+    <c-col lg="6">
+      <c-card>
+        <c-card-body>
+          <button cButton color="light" variant="ghost" class="integration-toggle" type="button" [attr.aria-expanded]="bitwardenVisible()" (click)="bitwardenVisible.set(!bitwardenVisible())">
+            <span class="eyebrow text-primary" i18n>INTEGRATION</span>
+            <strong i18n>Bitwarden setup</strong>
+          </button>
+          @if (bitwardenVisible()) {
+            <div class="integration-panel mt-3">
+              <p i18n>ProxiedMail currently emulates Bitwarden's Addy.io integration. Please ask Bitwarden to add a proper ProxiedMail integration in the <a href="https://github.com/bitwarden/clients/pull/20766" target="_blank" rel="noopener">ProxiedMail integration request</a>.</p>
+              <ol class="integration-steps">
+                <li i18n>In Bitwarden, open Generator, choose Username, then choose Forwarded email alias.</li>
+                <li>
+                  In <strong i18n>API key</strong>, enter <code>{{ api.apiToken() }}</code
+                  >.
+                </li>
+                <li>
+                  <span class="settings-inline">
+                    <span i18n>Email domain: one of</span>
+                    <select cSelect class="bitwarden-domain-select" id="bitwarden-domain" [(ngModel)]="selectedDomain">
+                      <option *ngFor="let domain of availableDomains" [value]="domain">{{ domain }}</option>
+                    </select>
+                  </span>
+                </li>
+                <li>In <strong i18n>Self-host server URL</strong>, enter <code>https://proxiedmail.com</code>.</li>
+                <li i18n>Select Generate to create the alias in ProxiedMail.</li>
+              </ol>
+              <p class="small text-body-secondary mt-2" i18n>Treat this API key like a password. Anyone who has it can access your ProxiedMail account.</p>
+            </div>
+          }
+        </c-card-body>
+      </c-card>
+    </c-col>
+  </c-row>
+}

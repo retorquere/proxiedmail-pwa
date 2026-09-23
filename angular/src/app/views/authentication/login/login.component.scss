@@ -6,7 +6,8 @@
 .login-card-shell c-card-body { display: block; padding: 40px !important; }
 .login-card-shell h1 { margin: 16px 0 8px; font-size: 1.8rem; text-align: center; }
 .intro { margin: 0 0 24px; color: #65758b; text-align: center; }
-.login-logo { display: grid; place-items: center; width: 48px; height: 48px; margin: auto; border-radius: 50%; background: #4169ef; color: #fff; font-size: 25px; }
+.login-logo { display: grid; place-items: center; width: 48px; height: 48px; margin: auto; border-radius: 50%; background: #4169ef; overflow: hidden; }
+.login-logo img { width: 34px; height: 34px; }
 .login-card-shell input { margin-bottom: 12px; }
 .error { margin-top: 12px; color: #b3261e; font-size: .875rem; }
 .divider { display: flex; align-items: center; gap: 12px; margin: 24px 0 14px; color: #777980; font-size: .8rem; text-transform: uppercase; }

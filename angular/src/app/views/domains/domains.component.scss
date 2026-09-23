@@ -1,0 +1,9 @@
+:host { display: block; }
+.eyebrow { font-size: .72rem; font-weight: 700; letter-spacing: .12em; }
+.domains-loading { display: flex; align-items: center; gap: .75rem; padding: .75rem 1rem; border: 1px solid var(--cui-primary-border-subtle); border-radius: var(--cui-border-radius); color: var(--cui-primary); background: var(--cui-primary-bg-subtle); }
+.domain-checks { margin-top: 1rem; }
+.domain-checks dl { margin: .75rem 0 0; }
+.domain-checks dl div { display: flex; justify-content: space-between; gap: 1rem; padding: .35rem 0; border-bottom: 1px solid var(--cui-border-color); }
+.domain-checks dt { color: var(--cui-secondary-color); }
+.domain-checks dd { margin: 0; text-align: right; }
+.domain-checks .check-ok { color: var(--cui-success); font-weight: 600; }
