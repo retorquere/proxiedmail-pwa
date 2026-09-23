@@ -142,7 +142,7 @@ Add these repository secrets under **Settings > Secrets and variables > Actions*
 
 No Cloudflare secrets are required by the Action. Its GitHub token only needs permission to write the generated branch, which is provided by the workflow's `contents: write` permission.
 
-Configure the existing Cloudflare GitHub integration to watch the `cloudflare` branch. It should deploy the checked-in `build/web` directory using the existing `worker.ts` and `wrangler.jsonc` configuration. Set the Cloudflare build command to a no-op such as `true` (or leave it empty if supported), because GitHub Actions has already compiled Flutter. Set the asset/output directory to `build/web` if Cloudflare asks for one.
+Configure the existing Cloudflare GitHub integration to watch the `cloudflare` branch. It should deploy the checked-in `build/web` directory using the existing `worker.ts` and `wrangler.jsonc` configuration. Set the Cloudflare build command to a no-op such as `true` (or leave it empty if supported), because GitHub Actions has already compiled Flutter. Set the asset/output directory to `build/web` if Cloudflare asks for one. Set the deploy command explicitly to `npx wrangler deploy --config wrangler.jsonc` so Wrangler uses the Worker asset binding checked into the artifact branch.
 
 Do not point Cloudflare at `main` for deployment: `main` contains Flutter source and intentionally does not commit `build/web`. Do not add a second direct Wrangler deployment from GitHub Actions, or pushes will produce competing deployments.
 

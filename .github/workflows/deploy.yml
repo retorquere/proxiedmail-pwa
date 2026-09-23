@@ -54,9 +54,11 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git switch --orphan cloudflare
           git read-tree --empty
-          git add -A -- ':!node_modules' ':!.dart_tool' ':!build'
-          git add -f build/web
+          git add -A -- ':!node_modules' ':!.dart_tool' ':!.flutter-plugins' ':!.flutter-plugins-dependencies' ':!build'
+          git add -f build/web worker.ts wrangler.jsonc
           git diff --cached --name-only | grep -q '^build/web/'
+          git diff --cached --name-only | grep -q '^worker.ts$'
+          git diff --cached --name-only | grep -q '^wrangler.jsonc$'
           if git diff --cached --name-only | grep -q '^node_modules/'; then exit 1; fi
           git commit -m "Build Flutter Web artifact"
           git push origin HEAD:cloudflare --force
