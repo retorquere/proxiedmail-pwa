@@ -24,11 +24,13 @@ class ProxyBinding {
 }
 
 class DashboardData {
-  const DashboardData({required this.bindings, required this.available, required this.twoFactor});
+  const DashboardData({required this.bindings, required this.available, required this.twoFactor, required this.domains, required this.realEmails});
 
   final List<ProxyBinding> bindings;
   final int available;
   final bool twoFactor;
+  final List<String> domains;
+  final List<String> realEmails;
 
   int get activeProxies => bindings.length;
 }
@@ -96,16 +98,24 @@ class ProxiedMailApi {
   Future<void> register(String username, String password) => _request('/api/v1/users', method: 'POST', body: {'data': {'type': 'users', 'attributes': {'username': username, 'password': password}}});
 
   Future<DashboardData> dashboard() async {
-    final results = await Future.wait([_request('/api/v1/proxy-bindings?sort=desc'), _request('/api/v1/users/me')]);
+    final results = await Future.wait([_request('/api/v1/proxy-bindings?sort=desc'), _request('/api/v1/users/me'), _request('/gapi/available-domains', bearer: true), _request('/gapi/real-emails', bearer: true)]);
     final bindingsPayload = results[0] as Map;
     final profile = results[1] as Map;
     final list = ((bindingsPayload['data'] as List?) ?? []).map((item) => ProxyBinding.fromJson((item as Map).cast<String, dynamic>())).toList();
     final meta = (bindingsPayload['meta'] as Map?) ?? {};
     final attributes = (profile['data']?['attributes'] as Map?) ?? {};
-    return DashboardData(bindings: list, available: (meta['availableProxyBindings'] as num?)?.toInt() ?? 0, twoFactor: attributes['two_factor_enabled'] == true || attributes['twoFactorEnabled'] == true);
+    final domainPayload = results[2];
+    final emailPayload = results[3];
+    final domainList = (domainPayload is List ? domainPayload : (domainPayload is Map ? domainPayload['data'] : null)) as List?;
+    final emailList = (emailPayload is List ? emailPayload : (emailPayload is Map ? emailPayload['data'] : null)) as List?;
+    final domains = (domainList ?? []).map((item) => item is Map ? '${item['domain'] ?? item['name'] ?? ''}' : '$item').where((item) => item.isNotEmpty).toList();
+    final realEmails = (emailList ?? []).map((item) => item is Map ? '${item['email'] ?? ''}' : '$item').where((item) => item.isNotEmpty).toList();
+    return DashboardData(bindings: list, available: (meta['availableProxyBindings'] as num?)?.toInt() ?? 0, twoFactor: attributes['two_factor_enabled'] == true || attributes['twoFactorEnabled'] == true, domains: domains, realEmails: realEmails);
   }
 
   Future<void> createBinding({required String alias, required String domain, required String forwarding}) => _request('/api/v1/proxy-bindings', method: 'POST', body: {'data': {'type': 'proxy_bindings', 'attributes': {'proxy_address': '$alias@$domain', 'real_addresses': forwarding.split(',').map((item) => item.trim()).where((item) => item.isNotEmpty).toList(), 'is_browsable': false}}});
+
+  Future<void> updateBinding({required ProxyBinding binding, required String forwarding}) => _request('/api/v1/proxy-bindings/${binding.id}', method: 'PATCH', body: {'data': {'id': binding.id, 'type': 'proxy_bindings', 'attributes': {'proxy_address': binding.address, 'real_addresses': {for (final address in forwarding.split(',').map((item) => item.trim()).where((item) => item.isNotEmpty)) address: binding.forwardingStates[address] ?? true}}}});
 
   Future<ForwardingUpdateResult> setForwarding(ProxyBinding binding, bool enabled) async {
     var succeeded = 0;

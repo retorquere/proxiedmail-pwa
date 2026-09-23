@@ -186,10 +186,13 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   final search = TextEditingController();
+  final createAlias = TextEditingController();
+  final createForwarding = TextEditingController();
   final forwardingOverrides = <String, bool>{};
   final forwardingBusy = <String>{};
   int destination = 0;
   bool showHero = true;
+  String createDomain = '';
   String get query => search.text.toLowerCase();
 
   @override
@@ -224,6 +227,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _dashboard(BuildContext context, List<ProxyBinding> matches, bool narrow) {
     final l10n = AppLocalizations.of(context);
+    final domains = widget.data.domains.isEmpty ? ['proxiedmail.com'] : widget.data.domains;
+    final selectedDomain = domains.contains(createDomain) ? createDomain : domains.first;
     final hero = showHero ? Container(
       padding: EdgeInsets.all(narrow ? 22 : 32),
       decoration: BoxDecoration(
@@ -247,11 +252,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
       if (hero != null) ...[hero, const SizedBox(height: 24)],
       Wrap(spacing: 12, runSpacing: 12, children: [_metric(context, l10n.activeProxies, '${widget.data.activeProxies}', narrow), _metric(context, l10n.availableCapacity, '${widget.data.available}', narrow), _metric(context, l10n.twoFactorProtection, widget.data.twoFactor ? l10n.on : l10n.off, narrow)]),
         const SizedBox(height: 24),
-        if (narrow) ...[
-          TextField(controller: search, onChanged: (_) => setState(() {}), decoration: InputDecoration(labelText: l10n.searchAliases, prefixIcon: const Icon(Icons.search))),
-          const SizedBox(height: 12),
-          SizedBox(width: double.infinity, child: FilledButton.icon(onPressed: () => _create(context), icon: const Icon(Icons.add), label: Text(l10n.newProxy))),
-        ] else Row(children: [Expanded(child: TextField(controller: search, onChanged: (_) => setState(() {}), decoration: InputDecoration(labelText: l10n.searchAliases, prefixIcon: const Icon(Icons.search)))), const SizedBox(width: 12), FilledButton.icon(onPressed: () => _create(context), icon: const Icon(Icons.add), label: Text(l10n.newProxy))]),
+        _createProxyRow(context, l10n, domains, selectedDomain, narrow),
+        const SizedBox(height: 18),
+        TextField(controller: search, onChanged: (_) => setState(() {}), decoration: InputDecoration(labelText: l10n.searchAliases, prefixIcon: const Icon(Icons.search))),
         const SizedBox(height: 16),
           if (matches.isEmpty) Card(child: Padding(padding: const EdgeInsets.all(32), child: Center(child: Text(l10n.noProxies)))) else Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Padding(padding: const EdgeInsets.only(bottom: 12), child: Text(l10n.yourProxies, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700))), LayoutBuilder(builder: (context, constraints) => Wrap(spacing: 12, runSpacing: 12, children: matches.map((binding) => SizedBox(width: narrow ? constraints.maxWidth : (constraints.maxWidth - 12) / 2, child: _bindingCard(context, binding))).toList()))])
     ]);
@@ -291,17 +294,41 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Container(width: 32, height: 32, decoration: BoxDecoration(color: const Color(0xffe8eeff), borderRadius: BorderRadius.circular(10)), child: const Icon(Icons.alternate_email, color: Color(0xff4169ef), size: 18)),
             const SizedBox(width: 10),
             Expanded(child: Text(binding.address, softWrap: true, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700, color: const Color(0xff183b8c)))),
+            IconButton(tooltip: l10n.editProxy, onPressed: () => _edit(context, binding), icon: const Icon(Icons.edit_outlined)),
             IconButton(tooltip: 'Copy address', onPressed: () => _copyAddress(context, binding.address), icon: const Icon(Icons.copy_all_outlined)),
           ]),
           SizedBox(height: 20, child: binding.description.isNotEmpty ? Padding(padding: const EdgeInsets.only(left: 42), child: Text(binding.description, maxLines: 1, overflow: TextOverflow.ellipsis, softWrap: true)) : null),
           const SizedBox(height: 10),
-          Wrap(spacing: 14, runSpacing: 6, crossAxisAlignment: WrapCrossAlignment.center, children: [_compactDetail(context, Icons.forward_to_inbox_outlined, l10n.recipients(binding.forwarding.length)), _compactDetail(context, Icons.mark_email_read_outlined, l10n.forwarded(binding.forwarded)), Row(mainAxisSize: MainAxisSize.min, children: [Text(l10n.forwardingRecipients), if (isBusy) const Padding(padding: EdgeInsets.symmetric(horizontal: 12), child: SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))) else Tooltip(message: l10n.enableOrDisableRecipients, child: Switch(value: forwardingEnabled, onChanged: (enabled) => _toggleForwarding(context, binding, enabled)))])]),
+          Wrap(spacing: 14, runSpacing: 6, crossAxisAlignment: WrapCrossAlignment.center, children: [_compactDetail(context, Icons.forward_to_inbox_outlined, l10n.recipients(binding.forwarding.length)), _compactDetail(context, Icons.mark_email_read_outlined, l10n.forwarded(binding.forwarded)), _forwardingControl(context, binding, l10n, forwardingEnabled, isBusy)]),
         ]),
       ),
     );
   }
 
   Widget _compactDetail(BuildContext context, IconData icon, String value) => Row(mainAxisSize: MainAxisSize.min, children: [Icon(icon, size: 16, color: const Color(0xff65758b)), const SizedBox(width: 4), Text(value, style: Theme.of(context).textTheme.bodySmall)]);
+
+  Widget _forwardingControl(BuildContext context, ProxyBinding binding, AppLocalizations l10n, bool forwardingEnabled, bool isBusy) {
+    return Row(mainAxisSize: MainAxisSize.min, children: [
+      Text(l10n.forwardingRecipients),
+      Tooltip(
+        message: l10n.enableOrDisableRecipients,
+        child: SizedBox(
+          width: 52,
+          height: 32,
+          child: Stack(alignment: Alignment.center, children: [
+            Opacity(
+              opacity: isBusy ? 0.35 : 1,
+              child: Transform.scale(
+                scale: 0.78,
+                child: Switch(materialTapTargetSize: MaterialTapTargetSize.shrinkWrap, value: forwardingEnabled, onChanged: isBusy ? null : (enabled) => _toggleForwarding(context, binding, enabled)),
+              ),
+            ),
+            if (isBusy) const SizedBox(width: 15, height: 15, child: CircularProgressIndicator(strokeWidth: 2)),
+          ]),
+        ),
+      ),
+    ]);
+  }
 
   Future<void> _toggleForwarding(BuildContext context, ProxyBinding binding, bool enabled) async {
     if (forwardingBusy.contains(binding.id)) return;
@@ -348,11 +375,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Future<void> _create(BuildContext context) async {
+  Widget _createProxyRow(BuildContext context, AppLocalizations l10n, List<String> domains, String selectedDomain, bool narrow) {
+    final fields = [
+      Expanded(flex: 2, child: TextField(controller: createAlias, onChanged: (_) => setState(() {}), decoration: InputDecoration(labelText: l10n.alias))),
+      Expanded(flex: 2, child: DropdownButtonFormField<String>(initialValue: selectedDomain, decoration: InputDecoration(labelText: l10n.domain), items: domains.map((item) => DropdownMenuItem(value: item, child: Text(item))).toList(), onChanged: (value) => setState(() => createDomain = value ?? selectedDomain))),
+      Expanded(flex: 3, child: Autocomplete<String>(optionsBuilder: (value) => widget.data.realEmails.where((email) => email.toLowerCase().contains(value.text.toLowerCase())), onSelected: (value) => createForwarding.text = value, fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) { controller.value = createForwarding.value; controller.addListener(() => createForwarding.value = controller.value); return TextField(controller: controller, focusNode: focusNode, decoration: InputDecoration(labelText: l10n.forwardTo)); })),
+    ];
+    final button = FilledButton(onPressed: createAlias.text.trim().isEmpty ? null : _createProxy, child: Text(l10n.create));
+    return Card(color: const Color(0xffeef3ff), elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)), child: Padding(padding: const EdgeInsets.all(14), child: narrow ? Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [...fields.map((field) => Padding(padding: const EdgeInsets.only(bottom: 10), child: field)), button]) : Row(children: [...fields.expand((field) => [field, const SizedBox(width: 10)]).toList()..removeLast(), button])));
+  }
+
+  Future<void> _createProxy() async {
+    final domains = widget.data.domains.isEmpty ? ['proxiedmail.com'] : widget.data.domains;
+    final domain = domains.contains(createDomain) ? createDomain : domains.first;
+    await widget.api.createBinding(alias: createAlias.text.trim(), domain: domain, forwarding: createForwarding.text.trim());
+    createAlias.clear();
+    createForwarding.clear();
+    await widget.onRefresh();
+  }
+
+  Future<void> _edit(BuildContext context, ProxyBinding binding) async {
     final l10n = AppLocalizations.of(context);
-    final alias = TextEditingController();
-    final domain = TextEditingController(text: 'proxiedmail.com');
-    final forwarding = TextEditingController();
-    await showDialog<void>(context: context, builder: (context) => AlertDialog(title: Text(l10n.newProxyAddress), content: Column(mainAxisSize: MainAxisSize.min, children: [TextField(controller: alias, decoration: InputDecoration(labelText: l10n.alias)), TextField(controller: domain, decoration: InputDecoration(labelText: l10n.domain)), TextField(controller: forwarding, decoration: InputDecoration(labelText: l10n.forwardTo))]), actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.cancel)), FilledButton(onPressed: () async { await widget.api.createBinding(alias: alias.text, domain: domain.text, forwarding: forwarding.text); if (context.mounted) Navigator.pop(context); await widget.onRefresh(); }, child: Text(l10n.create))]));
+    final forwarding = TextEditingController(text: binding.forwarding.join(', '));
+    await showDialog<void>(context: context, builder: (context) => AlertDialog(title: Text(l10n.editProxy), content: TextField(controller: forwarding, decoration: InputDecoration(labelText: l10n.forwardTo)), actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.cancel)), FilledButton(onPressed: () async { await widget.api.updateBinding(binding: binding, forwarding: forwarding.text); if (context.mounted) Navigator.pop(context); await widget.onRefresh(); }, child: Text(l10n.saveChanges))]));
   }
 }

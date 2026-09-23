@@ -356,6 +356,18 @@ abstract class AppLocalizations {
   /// **'New proxy address'**
   String get newProxyAddress;
 
+  /// No description provided for @editProxy.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit proxy'**
+  String get editProxy;
+
+  /// No description provided for @saveChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get saveChanges;
+
   /// No description provided for @alias.
   ///
   /// In en, this message translates to:

@@ -160,6 +160,12 @@ class AppLocalizationsEs extends AppLocalizations {
   String get newProxyAddress => 'Nueva dirección proxy';
 
   @override
+  String get editProxy => 'Editar proxy';
+
+  @override
+  String get saveChanges => 'Guardar cambios';
+
+  @override
   String get alias => 'Alias';
 
   @override

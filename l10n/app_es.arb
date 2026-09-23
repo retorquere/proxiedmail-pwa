@@ -43,6 +43,8 @@
   "needAccount": "¿Necesitas una cuenta? Créala",
   "accountCreated": "Cuenta creada. Inicia sesión para continuar.",
   "newProxyAddress": "Nueva dirección proxy",
+  "editProxy": "Editar proxy",
+  "saveChanges": "Guardar cambios",
   "alias": "Alias",
   "domain": "Dominio",
   "forwardTo": "Reenviar a",
