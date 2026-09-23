@@ -136,7 +136,7 @@ Deployment is split into two existing systems: GitHub Actions builds the Flutter
 2. Install npm and Dart dependencies.
 3. Run `flutter analyze` and `flutter test`.
 4. Run `npm run build`, which produces `build/web`.
-5. Commit the generated `build/web` files to the `cloudflare` branch.
+5. Publish the generated artifact to the `cloudflare` branch with `peaceiris/actions-gh-pages`.
 
 Add these repository secrets under **Settings > Secrets and variables > Actions**:
 
