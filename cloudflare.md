@@ -128,18 +128,23 @@ npm run deploy
 
 Do not deploy `dist/`, `public/`, `web/`, or the Flutter source directory as the Worker asset directory. Wrangler must deploy `build/web`.
 
-## GitHub deployment
+## GitHub Actions artifact branch
 
-When configuring a Cloudflare Git integration, use:
+Deployment is split into two existing systems: GitHub Actions builds the Flutter artifact, and the existing Cloudflare GitHub integration deploys that artifact. The Action is defined in `.github/workflows/deploy.yml`. Pushes to `main` and manual workflow runs:
 
-- Build command: `npm run build`
-- Deploy command: `npx wrangler deploy`
-- Preview command: `npx wrangler dev --remote`
-- Root directory: `/`
-- Build output directory: `build/web` if the dashboard asks for one
-- Preview builds: enabled if desired
+1. Install the pinned Flutter stable SDK (`3.47.5`).
+2. Install npm and Dart dependencies.
+3. Run `flutter analyze` and `flutter test`.
+4. Run `npm run build`, which produces `build/web`.
+5. Commit the generated `build/web` files to the `cloudflare` branch.
 
-The Worker configuration in `wrangler.jsonc` remains the source of truth for the asset binding and Worker entrypoint.
+Add these repository secrets under **Settings > Secrets and variables > Actions**:
+
+No Cloudflare secrets are required by the Action. Its GitHub token only needs permission to write the generated branch, which is provided by the workflow's `contents: write` permission.
+
+Configure the existing Cloudflare GitHub integration to watch the `cloudflare` branch. It should deploy the checked-in `build/web` directory using the existing `worker.ts` and `wrangler.jsonc` configuration. If the integration runs a build command, `npm run build` is safe: when Flutter is unavailable but `build/web` is already present, the repository build wrapper leaves the artifact unchanged.
+
+Do not point Cloudflare at `main` for deployment: `main` contains Flutter source and intentionally does not commit `build/web`. Do not add a second direct Wrangler deployment from GitHub Actions, or pushes will produce competing deployments.
 
 ## Add a custom domain
 
