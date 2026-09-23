@@ -1,0 +1,123 @@
+@if (heroVisible()) {
+  <c-card class="hero mb-4">
+    <c-card-body>
+      <button cButton color="light" variant="ghost" class="hero-close" (click)="dismissHero()" aria-label="Dismiss" i18n-aria-label>&times;</button>
+      <div class="eyebrow" i18n>YOUR PRIVATE ADDRESS BOOK</div>
+      <h1 i18n>Keep your inbox yours.</h1>
+      <p i18n>Every service gets its own address. Quiet, clear, and easy to replace.</p>
+    </c-card-body>
+  </c-card>
+}
+
+<c-row class="align-items-end mb-4">
+  <c-col>
+    <div class="eyebrow text-primary" i18n>PROXY MANAGEMENT</div>
+    <h2 i18n>Proxy addresses</h2>
+    <p class="text-body-secondary mb-0" i18n>Private forwarding addresses for your online accounts.</p>
+  </c-col>
+</c-row>
+
+<c-row class="g-3 mb-4">
+  <c-col md="4">
+    <c-card>
+      <c-card-body>
+        <div class="text-body-secondary" i18n>Active proxies</div>
+        <strong class="metric">{{ bindings().length }}</strong>
+      </c-card-body>
+    </c-card>
+  </c-col>
+  <c-col md="4">
+    <c-card>
+      <c-card-body>
+        <div class="text-body-secondary" i18n>Available capacity</div>
+        <strong class="metric">{{ available() }}</strong>
+      </c-card-body>
+    </c-card>
+  </c-col>
+  <c-col md="4">
+    <c-card>
+      <c-card-body>
+        <div class="text-body-secondary" i18n>2FA protection</div>
+        <strong class="metric">{{ twoFactorLabel() }}</strong>
+      </c-card-body>
+    </c-card>
+  </c-col>
+</c-row>
+
+<c-card class="mb-4 create-card">
+  <c-card-body>
+    <div class="eyebrow text-primary" i18n>NEW PROXY ADDRESS</div>
+    <c-row class="g-2 align-items-center mt-2">
+      <c-col md="3">
+        <label cFormLabel i18n>Proxy</label>
+        <div class="input-group">
+          <input cFormControl autocomplete="off" data-1p-ignore="true" data-bwignore="true" [(ngModel)]="alias" />
+          <button cButton color="light" size="sm" type="button" aria-label="Generate random proxy" i18n-aria-label (click)="generateAlias()" i18n>Generate</button>
+        </div>
+      </c-col>
+      <c-col md="3">
+        <label cFormLabel i18n>Domain</label>
+        <select cSelect autocomplete="off" [(ngModel)]="domain">
+          <option *ngFor="let item of domains()" [value]="item">{{ item }}</option>
+        </select>
+      </c-col>
+      <c-col md="4">
+        <label cFormLabel id="target-email-label" i18n>Target email</label>
+        <div class="combobox">
+          <div class="combobox-editor" contenteditable="true" role="combobox" aria-autocomplete="list" aria-controls="target-email-options" aria-labelledby="target-email-label" [attr.aria-expanded]="forwardingOpen()" aria-multiline="false" spellcheck="false" tabindex="0" data-1p-ignore="true" data-bwignore="true" [textContent]="forwardingQuery()" (input)="onForwardingInput($any($event.target).textContent ?? '')" (focus)="openForwarding()" (blur)="closeForwarding()" (keydown.enter)="$event.preventDefault(); selectForwarding(filteredEmails[0])"></div>
+          <div *ngIf="forwardingOpen()" class="combobox-options" id="target-email-options" role="listbox">
+            <button *ngFor="let email of filteredEmails" type="button" class="combobox-option" role="option" (mousedown)="$event.preventDefault()" (click)="selectForwarding(email)">{{ email }}</button>
+            <div *ngIf="!filteredEmails.length" class="combobox-empty" i18n>No matching email</div>
+          </div>
+        </div>
+      </c-col>
+      <c-col md="2">
+        <button cButton color="primary" class="w-100 mt-3" [disabled]="!alias().trim() || !forwarding().trim()" (click)="create()" i18n>Create</button>
+      </c-col>
+    </c-row>
+  </c-card-body>
+</c-card>
+
+<c-row class="mb-3">
+  <c-col md="6">
+    <input cFormControl type="search" placeholder="Search aliases" i18n-placeholder [ngModel]="query()" (ngModelChange)="query.set($event)" />
+  </c-col>
+</c-row>
+
+<c-row class="g-3">
+  <c-col md="6" *ngFor="let binding of filtered">
+    <c-card>
+      <c-card-body>
+        <div class="binding-heading">
+          <svg cIcon name="cilAt" class="text-primary"></svg>
+          <strong>{{ binding.address }}</strong>
+          <span class="spacer"></span>
+          <button cButton color="light" size="sm" (click)="beginEdit(binding)" i18n>Edit</button>
+        </div>
+        <p class="description">{{ binding.description || fallbackDescription() }}</p>
+        <div class="binding-meta">
+          <span>{{ binding.recipients.length }} <ng-container i18n>recipient(s)</ng-container></span>
+          <span>{{ binding.received }} <ng-container i18n>forwarded</ng-container></span>
+          <c-form-check [switch]="true">
+            <input cFormCheckInput type="checkbox" [checked]="isEnabled(binding)" (change)="setRecipients(binding, $any($event.target).checked)" />
+            <label cFormCheckLabel i18n>Forwarding</label>
+          </c-form-check>
+        </div>
+      </c-card-body>
+    </c-card>
+  </c-col>
+</c-row>
+
+@if (editBinding()) {
+  <c-card class="edit-card mt-4">
+    <c-card-body>
+      <div class="eyebrow text-primary" i18n>EDIT PROXY</div>
+      <label cFormLabel i18n>Forward to</label>
+      <input cFormControl [(ngModel)]="editForwarding" />
+      <div class="mt-3 text-end">
+        <button cButton color="light" class="me-2" (click)="editBinding.set(null)" i18n>Cancel</button>
+        <button cButton color="primary" (click)="saveEdit()" i18n>Save changes</button>
+      </div>
+    </c-card-body>
+  </c-card>
+}

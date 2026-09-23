@@ -1,0 +1,21 @@
+<header class="border-bottom bg-white shadow-sm">
+	<c-container [fluid]="true" class="d-flex align-items-center px-4 py-2">
+		<a class="navbar-brand d-flex align-items-center gap-2 text-primary" routerLink="/dashboard">
+			<img src="/assets/favicon.png" width="32" height="32" alt="ProxiedMail">
+			<strong>ProxiedMail</strong>
+		</a>
+		<nav class="d-flex gap-3 ms-4">
+			<a class="nav-link" routerLink="/dashboard" i18n>Dashboard</a>
+			<a class="nav-link" routerLink="/settings" i18n>Settings</a>
+		</nav>
+		<span class="flex-grow-1"></span>
+		<button class="btn btn-outline-secondary btn-sm" type="button" (click)="logout()" i18n>Sign out</button>
+	</c-container>
+</header>
+<div class="body flex-grow-1">
+	<c-container breakpoint="lg" class="h-auto px-4 py-4">
+		<router-outlet />
+	</c-container>
+</div>
+<app-default-footer />
+<header class="border-bottom bg-white shadow-sm"><c-container [fluid]="true" class="d-flex align-items-center px-4 py-2"><a class="navbar-brand d-flex align-items-center gap-2 text-primary" routerLink="/dashboard"><img src="/assets/favicon.png" width="32" height="32" alt="ProxiedMail"><strong>ProxiedMail</strong></a><nav class="d-flex gap-3 ms-4"><a class="nav-link" routerLink="/dashboard" i18n>Dashboard</a><a class="nav-link" routerLink="/settings" i18n>Settings</a></nav><span class="flex-grow-1"></span><button class="btn btn-outline-secondary btn-sm" type="button" (click)="logout()" i18n>Sign out</button></c-container></header><div class="body flex-grow-1"><c-container breakpoint="lg" class="h-auto px-4 py-4"><router-outlet /></c-container></div><app-default-footer />

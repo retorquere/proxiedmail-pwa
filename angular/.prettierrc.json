@@ -1,0 +1,35 @@
+{
+  "arrowParens": "avoid",
+  "trailingComma": "all",
+  "singleQuote": true,
+  "semi": false,
+  "useTabs": false,
+  "quoteProps": "as-needed",
+  "printWidth": 1024,
+  "overrides": [
+    {
+      "files": "**/*.html",
+      "options": {
+        "parser": "angular"
+      }
+    },
+    {
+      "files": "**/*.ts",
+      "options": {
+        "parser": "typescript"
+      }
+    },
+    {
+      "files": "**/*.json",
+      "options": {
+        "parser": "json"
+      }
+    },
+    {
+      "files": "**/*.md",
+      "options": {
+        "parser": "markdown"
+      }
+    }
+  ]
+}

@@ -1,0 +1,582 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file source-language="en-US" datatype="plaintext" original="ng2.template">
+    <body>
+      <trans-unit id="9197899864135780514" datatype="html">
+        <source>ProxiedMail</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.routes.ts</context>
+          <context context-type="linenumber">8</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2821179408673282599" datatype="html">
+        <source>Home</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.routes.ts</context>
+          <context context-type="linenumber">20</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6570363013146073520" datatype="html">
+        <source>Dashboard</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/layout/default-layout/_nav.ts</context>
+          <context context-type="linenumber">4</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/layout/default-layout/default-layout.component.html</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/routes.ts</context>
+          <context context-type="linenumber">8</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4930506384627295710" datatype="html">
+        <source>Settings</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/layout/default-layout/_nav.ts</context>
+          <context context-type="linenumber">5</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/layout/default-layout/default-layout.component.html</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7933384538978087776" datatype="html">
+        <source>Powered by</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/layout/default-layout/default-footer/default-footer.component.html</context>
+          <context context-type="linenumber">7,8</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2949848596707725099" datatype="html">
+        <source>Sign out</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/layout/default-layout/default-layout.component.html</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5829895782217005252" datatype="html">
+        <source>Welcome to ProxiedMail</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/authentication/login/login.component.html</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8610437622168244448" datatype="html">
+        <source>Manage private aliases without exposing your inbox.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/authentication/login/login.component.html</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4768749765465246664" datatype="html">
+        <source>Email</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/authentication/login/login.component.html</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5273107076768212928" datatype="html">
+        <source>example@gmail.com</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/authentication/login/login.component.html</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1431416938026210429" datatype="html">
+        <source>Password</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/authentication/login/login.component.html</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/authentication/register/register.component.html</context>
+          <context context-type="linenumber">39,40</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4921687518561446633" datatype="html">
+        <source>Your password</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/authentication/login/login.component.html</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/authentication/register/register.component.html</context>
+          <context context-type="linenumber">41</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6627551976444260400" datatype="html">
+        <source>or</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/authentication/login/login.component.html</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/authentication/register/register.component.html</context>
+          <context context-type="linenumber">74,75</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2734138791192936323" datatype="html">
+        <source>Sign in with Google</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/authentication/login/login.component.html</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5914830263439651720" datatype="html">
+        <source>Need an account? <x id="START_LINK" ctype="x-a" equiv-text="&lt;a routerLink=&quot;/authentication/register&quot;&gt;"/>Create one<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/authentication/login/login.component.html</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1858953469563036586" datatype="html">
+        <source>Signing in...</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/authentication/login/login.component.ts</context>
+          <context context-type="linenumber">32</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5207635742003539443" datatype="html">
+        <source>Sign in</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/authentication/login/login.component.ts</context>
+          <context context-type="linenumber">33</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/authentication/register/register.component.html</context>
+          <context context-type="linenumber">94,95</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/home/home.component.html</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5064923879058356068" datatype="html">
+        <source>Sign in failed.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/authentication/login/login.component.ts</context>
+          <context context-type="linenumber">34</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4648253303476880511" datatype="html">
+        <source>Create new account</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/authentication/register/register.component.html</context>
+          <context context-type="linenumber">10,11</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8953033926734869941" datatype="html">
+        <source>Name</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/authentication/register/register.component.html</context>
+          <context context-type="linenumber">13,14</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8203367621031610680" datatype="html">
+        <source>Your name</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/authentication/register/register.component.html</context>
+          <context context-type="linenumber">20,21</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3967269098753656610" datatype="html">
+        <source>Email address</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/authentication/register/register.component.html</context>
+          <context context-type="linenumber">26,27</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5468255562650277611" datatype="html">
+        <source>your@email.com</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/authentication/register/register.component.html</context>
+          <context context-type="linenumber">33,34</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5554528553553249088" datatype="html">
+        <source>Show password</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/authentication/register/register.component.html</context>
+          <context context-type="linenumber">44,45</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/authentication/register/register.component.html</context>
+          <context context-type="linenumber">47,48</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2376075102867555170" datatype="html">
+        <source>I accept the <x id="START_LINK" ctype="x-a" equiv-text="&lt;a routerLink=&quot;./&quot;&gt;"/>terms and conditions<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/authentication/register/register.component.html</context>
+          <context context-type="linenumber">61,62</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8999284073934392732" datatype="html">
+        <source>Login with Google</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/authentication/register/register.component.html</context>
+          <context context-type="linenumber">81,82</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="835513537799116986" datatype="html">
+        <source>Login with Apple</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/authentication/register/register.component.html</context>
+          <context context-type="linenumber">87,88</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5277739594710154939" datatype="html">
+        <source>Already have an account?</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/authentication/register/register.component.html</context>
+          <context context-type="linenumber">94</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8966698274727122602" datatype="html">
+        <source>Authentication</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/authentication/routes.ts</context>
+          <context context-type="linenumber">7</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2454050363478003966" datatype="html">
+        <source>Login</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/authentication/routes.ts</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3301086086650990787" datatype="html">
+        <source>Register</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/authentication/routes.ts</context>
+          <context context-type="linenumber">26</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="377142754337736320" datatype="html">
+        <source>Check Email</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/authentication/routes.ts</context>
+          <context context-type="linenumber">33</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6972105223770675605" datatype="html">
+        <source>Reset Password</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/authentication/routes.ts</context>
+          <context context-type="linenumber">43</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6582573664846559511" datatype="html">
+        <source>Change Password</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/authentication/routes.ts</context>
+          <context context-type="linenumber">50</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6949755576948440615" datatype="html">
+        <source>Password Changed</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/authentication/routes.ts</context>
+          <context context-type="linenumber">57</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1536087519743707362" datatype="html">
+        <source>Dismiss</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">2</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4044507770632212632" datatype="html">
+        <source>YOUR PRIVATE ADDRESS BOOK</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">2</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7640848016949263021" datatype="html">
+        <source>Keep your inbox yours.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">2</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6369531651820075367" datatype="html">
+        <source>Every service gets its own address. Quiet, clear, and easy to replace.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">2</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6428004980068504649" datatype="html">
+        <source>PROXY MANAGEMENT</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">4</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5364310210470242600" datatype="html">
+        <source>Proxy addresses</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">4</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5758487297436373802" datatype="html">
+        <source>Private forwarding addresses for your online accounts.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">4</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7018921981310252908" datatype="html">
+        <source>Active proxies</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">5</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5381464865764282983" datatype="html">
+        <source>Available capacity</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">5</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5609306362118229524" datatype="html">
+        <source>2FA protection</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">5</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6064307688826871087" datatype="html">
+        <source>NEW PROXY ADDRESS</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">6</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3719584865242260706" datatype="html">
+        <source>Proxy</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">6</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7772542427275369722" datatype="html">
+        <source>Generate random proxy</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">6</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5193539160604294602" datatype="html">
+        <source>Generate</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">6</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="966975180773840600" datatype="html">
+        <source>Domain</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">6</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="648726851592149010" datatype="html">
+        <source>Target email</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">6</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5674286808255988565" datatype="html">
+        <source>Create</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">6</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4971516674166640292" datatype="html">
+        <source>Search aliases</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">7</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7585826646011739428" datatype="html">
+        <source>Edit</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">8</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1883138045798839334" datatype="html">
+        <source>recipient(s)</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">8</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2630346684249694851" datatype="html">
+        <source>forwarded</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">8</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2223283913032152637" datatype="html">
+        <source>Forwarding</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">8</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7121242430370139603" datatype="html">
+        <source>EDIT PROXY</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">9</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2011811111835112405" datatype="html">
+        <source>Forward to</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">9</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2159130950882492111" datatype="html">
+        <source>Cancel</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">9</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7000649363168371045" datatype="html">
+        <source>Save changes</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">9</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8990769651805334695" datatype="html">
+        <source>On</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/dashboard.component.ts</context>
+          <context context-type="linenumber">13</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3500458863157551898" datatype="html">
+        <source>Off</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/dashboard.component.ts</context>
+          <context context-type="linenumber">13</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7268424205958108383" datatype="html">
+        <source>Private forwarding address</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/dashboard/dashboard.component.ts</context>
+          <context context-type="linenumber">14</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5080775557941296581" datatype="html">
+        <source>Pricing</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/home/home.component.html</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7751010942038334793" datatype="html">
+        <source>Blog</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/home/home.component.html</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7028204981963450021" datatype="html">
+        <source>Sign up</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/home/home.component.html</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="974474705816595513" datatype="html">
+        <source>PRIVATE FORWARDING, WITHOUT THE CLUTTER</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/home/home.component.html</context>
+          <context context-type="linenumber">3</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1620090994800614211" datatype="html">
+        <source>Protect your email future.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/home/home.component.html</context>
+          <context context-type="linenumber">3</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8011126294672269036" datatype="html">
+        <source><x id="START_TAG_STRONG" ctype="x-strong" equiv-text="&lt;strong&gt;"/>Endless email addresses that are truly yours, with ultimate control.<x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong&gt;"/> Generate unique addresses for every service and keep your real inbox private.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/home/home.component.html</context>
+          <context context-type="linenumber">3</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4606867540672733626" datatype="html">
+        <source>All incoming emails are forwarded seamlessly to your primary inbox, whether it is Gmail, Proton Mail, or any other platform.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/home/home.component.html</context>
+          <context context-type="linenumber">3</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2426784426657380481" datatype="html">
+        <source>Every address stays yours for as long as you need it, with no obligations after creation.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/home/home.component.html</context>
+          <context context-type="linenumber">3</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8531504852932512595" datatype="html">
+        <source>Try it for free</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/home/home.component.html</context>
+          <context context-type="linenumber">3</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2407860499554401189" datatype="html">
+        <source>How it works</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/home/home.component.html</context>
+          <context context-type="linenumber">3</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7901835144850656696" datatype="html">
+        <source>Create a proxy email</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/home/home.component.html</context>
+          <context context-type="linenumber">4</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2241946419710750363" datatype="html">
+        <source>Generate a unique address for every service you use.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/home/home.component.html</context>
+          <context context-type="linenumber">4</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2766020937351622920" datatype="html">
+        <source>© 2026 ProxiedMail. Private forwarding addresses for every service.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/home/home.component.html</context>
+          <context context-type="linenumber">6,7</context>
+        </context-group>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>
