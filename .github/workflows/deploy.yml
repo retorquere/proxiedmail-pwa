@@ -1,4 +1,4 @@
-name: Build ProxiedMail Cloudflare Artifact
+name: Build ProxiedMail Cloudflare Artifacts
 
 on:
   push:
@@ -48,9 +48,16 @@ jobs:
       - name: Verify Flutter artifact
         run: test -f build/web/index.html
 
-      - name: Prepare Cloudflare artifact
+      - name: Build Angular Web
+        working-directory: angular
         run: |
-          artifact="$RUNNER_TEMP/cloudflare"
+          npm ci
+          npx ng build --configuration production
+          npm run extract-i18n
+
+      - name: Prepare Flutter Cloudflare artifact
+        run: |
+          artifact="$RUNNER_TEMP/flutter"
           mkdir -p "$artifact/build"
           cp -R build/web "$artifact/build/web"
           cp worker.ts wrangler.jsonc "$artifact/"
@@ -58,10 +65,29 @@ jobs:
           test -f "$artifact/worker.ts"
           test -f "$artifact/wrangler.jsonc"
 
-      - name: Publish Cloudflare artifact branch
+      - name: Publish Flutter Cloudflare artifact branch
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ github.token }}
-          publish_branch: cloudflare
-          publish_dir: ${{ runner.temp }}/cloudflare
+          publish_branch: flutter
+          publish_dir: ${{ runner.temp }}/flutter
+          force_orphan: true
+
+      - name: Prepare Angular Cloudflare artifact
+        run: |
+          artifact="$RUNNER_TEMP/angular"
+          output=$(find angular/dist/coreui-free-angular-admin-template -maxdepth 2 -name index.html -print -quit | xargs dirname)
+          mkdir -p "$artifact/dist"
+          cp -R "$output"/. "$artifact/dist/"
+          cp angular/worker.ts angular/wrangler.jsonc "$artifact/"
+          test -f "$artifact/dist/index.html"
+          test -f "$artifact/worker.ts"
+          test -f "$artifact/wrangler.jsonc"
+
+      - name: Publish Angular Cloudflare artifact branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ github.token }}
+          publish_branch: angular
+          publish_dir: ${{ runner.temp }}/angular
           force_orphan: true

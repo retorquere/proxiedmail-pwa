@@ -1,6 +1,11 @@
 # Cloudflare Deployment
 
-This project deploys as a Cloudflare Worker with static Flutter Web assets and a same-origin API proxy. The Worker is required in production: it serves the dashboard and forwards the documented API paths to ProxiedMail.
+This repository publishes two independent Cloudflare Worker artifacts from GitHub Actions:
+
+- `flutter`: the Flutter Web app and its same-origin API proxy.
+- `angular`: the Angular app and its same-origin API proxy.
+
+Each Cloudflare app watches its corresponding artifact branch. The branches contain build output only; source remains on `main`.
 
 ```text
 https://mailroom.example.com              Worker -> Flutter static assets
@@ -14,7 +19,7 @@ Replace `mailroom.example.com` with the hostname used for the deployment.
 
 - `lib/`: Flutter application source.
 - `web/`: Flutter Web entrypoint, manifest, and icons.
-- `build/web/`: generated static Flutter output. This is the directory deployed by Wrangler.
+- `build/web/`: generated static Flutter output.
 - `worker.ts`: production Worker. It proxies `/api/v1/*` and `/gapi/*`, handles preflight requests, forwards authentication headers, and serves all other requests through the static asset binding.
 - `wrangler.jsonc`: Worker name, compatibility date, and `build/web` asset binding.
 - `server.js`: local Express server. It provides the same API proxy behavior for local static preview and is not required in production.
@@ -128,23 +133,40 @@ npm run deploy
 
 Do not deploy `dist/`, `public/`, `web/`, or the Flutter source directory as the Worker asset directory. Wrangler must deploy `build/web`.
 
-## GitHub Actions artifact branch
+## GitHub Actions artifact branches
 
-Deployment is split into two existing systems: GitHub Actions builds the Flutter artifact, and the existing Cloudflare GitHub integration deploys that artifact. The Action is defined in `.github/workflows/deploy.yml`. Pushes to `main` and manual workflow runs:
+GitHub Actions builds both applications and publishes two clean artifact branches. The Action is defined in `.github/workflows/deploy.yml`. Pushes to `main` and manual workflow runs:
 
 1. Install the pinned Flutter stable SDK (`3.47.5`).
 2. Install npm and Dart dependencies.
 3. Run `flutter analyze` and `flutter test`.
 4. Run `npm run build`, which produces `build/web`.
-5. Publish the generated artifact to the `cloudflare` branch with `peaceiris/actions-gh-pages`.
+5. Publish the Flutter artifact to the `flutter` branch.
+6. Build Angular from `angular/` and publish its artifact to the `angular` branch.
 
 Add these repository secrets under **Settings > Secrets and variables > Actions**:
 
 No Cloudflare secrets are required by the Action. Its GitHub token only needs permission to write the generated branch, which is provided by the workflow's `contents: write` permission.
 
-Configure the existing Cloudflare GitHub integration to watch the `cloudflare` branch. It should deploy the checked-in `build/web` directory using the existing `worker.ts` and `wrangler.jsonc` configuration. Set the Cloudflare build command to a no-op such as `true` (or leave it empty if supported), because GitHub Actions has already compiled Flutter. Set the asset/output directory to `build/web` if Cloudflare asks for one. Set the deploy command explicitly to `npx wrangler deploy --config wrangler.jsonc` so Wrangler uses the Worker asset binding checked into the artifact branch.
+Create two Cloudflare apps, each connected to this repository's artifact branch:
 
-Do not point Cloudflare at `main` for deployment: `main` contains Flutter source and intentionally does not commit `build/web`. Do not add a second direct Wrangler deployment from GitHub Actions, or pushes will produce competing deployments.
+### Flutter app
+
+- Branch: `flutter`
+- Build command: `true` or blank
+- Deploy command: `npx wrangler deploy --config wrangler.jsonc`
+- Worker assets: `build/web`
+
+### Angular app
+
+- Branch: `angular`
+- Build command: `true` or blank
+- Deploy command: `npx wrangler deploy --config wrangler.jsonc`
+- Worker assets: `dist`
+
+The Angular artifact includes its own `worker.ts` and `wrangler.jsonc`. That Worker proxies `/api/v1/*` and `/gapi/*` to ProxiedMail, just like the Flutter Worker.
+
+Do not point Cloudflare at `main` for deployment: `main` contains source and intentionally does not commit either application build. Do not add direct Wrangler deployments to the workflow; Cloudflare deploys the published artifact branches.
 
 ## Add a custom domain
 
