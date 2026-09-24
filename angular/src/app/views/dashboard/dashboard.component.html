@@ -18,7 +18,7 @@
 </c-row>
 
 <c-row class="g-3 mb-4">
-  <c-col md="4">
+  <c-col md="6">
     <c-card>
       <c-card-body>
         <div class="text-body-secondary" i18n>Active proxies</div>
@@ -26,19 +26,11 @@
       </c-card-body>
     </c-card>
   </c-col>
-  <c-col md="4">
+  <c-col md="6">
     <c-card>
       <c-card-body>
         <div class="text-body-secondary" i18n>Available capacity</div>
         <strong class="metric">{{ available() }}</strong>
-      </c-card-body>
-    </c-card>
-  </c-col>
-  <c-col md="4">
-    <c-card>
-      <c-card-body>
-        <div class="text-body-secondary" i18n>2FA protection</div>
-        <strong class="metric">{{ twoFactorLabel() }}</strong>
       </c-card-body>
     </c-card>
   </c-col>

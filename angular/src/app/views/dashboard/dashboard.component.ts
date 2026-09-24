@@ -13,7 +13,6 @@ export class DashboardComponent implements OnInit {
   readonly emails = signal<string[]>([])
   readonly passwordPreferences = signal({ length: 13, symbols: true, numbers: true, letters: true })
   readonly available = signal(0)
-  readonly twoFactor = signal(false)
   readonly query = signal('')
   readonly heroVisible = signal(localStorage.getItem('proxiedmail.hideDashboardHero') !== 'true')
   readonly alias = signal('')
@@ -31,9 +30,6 @@ export class DashboardComponent implements OnInit {
     const query = this.forwardingQuery().trim().toLowerCase()
     return this.emails().filter(email => email.toLowerCase().includes(query))
   }
-  twoFactorLabel() {
-    return this.twoFactor() ? $localize`On` : $localize`Off`
-  }
   fallbackDescription() {
     return $localize`Private forwarding address`
   }
@@ -50,7 +46,6 @@ export class DashboardComponent implements OnInit {
       this.domains.set(data.domains.filter((domain: string) => !(domain === 'iam-rich.net' && this.hideIamRichPreference())))
       this.emails.set(data.emails)
       this.available.set(data.available)
-      this.twoFactor.set(data.twoFactor)
       this.passwordPreferences.set(data.passwordPreferences)
       if (!this.domain()) this.domain.set(data.domains.includes(data.defaultDomain) ? data.defaultDomain : data.domains[0] ?? '')
     }

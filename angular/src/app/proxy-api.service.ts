@@ -57,8 +57,7 @@ export class ProxyApiService {
   }
   async dashboard() {
     const bindings = await this.loadBindings()
-    const [profile, domains, emails, usedOn, passwords, settings] = await Promise.all([
-      this.optional(this.request<any>('/api/v1/users/me'), { data: { attributes: {} } }),
+    const [domains, emails, usedOn, passwords, settings] = await Promise.all([
       this.optional(this.request<any>('/gapi/available-domains', { bearer: true }), []),
       this.optional(this.request<any>('/gapi/real-emails', { bearer: true }), []),
       this.optional(this.request<any>('/gapi/used-on', { bearer: true }), []),
@@ -73,7 +72,7 @@ export class ProxyApiService {
       return { id: item.id, address: attributes.proxy_address ?? '', description: attributes.description ?? '', received: attributes.received_emails ?? 0, callbackUrl: attributes.callback_url ?? '', usedOn: bindingUsedOn, password: bindingPassword, recipients: Object.keys(map), states: Object.fromEntries(Object.entries(map).map(([key, value]: any) => [key, value?.is_enabled !== false])) }
     })
     const settingList = Array.isArray(settings) ? settings : settings?.data ?? []
-    return { bindings: list, available: bindings?.meta?.availableProxyBindings ?? 0, twoFactor: Boolean(profile?.data?.attributes?.two_factor_enabled ?? profile?.data?.attributes?.twoFactorEnabled), domains: (Array.isArray(domains) ? domains : domains?.data ?? []).map((item: any) => item.domain ?? item.name ?? item).filter(Boolean), emails: (Array.isArray(emails) ? emails : emails?.data ?? []).map((item: any) => item.email ?? item).filter(Boolean), defaultDomain: settingList.find((setting: any) => setting.key === 'random_alias_default_domain')?.value ?? '', passwordPreferences: { length: Number(settingList.find((setting: any) => setting.key === 'password_length')?.value) || 13, symbols: settingList.find((setting: any) => setting.key === 'use_symbols')?.value !== 'false', numbers: settingList.find((setting: any) => setting.key === 'use_numbers')?.value !== 'false', letters: settingList.find((setting: any) => setting.key === 'use_letters')?.value !== 'false' } }
+    return { bindings: list, available: bindings?.meta?.availableProxyBindings ?? 0, domains: (Array.isArray(domains) ? domains : domains?.data ?? []).map((item: any) => item.domain ?? item.name ?? item).filter(Boolean), emails: (Array.isArray(emails) ? emails : emails?.data ?? []).map((item: any) => item.email ?? item).filter(Boolean), defaultDomain: settingList.find((setting: any) => setting.key === 'random_alias_default_domain')?.value ?? '', passwordPreferences: { length: Number(settingList.find((setting: any) => setting.key === 'password_length')?.value) || 13, symbols: settingList.find((setting: any) => setting.key === 'use_symbols')?.value !== 'false', numbers: settingList.find((setting: any) => setting.key === 'use_numbers')?.value !== 'false', letters: settingList.find((setting: any) => setting.key === 'use_letters')?.value !== 'false' } }
   }
   private async loadBindings() {
     try {
@@ -105,8 +104,8 @@ export class ProxyApiService {
     }
   }
   async settingsData() {
-    const [profile, domains, settings] = await Promise.all([firstValueFrom(this.request<any>('/api/v1/users/me')), firstValueFrom(this.request<any>('/gapi/available-domains', { bearer: true })), firstValueFrom(this.request<any>('/gapi/settings', { bearer: true }))])
-    return { twoFactor: Boolean(profile?.data?.attributes?.two_factor_enabled ?? profile?.data?.attributes?.twoFactorEnabled), domains: (Array.isArray(domains) ? domains : domains?.data ?? []).map((item: any) => item.domain ?? item.name ?? item).filter(Boolean), settings: Array.isArray(settings) ? settings : settings?.data ?? [] }
+    const [domains, settings] = await Promise.all([firstValueFrom(this.request<any>('/gapi/available-domains', { bearer: true })), firstValueFrom(this.request<any>('/gapi/settings', { bearer: true }))])
+    return { domains: (Array.isArray(domains) ? domains : domains?.data ?? []).map((item: any) => item.domain ?? item.name ?? item).filter(Boolean), settings: Array.isArray(settings) ? settings : settings?.data ?? [] }
   }
   async customDomains(): Promise<CustomDomain[]> {
     const response = await firstValueFrom(this.request<any>('/gapi/custom-domains?ignoreProcessing=1', { bearer: true }))
@@ -115,9 +114,6 @@ export class ProxyApiService {
   }
   updateSettings(settings: { key: string; value: string }[]) {
     return this.request('/gapi/settings/update', { method: 'PATCH', bearer: true, body: { settings } })
-  }
-  removeTwoFactor() {
-    return this.request('/api/v1/users/remove-2fa', { method: 'DELETE' })
   }
   apiToken() {
     return localStorage.getItem('proxiedmail.apiToken') ?? ''

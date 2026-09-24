@@ -12,7 +12,6 @@ const spanishTranslations: Record<string, string> = {
   '5364310210470242600': 'Direcciones proxy',
   '7018921981310252908': 'Proxies activos',
   '5381464865764282983': 'Capacidad disponible',
-  '5609306362118229524': 'Protección 2FA',
   '6064307688826871087': 'NUEVA DIRECCIÓN PROXY',
   '3719584865242260706': 'Proxy',
   '5193539160604294602': 'Generar',

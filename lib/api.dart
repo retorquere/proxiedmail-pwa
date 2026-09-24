@@ -44,19 +44,17 @@ class ProxyContact {
 }
 
 class SettingsData {
-  const SettingsData({required this.twoFactor, required this.domains, required this.settings});
+  const SettingsData({required this.domains, required this.settings});
 
-  final bool twoFactor;
   final List<String> domains;
   final Map<String, String> settings;
 }
 
 class DashboardData {
-  const DashboardData({required this.bindings, required this.available, required this.twoFactor, required this.domains, required this.realEmails, required this.defaultDomain, required this.passwordPreferences});
+  const DashboardData({required this.bindings, required this.available, required this.domains, required this.realEmails, required this.defaultDomain, required this.passwordPreferences});
 
   final List<ProxyBinding> bindings;
   final int available;
-  final bool twoFactor;
   final List<String> domains;
   final List<String> realEmails;
   final String defaultDomain;
@@ -88,10 +86,16 @@ class ProxiedMailApi {
 
   Future<void> _storeTokens() async {
     final preferences = await SharedPreferences.getInstance();
-    if (apiToken != null) await preferences.setString('proxiedmail.apiToken', apiToken!);
-    else await preferences.remove('proxiedmail.apiToken');
-    if (bearerToken != null) await preferences.setString('proxiedmail.bearerToken', bearerToken!);
-    else await preferences.remove('proxiedmail.bearerToken');
+    if (apiToken != null) {
+      await preferences.setString('proxiedmail.apiToken', apiToken!);
+    } else {
+      await preferences.remove('proxiedmail.apiToken');
+    }
+    if (bearerToken != null) {
+      await preferences.setString('proxiedmail.bearerToken', bearerToken!);
+    } else {
+      await preferences.remove('proxiedmail.bearerToken');
+    }
   }
 
   Future<void> clearStoredTokens() async {
@@ -128,12 +132,11 @@ class ProxiedMailApi {
   Future<void> register(String username, String password) => _request('/api/v1/users', method: 'POST', body: {'data': {'type': 'users', 'attributes': {'username': username, 'password': password}}});
 
   Future<DashboardData> dashboard() async {
-    final results = await Future.wait([_request('/api/v1/proxy-bindings?sort=desc'), _request('/api/v1/users/me'), _request('/gapi/available-domains', bearer: true), _request('/gapi/real-emails', bearer: true), _request('/gapi/used-on', bearer: true), _request('/gapi/passwords', bearer: true), _request('/gapi/settings', bearer: true)]);
+    final results = await Future.wait([_request('/api/v1/proxy-bindings?sort=desc'), _request('/gapi/available-domains', bearer: true), _request('/gapi/real-emails', bearer: true), _request('/gapi/used-on', bearer: true), _request('/gapi/passwords', bearer: true), _request('/gapi/settings', bearer: true)]);
     final bindingsPayload = results[0] as Map;
-    final profile = results[1] as Map;
-    final usedOnEntries = _responseList(results[4]);
-    final passwordEntries = _responseList(results[5]);
-    final settings = _settingsMap(results[6]);
+    final usedOnEntries = _responseList(results[3]);
+    final passwordEntries = _responseList(results[4]);
+    final settings = _settingsMap(results[5]);
     final list = ((bindingsPayload['data'] as List?) ?? []).map((item) {
       final json = (item as Map).cast<String, dynamic>();
       final id = '${json['id'] ?? ''}';
@@ -142,14 +145,13 @@ class ProxiedMailApi {
       return ProxyBinding.fromJson(json, usedOn: usedOn, password: password);
     }).toList();
     final meta = (bindingsPayload['meta'] as Map?) ?? {};
-    final attributes = (profile['data']?['attributes'] as Map?) ?? {};
-    final domainPayload = results[2];
-    final emailPayload = results[3];
+    final domainPayload = results[1];
+    final emailPayload = results[2];
     final domainList = (domainPayload is List ? domainPayload : (domainPayload is Map ? domainPayload['data'] : null)) as List?;
     final emailList = (emailPayload is List ? emailPayload : (emailPayload is Map ? emailPayload['data'] : null)) as List?;
     final domains = (domainList ?? []).map((item) => item is Map ? '${item['domain'] ?? item['name'] ?? ''}' : '$item').where((item) => item.isNotEmpty).toList();
     final realEmails = (emailList ?? []).map((item) => item is Map ? '${item['email'] ?? ''}' : '$item').where((item) => item.isNotEmpty).toList();
-    return DashboardData(bindings: list, available: (meta['availableProxyBindings'] as num?)?.toInt() ?? 0, twoFactor: attributes['two_factor_enabled'] == true || attributes['twoFactorEnabled'] == true, domains: domains, realEmails: realEmails, defaultDomain: settings['random_alias_default_domain'] ?? '', passwordPreferences: PasswordPreferences(length: int.tryParse(settings['password_length'] ?? '') ?? 13, symbols: settings['use_symbols'] != 'false', numbers: settings['use_numbers'] != 'false', letters: settings['use_letters'] != 'false'));
+    return DashboardData(bindings: list, available: (meta['availableProxyBindings'] as num?)?.toInt() ?? 0, domains: domains, realEmails: realEmails, defaultDomain: settings['random_alias_default_domain'] ?? '', passwordPreferences: PasswordPreferences(length: int.tryParse(settings['password_length'] ?? '') ?? 13, symbols: settings['use_symbols'] != 'false', numbers: settings['use_numbers'] != 'false', letters: settings['use_letters'] != 'false'));
   }
 
   Future<void> createBinding({required String alias, required String domain, required String forwarding}) => _request('/api/v1/proxy-bindings', method: 'POST', body: {'data': {'type': 'proxy_bindings', 'attributes': {'proxy_address': '$alias@$domain', 'real_addresses': forwarding.split(',').map((item) => item.trim()).where((item) => item.isNotEmpty).toList(), 'is_browsable': false}}});
@@ -175,16 +177,12 @@ class ProxiedMailApi {
   Future<void> setRecipient(ProxyBinding binding, String address, bool enabled) => _request('/api/v1/proxy-bindings/${binding.id}', method: 'PATCH', body: {'data': {'id': binding.id, 'type': 'proxy_bindings', 'attributes': {'proxy_address': binding.address, 'real_addresses': {address: enabled}}}});
 
   Future<SettingsData> settingsData() async {
-    final results = await Future.wait([_request('/api/v1/users/me'), _request('/gapi/available-domains', bearer: true), _request('/gapi/settings', bearer: true)]);
-    final profile = results[0] as Map;
-    final attributes = (profile['data']?['attributes'] as Map?) ?? {};
-    final domains = _responseList(results[1]).map((item) => '${item['domain'] ?? item['name'] ?? ''}').where((item) => item.isNotEmpty).toList();
-    return SettingsData(twoFactor: attributes['two_factor_enabled'] == true || attributes['twoFactorEnabled'] == true, domains: domains, settings: _settingsMap(results[2]));
+    final results = await Future.wait([_request('/gapi/available-domains', bearer: true), _request('/gapi/settings', bearer: true)]);
+    final domains = _responseList(results[0]).map((item) => '${item['domain'] ?? item['name'] ?? ''}').where((item) => item.isNotEmpty).toList();
+    return SettingsData(domains: domains, settings: _settingsMap(results[1]));
   }
 
   Future<void> updateSettings(Map<String, String> settings) => _request('/gapi/settings/update', method: 'PATCH', bearer: true, body: {'settings': settings.entries.map((entry) => {'key': entry.key, 'value': entry.value}).toList()});
-
-  Future<void> removeTwoFactor() => _request('/api/v1/users/remove-2fa', method: 'DELETE');
 
   List<Map<String, dynamic>> _responseList(dynamic response) {
     final entries = response is List ? response : response is Map ? response['data'] : null;

@@ -17,7 +17,6 @@ export class SettingsComponent implements OnInit {
   readonly saving = signal(false)
   readonly message = signal('')
   readonly error = signal('')
-  readonly twoFactor = signal(false)
   readonly hideIamRich = signal(this.readPreference('proxiedmail.hideIamRich'))
   readonly removeMailInfoBanner = signal(false)
   readonly retention = signal('never')
@@ -42,7 +41,6 @@ export class SettingsComponent implements OnInit {
     this.error.set('')
     try {
       const data = await this.api.settingsData()
-      this.twoFactor.set(data.twoFactor)
       this.domains.set(data.domains)
       if (this.availableDomains.length) this.selectedDomain.set(this.availableDomains[0])
       const retentionSetting = data.settings.find((setting: any) => /retention|message/i.test(setting.key ?? ''))
@@ -109,16 +107,6 @@ export class SettingsComponent implements OnInit {
     finally {
       this.saving.set(false)
     }
-  }
-
-  removeTwoFactor() {
-    this.api.removeTwoFactor().subscribe({
-      next: () => {
-        this.twoFactor.set(false)
-        this.message.set($localize`Two-factor authentication disabled.`)
-      },
-      error: error => this.error.set(error instanceof Error ? error.message : $localize`Unable to disable two-factor authentication.`),
-    })
   }
 
   private readCookie(name: string) {

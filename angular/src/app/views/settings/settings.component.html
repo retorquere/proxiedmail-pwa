@@ -78,24 +78,6 @@
     <c-col lg="6">
       <c-card>
         <c-card-body>
-          <h2 class="h5" i18n>Security</h2>
-          <p class="text-body-secondary" i18n>Two-factor authentication protects changes to your account.</p>
-          <div class="security-state">
-            <strong i18n>Two-factor authentication</strong>
-            <span class="badge" [class.text-bg-success]="twoFactor()" [class.text-bg-secondary]="!twoFactor()">{{ twoFactor() ? ('Enabled' | uppercase) : ('Disabled' | uppercase) }}</span>
-          </div>
-          @if (twoFactor()) {
-            <button cButton color="danger" variant="outline" class="mt-3" type="button" (click)="removeTwoFactor()" i18n>Disable two-factor authentication</button>
-          } @else {
-            <p class="small text-body-secondary mt-3 mb-0" i18n>Two-factor setup is not available in this client yet.</p>
-          }
-        </c-card-body>
-      </c-card>
-    </c-col>
-
-    <c-col lg="6">
-      <c-card>
-        <c-card-body>
           <button cButton color="light" variant="ghost" class="integration-toggle" type="button" [attr.aria-expanded]="bitwardenVisible()" (click)="bitwardenVisible.set(!bitwardenVisible())">
             <span class="eyebrow text-primary" i18n>INTEGRATION</span>
             <strong i18n>Bitwarden setup</strong>

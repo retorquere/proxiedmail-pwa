@@ -41,15 +41,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get availableCapacity => 'Available capacity';
 
   @override
-  String get twoFactorProtection => '2FA protection';
-
-  @override
-  String get on => 'On';
-
-  @override
-  String get off => 'Off';
-
-  @override
   String get searchAliases => 'Search aliases';
 
   @override

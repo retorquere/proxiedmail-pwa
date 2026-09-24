@@ -158,24 +158,6 @@ abstract class AppLocalizations {
   /// **'Available capacity'**
   String get availableCapacity;
 
-  /// No description provided for @twoFactorProtection.
-  ///
-  /// In en, this message translates to:
-  /// **'2FA protection'**
-  String get twoFactorProtection;
-
-  /// No description provided for @on.
-  ///
-  /// In en, this message translates to:
-  /// **'On'**
-  String get on;
-
-  /// No description provided for @off.
-  ///
-  /// In en, this message translates to:
-  /// **'Off'**
-  String get off;
-
   /// No description provided for @searchAliases.
   ///
   /// In en, this message translates to:

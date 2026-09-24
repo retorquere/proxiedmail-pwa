@@ -267,7 +267,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     return ListView(padding: EdgeInsets.all(narrow ? 16 : 32), children: [
       if (hero != null) ...[hero, const SizedBox(height: 24)],
-      Wrap(spacing: 12, runSpacing: 12, children: [_metric(context, l10n.activeProxies, '${widget.data.activeProxies}', narrow), _metric(context, l10n.availableCapacity, '${widget.data.available}', narrow), _metric(context, l10n.twoFactorProtection, widget.data.twoFactor ? l10n.on : l10n.off, narrow)]),
+      Wrap(spacing: 12, runSpacing: 12, children: [_metric(context, l10n.activeProxies, '${widget.data.activeProxies}', narrow), _metric(context, l10n.availableCapacity, '${widget.data.available}', narrow)]),
         const SizedBox(height: 24),
         _createProxyRow(context, l10n, domains, selectedDomain, narrow),
         const SizedBox(height: 18),
