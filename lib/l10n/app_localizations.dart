@@ -290,6 +290,18 @@ abstract class AppLocalizations {
   /// **'Manage private aliases without exposing your inbox.'**
   String get manageAliases;
 
+  /// No description provided for @token.
+  ///
+  /// In en, this message translates to:
+  /// **'Token'**
+  String get token;
+
+  /// No description provided for @enterToken.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your bearer token'**
+  String get enterToken;
+
   /// No description provided for @startManaging.
   ///
   /// In en, this message translates to:

@@ -125,6 +125,12 @@ class AppLocalizationsEn extends AppLocalizations {
       'Manage private aliases without exposing your inbox.';
 
   @override
+  String get token => 'Token';
+
+  @override
+  String get enterToken => 'Enter your bearer token';
+
+  @override
   String get startManaging => 'Start managing private forwarding addresses.';
 
   @override

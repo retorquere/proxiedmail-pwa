@@ -3,13 +3,8 @@ import { authGuard } from './auth.guard'
 
 export const routes: Routes = [
   {
-    path: 'home',
-    loadComponent: () => import('./views/home/home.component').then(m => m.HomeComponent),
-    data: { title: $localize`ProxiedMail` },
-  },
-  {
     path: '',
-    redirectTo: 'home',
+    redirectTo: 'dashboard',
     pathMatch: 'full',
   },
   {

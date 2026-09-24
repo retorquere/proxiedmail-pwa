@@ -34,28 +34,47 @@ export interface CustomDomain {
 
 @Injectable({ providedIn: 'root' })
 export class ProxyApiService {
+  private readonly apiOrigin = 'https://proxiedmail.com'
   private readonly http = inject(HttpClient)
   private headers(bearer = false) {
     const token = localStorage.getItem(bearer ? 'proxiedmail.bearerToken' : 'proxiedmail.apiToken')
     return new HttpHeaders({ Accept: 'application/json', 'Content-Type': 'application/json', ...(token ? { [bearer ? 'Authorization' : 'Token']: bearer ? `Bearer ${token}` : token } : {}) })
   }
   private request<T>(url: string, options: { method?: string; body?: unknown; bearer?: boolean } = {}): Observable<T> {
-    return this.http.request<T>(options.method ?? 'GET', url, { body: options.body, headers: this.headers(options.bearer) })
+    return this.http.request<T>(options.method ?? 'GET', `${this.apiOrigin}${url}`, { body: options.body, headers: this.headers(options.bearer) })
   }
-  async login(username: string, password: string) {
-    const auth = await firstValueFrom(this.request<any>('/api/v1/auth', { method: 'POST', body: { data: { type: 'auth-request', attributes: { username, password } } } }))
-    const bearer = auth?.data?.attributes?.token
-    if (bearer) localStorage.setItem('proxiedmail.bearerToken', bearer)
+  private async finishLogin(bearer: string) {
     const tokenResponse = await firstValueFrom(this.request<any>('/api/v1/api-token', { bearer: true }))
     const apiToken = tokenResponse?.token ?? tokenResponse?.data?.attributes?.token
-    if (!bearer || !apiToken) throw new Error('The token response was incomplete.')
+    if (!apiToken) throw new Error('The token response was incomplete.')
     localStorage.setItem('proxiedmail.bearerToken', bearer)
     localStorage.setItem('proxiedmail.apiToken', apiToken)
+    sessionStorage.removeItem('proxiedmail.pendingBearerToken')
+  }
+  async login(token: string) {
+    const bearer = token.trim().replace(/^Bearer\s+/i, '')
+    if (!bearer) throw new Error('Enter a token.')
+    localStorage.setItem('proxiedmail.bearerToken', bearer)
+    try {
+      await this.finishLogin(bearer)
+    }
+    catch (error) {
+      localStorage.removeItem('proxiedmail.bearerToken')
+      localStorage.removeItem('proxiedmail.apiToken')
+      throw error
+    }
+  }
+  async confirmTwoFactor(code: string) {
+    const bearer = sessionStorage.getItem('proxiedmail.pendingBearerToken')
+    if (!bearer) throw new Error('Your sign-in session expired. Please sign in again.')
+    await firstValueFrom(this.request<any>('/api/v1/confirm-2fa', { method: 'POST', bearer: true, body: { data: { code } } }))
+    await this.finishLogin(bearer)
   }
 
   logout() {
     localStorage.removeItem('proxiedmail.bearerToken')
     localStorage.removeItem('proxiedmail.apiToken')
+    sessionStorage.removeItem('proxiedmail.pendingBearerToken')
   }
   async dashboard() {
     const [bindings, profile, domains, emails, usedOn, passwords, settings] = await Promise.all([firstValueFrom(this.request<any>('/api/v1/proxy-bindings?sort=desc')), firstValueFrom(this.request<any>('/api/v1/users/me')), firstValueFrom(this.request<any>('/gapi/available-domains', { bearer: true })), firstValueFrom(this.request<any>('/gapi/real-emails', { bearer: true })), firstValueFrom(this.request<any>('/gapi/used-on', { bearer: true })), firstValueFrom(this.request<any>('/gapi/passwords', { bearer: true })), firstValueFrom(this.request<any>('/gapi/settings', { bearer: true }))])

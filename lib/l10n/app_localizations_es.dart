@@ -126,6 +126,12 @@ class AppLocalizationsEs extends AppLocalizations {
       'Administra direcciones privadas sin exponer tu bandeja de entrada.';
 
   @override
+  String get token => 'Token';
+
+  @override
+  String get enterToken => 'Introduce tu token de portador';
+
+  @override
   String get startManaging =>
       'Empieza a administrar direcciones privadas de reenvío.';
 

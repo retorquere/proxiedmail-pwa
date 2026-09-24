@@ -1,20 +1,10 @@
 import express from 'express';
-import { createProxyMiddleware } from 'http-proxy-middleware';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const port = Number(process.env.PORT || 4173);
-
-for (const prefix of ['/api/v1', '/gapi']) {
-  app.use(prefix, createProxyMiddleware({
-    target: 'https://proxiedmail.com',
-    changeOrigin: true,
-    secure: true,
-    pathRewrite: (path) => `${prefix}${path}`,
-  }));
-}
 
 app.use(express.static(path.join(root, 'build', 'web')));
 app.use((request, response, next) => {

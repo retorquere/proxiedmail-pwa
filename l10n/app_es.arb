@@ -32,6 +32,8 @@
   "welcome": "Bienvenido a ProxiedMail",
   "createAccountTitle": "Crea tu cuenta de ProxiedMail",
   "manageAliases": "Administra direcciones privadas sin exponer tu bandeja de entrada.",
+  "token": "Token",
+  "enterToken": "Introduce tu token de portador",
   "startManaging": "Empieza a administrar direcciones privadas de reenvío.",
   "email": "Correo electrónico",
   "password": "Contraseña",

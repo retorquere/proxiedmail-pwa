@@ -13,8 +13,7 @@
     "preview": "wrangler preview"
   },
   "dependencies": {
-    "express": "^5.2.1",
-    "http-proxy-middleware": "^4.2.0"
+    "express": "^5.2.1"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20260922.1",

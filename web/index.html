@@ -11,70 +11,82 @@
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="manifest" href="manifest.json">
-  <title>ProxiedMail | Private email addresses</title>
+  <title>ProxiedMail</title>
   <style>
-    :root { color-scheme: light; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; --blue: #4169ef; --ink: #202124; --muted: #6c6f76; }
+    :root { color-scheme: light; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; --blue: #4169ef; --ink: #202124; --muted: #686b73; }
     * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body { margin: 0; color: var(--ink); background: #fff; }
-    a { color: inherit; }
-    .site-header { display: flex; align-items: center; justify-content: space-between; width: min(100% - 48px, 1160px); margin: 0 auto; padding: 22px 0; }
-    .brand { display: flex; align-items: center; gap: 10px; color: var(--ink); font-size: 21px; font-weight: 700; text-decoration: none; letter-spacing: -0.04em; }
-    .brand-mark { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--blue); color: #fff; font-size: 22px; }
-    .nav-links { display: flex; align-items: center; gap: 34px; font-size: 16px; }
-    .nav-links a { color: #4164be; text-decoration: underline; text-underline-offset: 3px; }
-    .nav-actions { display: flex; align-items: center; gap: 25px; }
-    .nav-actions a { text-decoration: none; }
-    .button { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 28px; border-radius: 28px; background: var(--blue); color: #fff; font-weight: 600; text-decoration: none; }
-    .hero { display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 70px; width: min(100% - 48px, 1160px); min-height: 690px; margin: 0 auto; padding: 55px 0 85px; }
-    .hero h1 { max-width: 620px; margin: 0 0 34px; font-size: clamp(48px, 6vw, 76px); line-height: .98; letter-spacing: -0.065em; }
-    .hero-lede { max-width: 470px; margin: 0 0 25px; color: var(--muted); font-size: 18px; line-height: 1.45; }
-    .hero-lede strong { color: #63666c; }
-    .hero-copy p:last-of-type { margin-bottom: 34px; }
-    .illustration { position: relative; min-height: 430px; display: grid; place-items: center; }
-    .illustration-card { width: min(100%, 470px); padding: 30px 28px 22px; transform: rotate(4deg); border-radius: 10px; background: linear-gradient(145deg, #4f75f4, #284ed5); box-shadow: 20px 24px 0 #e9ebf1, 0 25px 45px #304fd044; color: #fff; }
-    .illustration-card h2 { margin: 0 0 20px; font-size: 20px; }
-    .flow-row { display: flex; align-items: center; gap: 10px; margin: 12px 0; padding: 12px; border-radius: 8px; background: #ffffff25; }
-    .flow-icon { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 6px; background: #fff; color: var(--blue); font-weight: 800; }
-    .flow-arrow { opacity: .75; }
-    .flow-address { margin-left: auto; font-size: 12px; }
-    .destination { margin: 30px 0 0; padding: 15px; border-radius: 9px; background: #fff; color: var(--blue); text-align: center; font-size: 14px; }
-    .blue-band { padding: 120px 24px 150px; background: var(--blue); color: #fff; text-align: center; }
-    .blue-band h2 { margin: 0 0 10px; font-size: clamp(38px, 5vw, 60px); letter-spacing: -0.05em; }
-    .blue-band p { margin: 0; font-size: 18px; }
-    @media (max-width: 780px) { .site-header { width: min(100% - 32px, 560px); flex-wrap: wrap; gap: 18px; } .nav-links { order: 3; width: 100%; gap: 20px; } .hero { grid-template-columns: 1fr; gap: 30px; min-height: auto; padding: 55px 0 90px; } .hero h1 { font-size: 52px; } .illustration { min-height: 330px; } .nav-actions { margin-left: auto; } }
-    @media (max-width: 460px) { .site-header { width: calc(100% - 32px); } .nav-actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; } .hero { width: calc(100% - 32px); } .hero h1 { font-size: 46px; } .illustration-card { padding: 22px 16px 16px; } .flow-address { font-size: 10px; } }
+    body { margin: 0; min-width: 320px; color: var(--ink); background: linear-gradient(145deg, #f7f9ff, #fff 58%); }
+    .token-page { min-height: 100vh; display: grid; grid-template-rows: auto 1fr auto; }
+    .token-header { display: flex; align-items: center; gap: 10px; width: min(100% - 40px, 960px); margin: 0 auto; padding: 24px 0; font-size: 20px; font-weight: 700; }
+    .token-mark { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; background: var(--blue); color: #fff; }
+    .token-main { display: grid; place-items: center; padding: 32px 20px 80px; }
+    .token-panel { width: min(100%, 420px); padding: 30px; border: 1px solid #e2e5ec; border-radius: 8px; background: #fff; box-shadow: 0 18px 55px #23356814; }
+    h1 { margin: 0 0 8px; font-size: 28px; letter-spacing: 0; }
+    .token-intro { margin: 0 0 24px; color: var(--muted); line-height: 1.5; }
+    label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 650; }
+    input { width: 100%; min-height: 48px; padding: 11px 13px; border: 1px solid #c9cdd7; border-radius: 6px; font: inherit; }
+    input:focus { outline: 3px solid #dce5ff; border-color: var(--blue); }
+    button { width: 100%; min-height: 48px; margin-top: 18px; border: 0; border-radius: 6px; background: var(--blue); color: #fff; font: inherit; font-weight: 700; cursor: pointer; }
+    button:disabled { opacity: .65; cursor: wait; }
+    #token-error { min-height: 20px; margin: 14px 0 -4px; color: #b3261e; font-size: 14px; }
+    .token-footer { padding: 22px; color: var(--muted); text-align: center; font-size: 13px; }
   </style>
 </head>
 <body>
-  <header class="site-header">
-    <a class="brand" href="/"><span class="brand-mark">✉</span><span>ProxiedMail</span></a>
-    <nav class="nav-links" aria-label="Main navigation"><a href="#pricing">Pricing</a><a href="#blog">Blog</a></nav>
-    <div class="nav-actions"><a href="/login.html">Sign in</a><a class="button" href="/login.html">Sign up</a></div>
-  </header>
-  <main>
-    <section class="hero">
-      <div class="hero-copy">
-        <h1>Protect your email future.</h1>
-        <p class="hero-lede"><strong>Endless email addresses that are truly yours, with ultimate control.</strong> Generate unique addresses for every service and keep your real inbox private.</p>
-        <p class="hero-lede">All incoming emails are forwarded seamlessly to your primary inbox, whether it is Gmail, Proton Mail, or any other platform.</p>
-        <p class="hero-lede">Every address stays yours for as long as you need it, with no obligations after creation.</p>
-        <a class="button" href="/login.html">Try it for free</a>
-      </div>
-      <div class="illustration" aria-label="How private forwarding works">
-        <div class="illustration-card"><h2>How it works</h2><div class="flow-row"><span class="flow-icon">X</span><span class="flow-arrow">→</span><span class="flow-address">twitter@proxiedmail.com</span></div><div class="flow-row"><span class="flow-icon">P</span><span class="flow-arrow">→</span><span class="flow-address">paypal@proxiedmail.com</span></div><div class="flow-row"><span class="flow-icon">N</span><span class="flow-arrow">→</span><span class="flow-address">netflix@proxiedmail.com</span></div><div class="destination">✉ real-email@example.com</div></div>
-      </div>
-    </section>
-    <section class="blue-band" id="pricing"><h2>Create a proxy email</h2><p>Generate a unique address for every service you use.</p></section>
-  </main>
+  <div class="token-page" id="token-page">
+    <header class="token-header"><span class="token-mark">P</span><span>ProxiedMail</span></header>
+    <main class="token-main">
+      <section class="token-panel" aria-labelledby="token-heading">
+        <h1 id="token-heading">Enter your token</h1>
+        <p class="token-intro">Use your ProxiedMail bearer token to open the dashboard.</p>
+        <form id="token-form">
+          <label for="token-password">Token</label>
+          <input id="token-password" name="password" type="password" autocomplete="current-password" placeholder="Bearer token" required autofocus>
+          <div id="token-error" role="alert" aria-live="polite"></div>
+          <button id="token-submit" type="submit">Continue</button>
+        </form>
+      </section>
+    </main>
+    <footer class="token-footer">Private forwarding addresses for every service.</footer>
+  </div>
+  <noscript>You need to enable JavaScript to sign in.</noscript>
   <script>
-    const hasSession = Boolean(localStorage.getItem('flutter.proxiedmail.apiToken'));
-    if (hasSession) {
-      document.body.innerHTML = '';
+    const apiToken = localStorage.getItem('flutter.proxiedmail.apiToken');
+    if (apiToken) {
+      document.getElementById('token-page').remove();
       const script = document.createElement('script');
       script.src = 'flutter_bootstrap.js';
       script.async = true;
       document.body.appendChild(script);
+    } else {
+      document.getElementById('token-form').addEventListener('submit', async event => {
+        event.preventDefault();
+        const input = document.getElementById('token-password');
+        const submit = document.getElementById('token-submit');
+        const error = document.getElementById('token-error');
+        const bearer = input.value.trim().replace(/^Bearer\s+/i, '');
+        error.textContent = '';
+        submit.disabled = true;
+        try {
+          const response = await fetch('https://proxiedmail.com/api/v1/api-token', { headers: { Accept: 'application/json', Authorization: `Bearer ${bearer}` } });
+          const payload = await response.json().catch(() => null);
+          if (!response.ok) throw new Error(payload?.message || payload?.detail || `Request failed (${response.status})`);
+          const token = payload?.token || payload?.data?.attributes?.token;
+          if (!token) throw new Error('API token response was incomplete.');
+          localStorage.setItem('proxiedmail.apiToken', token);
+          localStorage.setItem('proxiedmail.bearerToken', bearer);
+          localStorage.setItem('flutter.proxiedmail.apiToken', JSON.stringify(token));
+          localStorage.setItem('flutter.proxiedmail.bearerToken', JSON.stringify(bearer));
+          location.reload();
+        } catch (cause) {
+          localStorage.removeItem('proxiedmail.apiToken');
+          localStorage.removeItem('proxiedmail.bearerToken');
+          localStorage.removeItem('flutter.proxiedmail.apiToken');
+          localStorage.removeItem('flutter.proxiedmail.bearerToken');
+          error.textContent = cause instanceof Error ? cause.message : 'Token verification failed.';
+          submit.disabled = false;
+        }
+      });
     }
   </script>
 </body>

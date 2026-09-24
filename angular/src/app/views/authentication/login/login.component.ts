@@ -22,8 +22,7 @@ import { ProxyApiService } from '../../../proxy-api.service'
 export class LoginComponent {
   private readonly api = inject(ProxyApiService)
   private readonly router = inject(Router)
-  readonly email = signal('')
-  readonly password = signal('')
+  readonly token = signal('')
   readonly busy = signal(false)
   readonly error = signal('')
   busyLabel() {
@@ -36,7 +35,7 @@ export class LoginComponent {
     this.busy.set(true)
     this.error.set('')
     try {
-      await this.api.login(this.email(), this.password())
+      await this.api.login(this.token())
       await this.router.navigateByUrl('/dashboard')
     }
     catch (error) {

@@ -32,6 +32,8 @@
   "welcome": "Welcome to ProxiedMail",
   "createAccountTitle": "Create your ProxiedMail account",
   "manageAliases": "Manage private aliases without exposing your inbox.",
+  "token": "Token",
+  "enterToken": "Enter your bearer token",
   "startManaging": "Start managing private forwarding addresses.",
   "email": "Email",
   "password": "Password",

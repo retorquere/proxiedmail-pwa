@@ -106,9 +106,7 @@ class AuthScreen extends StatefulWidget {
 
 class _AuthScreenState extends State<AuthScreen> {
   final formKey = GlobalKey<FormState>();
-  final username = TextEditingController();
-  final password = TextEditingController();
-  bool registering = false;
+  final token = TextEditingController();
   bool busy = false;
   String? message;
 
@@ -116,14 +114,8 @@ class _AuthScreenState extends State<AuthScreen> {
     if (!formKey.currentState!.validate()) return;
     setState(() => busy = true);
     try {
-      if (registering) {
-        await widget.api.register(username.text, password.text);
-        setState(() { registering = false; message = 'Account created. Sign in to continue.'; });
-      } else {
-        await widget.api.login(username.text, password.text);
-        TextInput.finishAutofillContext(shouldSave: true);
-        await widget.onSignedIn();
-      }
+      await widget.api.login(token.text);
+      await widget.onSignedIn();
     } catch (exception) {
       setState(() => message = exception.toString().replaceFirst('Exception: ', ''));
     } finally {
@@ -147,21 +139,14 @@ class _AuthScreenState extends State<AuthScreen> {
                   child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                     const Icon(Icons.alternate_email, size: 42),
                     const SizedBox(height: 20),
-                    Text(registering ? l10n.createAccountTitle : l10n.welcome, style: Theme.of(context).textTheme.headlineSmall),
+                    Text(l10n.welcome, style: Theme.of(context).textTheme.headlineSmall),
                     const SizedBox(height: 8),
-                    Text(registering ? l10n.startManaging : l10n.manageAliases),
+                    Text(l10n.manageAliases),
                     const SizedBox(height: 24),
                     if (message != null || widget.error != null) Padding(padding: const EdgeInsets.only(bottom: 16), child: Text(message ?? widget.error!, style: TextStyle(color: Theme.of(context).colorScheme.error))),
-                    AutofillGroup(
-                      child: Column(children: [
-                        TextFormField(controller: username, autofillHints: registering ? const [AutofillHints.newUsername, AutofillHints.email] : const [AutofillHints.username, AutofillHints.email], keyboardType: TextInputType.emailAddress, textInputAction: TextInputAction.next, decoration: InputDecoration(labelText: l10n.email, prefixIcon: const Icon(Icons.email_outlined)), validator: (value) => value == null || value.isEmpty ? l10n.enterEmail : null),
-                        const SizedBox(height: 16),
-                        TextFormField(controller: password, autofillHints: registering ? const [AutofillHints.newPassword] : const [AutofillHints.password], obscureText: true, textInputAction: TextInputAction.done, onEditingComplete: submit, decoration: InputDecoration(labelText: l10n.password, prefixIcon: const Icon(Icons.lock_outline)), validator: (value) => value == null || value.length < 8 ? l10n.passwordLength : null),
-                      ]),
-                    ),
+                    TextFormField(controller: token, obscureText: true, textInputAction: TextInputAction.done, onEditingComplete: submit, decoration: InputDecoration(labelText: l10n.token, prefixIcon: const Icon(Icons.key_outlined)), validator: (value) => value == null || value.trim().isEmpty ? l10n.enterToken : null),
                     const SizedBox(height: 24),
-                    FilledButton.icon(onPressed: busy ? null : submit, icon: busy ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.arrow_forward), label: Text(registering ? l10n.createAccount : l10n.signIn)),
-                    TextButton(onPressed: busy ? null : () => setState(() { registering = !registering; message = null; }), child: Text(registering ? l10n.alreadyAccount : l10n.needAccount)),
+                    FilledButton.icon(onPressed: busy ? null : submit, icon: busy ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.arrow_forward), label: Text(l10n.signIn)),
                   ]),
                 ),
               ),

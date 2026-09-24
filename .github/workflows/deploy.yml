@@ -48,7 +48,6 @@ jobs:
       - name: Verify Flutter artifact
         run: |
           test -f build/web/index.html
-          test -f build/web/login.html
 
       - name: Prepare Flutter Cloudflare artifact
         run: |

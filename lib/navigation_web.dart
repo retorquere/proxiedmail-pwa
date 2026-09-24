@@ -1,3 +1,3 @@
 import 'package:web/web.dart' as web;
 
-void redirectToLogin() => web.window.location.replace('/login.html');
+void redirectToLogin() => web.window.location.replace('/');

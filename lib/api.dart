@@ -46,6 +46,7 @@ class ForwardingUpdateResult {
 class ProxiedMailApi {
   ProxiedMailApi({http.Client? client}) : _client = client ?? http.Client();
 
+  static const apiOrigin = 'https://proxiedmail.com';
   final http.Client _client;
   String? apiToken;
   String? bearerToken;
@@ -73,7 +74,7 @@ class ProxiedMailApi {
   Map<String, String> _headers({bool bearer = false}) => {'Accept': 'application/json', 'Content-Type': 'application/json', if (bearer && bearerToken != null) 'Authorization': 'Bearer $bearerToken', if (!bearer && apiToken != null) 'Token': apiToken!};
 
   Future<dynamic> _request(String path, {String method = 'GET', Object? body, bool bearer = false}) async {
-    final request = http.Request(method, Uri.parse(path))..headers.addAll(_headers(bearer: bearer));
+    final request = http.Request(method, Uri.parse('$apiOrigin$path'))..headers.addAll(_headers(bearer: bearer));
     if (body != null) request.body = jsonEncode(body);
     final response = await _client.send(request);
     final text = await response.stream.bytesToString();
@@ -85,14 +86,18 @@ class ProxiedMailApi {
     return payload;
   }
 
-  Future<void> login(String username, String password) async {
-    final auth = await _request('/api/v1/auth', method: 'POST', body: {'data': {'type': 'auth-request', 'attributes': {'username': username, 'password': password}}});
-    bearerToken = auth['data']?['attributes']?['token'] as String?;
-    if (bearerToken == null) throw Exception('Login did not return a bearer token.');
-    final token = await _request('/api/v1/api-token', bearer: true);
-    apiToken = token['token'] as String? ?? token['data']?['attributes']?['token'] as String?;
-    if (apiToken == null) throw Exception('API token response was incomplete.');
-    await _storeTokens();
+  Future<void> login(String token) async {
+    bearerToken = token.trim().replaceFirst(RegExp(r'^Bearer\s+', caseSensitive: false), '');
+    if (bearerToken!.isEmpty) throw Exception('Enter a token.');
+    try {
+      final response = await _request('/api/v1/api-token', bearer: true);
+      apiToken = response['token'] as String? ?? response['data']?['attributes']?['token'] as String?;
+      if (apiToken == null) throw Exception('API token response was incomplete.');
+      await _storeTokens();
+    } catch (_) {
+      await clearStoredTokens();
+      rethrow;
+    }
   }
 
   Future<void> register(String username, String password) => _request('/api/v1/users', method: 'POST', body: {'data': {'type': 'users', 'attributes': {'username': username, 'password': password}}});
