@@ -268,7 +268,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     return ListView(padding: EdgeInsets.all(narrow ? 16 : 32), children: [
       if (hero != null) ...[hero, const SizedBox(height: 24)],
-      Wrap(spacing: 12, runSpacing: 12, children: [_metric(context, l10n.activeProxies, '${widget.data.activeProxies}', narrow), _metric(context, l10n.availableCapacity, '${widget.data.available}', narrow)]),
+      _metrics(context, l10n, narrow),
         const SizedBox(height: 24),
         _createProxyRow(context, l10n, domains, selectedDomain, narrow),
         const SizedBox(height: 18),
@@ -276,6 +276,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
         const SizedBox(height: 16),
           if (matches.isEmpty) Card(child: Padding(padding: const EdgeInsets.all(32), child: Center(child: Text(l10n.noProxies)))) else Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Padding(padding: const EdgeInsets.only(bottom: 12), child: Text(l10n.yourProxies, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700))), LayoutBuilder(builder: (context, constraints) => Wrap(spacing: 12, runSpacing: 12, children: matches.map((binding) => SizedBox(width: narrow ? constraints.maxWidth : (constraints.maxWidth - 12) / 2, child: _bindingCard(context, binding))).toList()))])
     ]);
+  }
+
+  Widget _metrics(BuildContext context, AppLocalizations l10n, bool narrow) {
+    final metrics = [_metric(context, l10n.activeProxies, '${widget.data.activeProxies}', narrow), _metric(context, l10n.availableCapacity, '${widget.data.available}', narrow)];
+    if (narrow) return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: metrics.expand((metric) => [metric, const SizedBox(height: 12)]).toList()..removeLast());
+    return Wrap(spacing: 12, runSpacing: 12, children: metrics);
   }
 
   Widget _metric(BuildContext context, String label, String value, bool narrow) {
@@ -301,6 +307,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final l10n = AppLocalizations.of(context);
     final forwardingEnabled = forwardingOverrides[binding.id] ?? binding.forwardingStates.values.any((enabled) => enabled);
     final isBusy = forwardingBusy.contains(binding.id);
+    final verifiedCount = binding.forwarding.where((address) => binding.verificationStates[address] == true).length;
+    final verificationLabel = binding.forwarding.isEmpty ? l10n.noRecipients : l10n.verifiedRecipients(binding.forwarding.length, verifiedCount);
+    final triggerLabel = binding.callbackUrl.trim().isEmpty ? l10n.noTrigger : l10n.trigger;
     return Card(
       margin: EdgeInsets.zero,
       elevation: 0,
@@ -318,7 +327,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ]),
           SizedBox(height: 20, child: binding.description.isNotEmpty ? Padding(padding: const EdgeInsets.only(left: 42), child: Text(binding.description, maxLines: 1, overflow: TextOverflow.ellipsis, softWrap: true)) : null),
           const SizedBox(height: 10),
-          Wrap(spacing: 14, runSpacing: 6, crossAxisAlignment: WrapCrossAlignment.center, children: [_compactDetail(context, Icons.forward_to_inbox_outlined, l10n.recipients(binding.forwarding.length)), _compactDetail(context, Icons.mark_email_read_outlined, l10n.forwarded(binding.forwarded)), _forwardingControl(context, binding, l10n, forwardingEnabled, isBusy)]),
+          Wrap(spacing: 14, runSpacing: 6, crossAxisAlignment: WrapCrossAlignment.center, children: [_compactDetail(context, Icons.forward_to_inbox_outlined, l10n.recipients(binding.forwarding.length)), _compactDetail(context, Icons.mark_email_read_outlined, l10n.forwarded(binding.forwarded)), _compactDetail(context, Icons.verified_user_outlined, verificationLabel), _compactDetail(context, binding.callbackUrl.trim().isEmpty ? Icons.webhook_outlined : Icons.bolt_outlined, triggerLabel), _forwardingControl(context, binding, l10n, forwardingEnabled, isBusy)]),
           if (binding.forwarding.isNotEmpty) ...[
             const SizedBox(height: 12),
             Column(crossAxisAlignment: CrossAxisAlignment.start, children: binding.forwarding.map((address) => _recipientStatus(context, binding, address)).toList()),

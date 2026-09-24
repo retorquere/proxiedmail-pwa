@@ -20,16 +20,33 @@ class ProxyBinding {
 
   factory ProxyBinding.fromJson(Map<String, dynamic> json, {List<String> usedOn = const [], String password = '', Map<String, bool> verificationStates = const {}}) {
     final attributes = (json['attributes'] as Map?)?.cast<String, dynamic>() ?? {};
-    final realAddressMap = (attributes['real_addresses'] as Map?)?.cast<String, dynamic>() ?? {};
-    final realAddresses = realAddressMap.keys.toList();
-    final forwardingStates = {for (final entry in realAddressMap.entries) entry.key: (entry.value is Map ? (entry.value['is_enabled'] != false) : true)};
+    final realAddressEntries = _realAddressEntries(attributes['real_addresses']);
+    final realAddresses = realAddressEntries.keys.toList();
+    final forwardingStates = {for (final entry in realAddressEntries.entries) entry.key: (entry.value is Map ? (entry.value['is_enabled'] != false) : entry.value != false)};
     final bindingVerificationStates = <String, bool>{};
-    for (final entry in realAddressMap.entries) {
+    for (final entry in realAddressEntries.entries) {
       if (entry.value is Map && (entry.value as Map).containsKey('is_verified')) {
         bindingVerificationStates[entry.key] = entry.value['is_verified'] == true;
       }
     }
     return ProxyBinding(id: '${json['id'] ?? ''}', address: '${attributes['proxy_address'] ?? 'Unnamed address'}', description: '${attributes['description'] ?? ''}', browsable: attributes['is_browsable'] == true, forwarding: realAddresses, forwardingStates: forwardingStates, verificationStates: {...bindingVerificationStates, ...verificationStates}, forwarded: (attributes['received_emails'] as num?)?.toInt() ?? 0, callbackUrl: '${attributes['callback_url'] ?? ''}', usedOn: usedOn, password: password);
+  }
+
+  static Map<String, dynamic> _realAddressEntries(dynamic value) {
+    if (value is Map) return value.cast<String, dynamic>();
+    if (value is List) {
+      return {
+        for (final item in value)
+          if (_realAddress(item).isNotEmpty) _realAddress(item): item is Map ? item : true,
+      };
+    }
+    return {};
+  }
+
+  static String _realAddress(dynamic value) {
+    if (value is String) return value;
+    if (value is Map) return '${value['email'] ?? value['address'] ?? value['real_address'] ?? ''}';
+    return '';
   }
 }
 

@@ -69,6 +69,20 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String verifiedRecipients(Object total, Object verified) {
+    return '$verified of $total verified';
+  }
+
+  @override
+  String get noRecipients => 'No recipients';
+
+  @override
+  String get trigger => 'Trigger';
+
+  @override
+  String get noTrigger => 'No trigger';
+
+  @override
   String get forwardingRecipients => 'Forwarding recipients';
 
   @override

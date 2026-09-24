@@ -64,6 +64,26 @@ void main() {
     expect(data.realEmails.single.verified, isFalse);
   });
 
+  test('dashboard reads recipient verification when real addresses are a list', () async {
+    final client = MockClient((request) async {
+      switch (request.url.path) {
+        case '/api/v1/proxy-bindings':
+          return _json({'data': [{'id': 'binding-1', 'attributes': {'proxy_address': 'alias@example.com', 'real_addresses': ['inbox@example.com']}}], 'meta': {}});
+        case '/gapi/real-emails':
+          return _json([{'email': 'inbox@example.com', 'is_verified': false}]);
+        default:
+          return _json([]);
+      }
+    });
+    final api = ProxiedMailApi(client: client)..apiToken = 'api-token';
+
+    final data = await api.dashboard();
+
+    expect(data.bindings.single.forwarding, ['inbox@example.com']);
+    expect(data.bindings.single.forwardingStates['inbox@example.com'], isTrue);
+    expect(data.bindings.single.verificationStates['inbox@example.com'], isFalse);
+  });
+
   test('resends confirmation for a real email address', () async {
     late http.Request captured;
     final client = MockClient((request) async {

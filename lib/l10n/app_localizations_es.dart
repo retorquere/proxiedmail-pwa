@@ -70,6 +70,20 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String verifiedRecipients(Object total, Object verified) {
+    return '$verified de $total verificados';
+  }
+
+  @override
+  String get noRecipients => 'Sin destinatarios';
+
+  @override
+  String get trigger => 'Disparador';
+
+  @override
+  String get noTrigger => 'Sin disparador';
+
+  @override
   String get forwardingRecipients => 'Destinatarios de reenvío';
 
   @override

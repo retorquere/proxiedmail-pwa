@@ -194,6 +194,30 @@ abstract class AppLocalizations {
   /// **'{count} forwarded'**
   String forwarded(Object count);
 
+  /// No description provided for @verifiedRecipients.
+  ///
+  /// In en, this message translates to:
+  /// **'{verified} of {total} verified'**
+  String verifiedRecipients(Object total, Object verified);
+
+  /// No description provided for @noRecipients.
+  ///
+  /// In en, this message translates to:
+  /// **'No recipients'**
+  String get noRecipients;
+
+  /// No description provided for @trigger.
+  ///
+  /// In en, this message translates to:
+  /// **'Trigger'**
+  String get trigger;
+
+  /// No description provided for @noTrigger.
+  ///
+  /// In en, this message translates to:
+  /// **'No trigger'**
+  String get noTrigger;
+
   /// No description provided for @forwardingRecipients.
   ///
   /// In en, this message translates to:
