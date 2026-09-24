@@ -132,11 +132,11 @@ class ProxiedMailApi {
   Future<void> register(String username, String password) => _request('/api/v1/users', method: 'POST', body: {'data': {'type': 'users', 'attributes': {'username': username, 'password': password}}});
 
   Future<DashboardData> dashboard() async {
-    final results = await Future.wait([_request('/api/v1/proxy-bindings?sort=desc'), _request('/gapi/available-domains', bearer: true), _request('/gapi/real-emails', bearer: true), _request('/gapi/used-on', bearer: true), _request('/gapi/passwords', bearer: true), _request('/gapi/settings', bearer: true)]);
-    final bindingsPayload = results[0] as Map;
-    final usedOnEntries = _responseList(results[3]);
-    final passwordEntries = _responseList(results[4]);
-    final settings = _settingsMap(results[5]);
+    final bindingsPayload = await _request('/api/v1/proxy-bindings?sort=desc') as Map;
+    final results = await Future.wait([_optional('/gapi/available-domains', []), _optional('/gapi/real-emails', []), _optional('/gapi/used-on', []), _optional('/gapi/passwords', []), _optional('/gapi/settings', [])]);
+    final usedOnEntries = _responseList(results[2]);
+    final passwordEntries = _responseList(results[3]);
+    final settings = _settingsMap(results[4]);
     final list = ((bindingsPayload['data'] as List?) ?? []).map((item) {
       final json = (item as Map).cast<String, dynamic>();
       final id = '${json['id'] ?? ''}';
@@ -145,13 +145,21 @@ class ProxiedMailApi {
       return ProxyBinding.fromJson(json, usedOn: usedOn, password: password);
     }).toList();
     final meta = (bindingsPayload['meta'] as Map?) ?? {};
-    final domainPayload = results[1];
-    final emailPayload = results[2];
+    final domainPayload = results[0];
+    final emailPayload = results[1];
     final domainList = (domainPayload is List ? domainPayload : (domainPayload is Map ? domainPayload['data'] : null)) as List?;
     final emailList = (emailPayload is List ? emailPayload : (emailPayload is Map ? emailPayload['data'] : null)) as List?;
     final domains = (domainList ?? []).map((item) => item is Map ? '${item['domain'] ?? item['name'] ?? ''}' : '$item').where((item) => item.isNotEmpty).toList();
     final realEmails = (emailList ?? []).map((item) => item is Map ? '${item['email'] ?? ''}' : '$item').where((item) => item.isNotEmpty).toList();
     return DashboardData(bindings: list, available: (meta['availableProxyBindings'] as num?)?.toInt() ?? 0, domains: domains, realEmails: realEmails, defaultDomain: settings['random_alias_default_domain'] ?? '', passwordPreferences: PasswordPreferences(length: int.tryParse(settings['password_length'] ?? '') ?? 13, symbols: settings['use_symbols'] != 'false', numbers: settings['use_numbers'] != 'false', letters: settings['use_letters'] != 'false'));
+  }
+
+  Future<dynamic> _optional(String path, dynamic fallback) async {
+    try {
+      return await _request(path, bearer: true);
+    } catch (_) {
+      return fallback;
+    }
   }
 
   Future<void> createBinding({required String alias, required String domain, required String forwarding}) => _request('/api/v1/proxy-bindings', method: 'POST', body: {'data': {'type': 'proxy_bindings', 'attributes': {'proxy_address': '$alias@$domain', 'real_addresses': forwarding.split(',').map((item) => item.trim()).where((item) => item.isNotEmpty).toList(), 'is_browsable': false}}});
