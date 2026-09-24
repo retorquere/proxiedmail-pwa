@@ -12,7 +12,7 @@
   },
   "scripts": {
     "ng": "ng",
-    "start": "ng serve -o",
+    "start": "ng serve -o --proxy-config proxy.conf.json",
     "build": "ng build",
     "postbuild": "npm run extract-i18n",
     "extract-i18n": "ng extract-i18n --format=xlf --output-path=src/locale",

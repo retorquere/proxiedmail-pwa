@@ -33,7 +33,7 @@
   "createAccountTitle": "Crea tu cuenta de ProxiedMail",
   "manageAliases": "Administra direcciones privadas sin exponer tu bandeja de entrada.",
   "token": "Token",
-  "enterToken": "Introduce tu token de portador",
+  "enterToken": "Introduce tu token de API",
   "startManaging": "Empieza a administrar direcciones privadas de reenvío.",
   "email": "Correo electrónico",
   "password": "Contraseña",

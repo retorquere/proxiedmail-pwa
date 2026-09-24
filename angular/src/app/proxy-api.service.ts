@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http'
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http'
 import { inject, Injectable } from '@angular/core'
 import { firstValueFrom, Observable } from 'rxjs'
 
@@ -34,41 +34,37 @@ export interface CustomDomain {
 
 @Injectable({ providedIn: 'root' })
 export class ProxyApiService {
-  private readonly apiOrigin = 'https://proxiedmail.com'
   private readonly http = inject(HttpClient)
   private headers(bearer = false) {
-    const token = localStorage.getItem(bearer ? 'proxiedmail.bearerToken' : 'proxiedmail.apiToken')
-    return new HttpHeaders({ Accept: 'application/json', 'Content-Type': 'application/json', ...(token ? { [bearer ? 'Authorization' : 'Token']: bearer ? `Bearer ${token}` : token } : {}) })
+    const bearerToken = localStorage.getItem('proxiedmail.bearerToken')
+    const apiToken = localStorage.getItem('proxiedmail.apiToken')
+    const auth: Record<string, string> = bearer && bearerToken ? { Authorization: `Bearer ${bearerToken}` } : apiToken ? { Token: apiToken } : {}
+    return new HttpHeaders({ Accept: 'application/json', 'Content-Type': 'application/json', ...auth })
   }
   private request<T>(url: string, options: { method?: string; body?: unknown; bearer?: boolean } = {}): Observable<T> {
-    return this.http.request<T>(options.method ?? 'GET', `${this.apiOrigin}${url}`, { body: options.body, headers: this.headers(options.bearer) })
-  }
-  private async finishLogin(bearer: string) {
-    const tokenResponse = await firstValueFrom(this.request<any>('/api/v1/api-token', { bearer: true }))
-    const apiToken = tokenResponse?.token ?? tokenResponse?.data?.attributes?.token
-    if (!apiToken) throw new Error('The token response was incomplete.')
-    localStorage.setItem('proxiedmail.bearerToken', bearer)
-    localStorage.setItem('proxiedmail.apiToken', apiToken)
+    return this.http.request<T>(options.method ?? 'GET', url, { body: options.body, headers: this.headers(options.bearer) })
   }
   async login(token: string) {
-    const bearer = token.trim().replace(/^Bearer\s+/i, '')
-    if (!bearer) throw new Error('Enter a token.')
-    localStorage.setItem('proxiedmail.bearerToken', bearer)
-    try {
-      await this.finishLogin(bearer)
-    }
-    catch (error) {
-      localStorage.removeItem('proxiedmail.bearerToken')
-      localStorage.removeItem('proxiedmail.apiToken')
-      throw error
-    }
+    const apiToken = token.trim().replace(/^Token\s+/i, '')
+    if (!apiToken) throw new Error('Enter an API token.')
+    if (/[\s()]/.test(apiToken)) throw new Error('Paste only the API token, without a label or surrounding text.')
+    localStorage.setItem('proxiedmail.apiToken', apiToken)
+    localStorage.removeItem('proxiedmail.bearerToken')
   }
   logout() {
     localStorage.removeItem('proxiedmail.bearerToken')
     localStorage.removeItem('proxiedmail.apiToken')
   }
   async dashboard() {
-    const [bindings, profile, domains, emails, usedOn, passwords, settings] = await Promise.all([firstValueFrom(this.request<any>('/api/v1/proxy-bindings?sort=desc')), firstValueFrom(this.request<any>('/api/v1/users/me')), firstValueFrom(this.request<any>('/gapi/available-domains', { bearer: true })), firstValueFrom(this.request<any>('/gapi/real-emails', { bearer: true })), firstValueFrom(this.request<any>('/gapi/used-on', { bearer: true })), firstValueFrom(this.request<any>('/gapi/passwords', { bearer: true })), firstValueFrom(this.request<any>('/gapi/settings', { bearer: true }))])
+    const bindings = await this.loadBindings()
+    const [profile, domains, emails, usedOn, passwords, settings] = await Promise.all([
+      this.optional(this.request<any>('/api/v1/users/me'), { data: { attributes: {} } }),
+      this.optional(this.request<any>('/gapi/available-domains', { bearer: true }), []),
+      this.optional(this.request<any>('/gapi/real-emails', { bearer: true }), []),
+      this.optional(this.request<any>('/gapi/used-on', { bearer: true }), []),
+      this.optional(this.request<any>('/gapi/passwords', { bearer: true }), []),
+      this.optional(this.request<any>('/gapi/settings', { bearer: true }), []),
+    ])
     const list = (bindings?.data ?? []).map((item: any): Binding => {
       const attributes = item.attributes ?? {}
       const map = attributes.real_addresses ?? {}
@@ -78,6 +74,35 @@ export class ProxyApiService {
     })
     const settingList = Array.isArray(settings) ? settings : settings?.data ?? []
     return { bindings: list, available: bindings?.meta?.availableProxyBindings ?? 0, twoFactor: Boolean(profile?.data?.attributes?.two_factor_enabled ?? profile?.data?.attributes?.twoFactorEnabled), domains: (Array.isArray(domains) ? domains : domains?.data ?? []).map((item: any) => item.domain ?? item.name ?? item).filter(Boolean), emails: (Array.isArray(emails) ? emails : emails?.data ?? []).map((item: any) => item.email ?? item).filter(Boolean), defaultDomain: settingList.find((setting: any) => setting.key === 'random_alias_default_domain')?.value ?? '', passwordPreferences: { length: Number(settingList.find((setting: any) => setting.key === 'password_length')?.value) || 13, symbols: settingList.find((setting: any) => setting.key === 'use_symbols')?.value !== 'false', numbers: settingList.find((setting: any) => setting.key === 'use_numbers')?.value !== 'false', letters: settingList.find((setting: any) => setting.key === 'use_letters')?.value !== 'false' } }
+  }
+  private async loadBindings() {
+    try {
+      return await firstValueFrom(this.request<any>('/api/v1/proxy-bindings?sort=desc'))
+    }
+    catch (error) {
+      const suppliedToken = localStorage.getItem('proxiedmail.apiToken')
+      if (!(error instanceof HttpErrorResponse) || ![401, 403].includes(error.status) || !suppliedToken || localStorage.getItem('proxiedmail.bearerToken')) throw error
+      try {
+        const headers = new HttpHeaders({ Accept: 'application/json', Authorization: `Bearer ${suppliedToken}` })
+        const response = await firstValueFrom(this.http.get<any>('/api/v1/api-token', { headers }))
+        const apiToken = response?.token ?? response?.data?.attributes?.token
+        if (!apiToken) throw new Error('The token response was incomplete.')
+        localStorage.setItem('proxiedmail.bearerToken', suppliedToken)
+        localStorage.setItem('proxiedmail.apiToken', apiToken)
+        return await firstValueFrom(this.request<any>('/api/v1/proxy-bindings?sort=desc'))
+      }
+      catch {
+        throw error
+      }
+    }
+  }
+  private async optional<T>(request: Observable<T>, fallback: T): Promise<T> {
+    try {
+      return await firstValueFrom(request)
+    }
+    catch {
+      return fallback
+    }
   }
   async settingsData() {
     const [profile, domains, settings] = await Promise.all([firstValueFrom(this.request<any>('/api/v1/users/me')), firstValueFrom(this.request<any>('/gapi/available-domains', { bearer: true })), firstValueFrom(this.request<any>('/gapi/settings', { bearer: true }))])

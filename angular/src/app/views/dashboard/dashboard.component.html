@@ -91,6 +91,10 @@
   </div>
 }
 
+@if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+}
+
 <c-row class="g-3">
   <c-col md="6" *ngFor="let binding of filtered"><app-proxy-binding-card [binding]="binding" [emails]="emails()" [passwordPreferences]="passwordPreferences()" (changed)="refresh()" /></c-col>
 </c-row>

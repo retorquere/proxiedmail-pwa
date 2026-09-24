@@ -2,14 +2,15 @@
 
 This repository publishes two independent Cloudflare Worker artifacts from GitHub Actions:
 
-- `flutter`: the Flutter Web app and its static asset Worker.
-- `angular`: the Angular app and its static asset Worker.
+- `flutter`: the Flutter Web app and its same-origin API proxy.
+- `angular`: the Angular app and its same-origin API proxy.
 
 Each Cloudflare app watches its corresponding artifact branch. The branches contain build output only; source remains on `main`.
 
 ```text
 https://mailroom.example.com              Worker -> Flutter static assets
-Browser API requests                     -> https://proxiedmail.com
+https://mailroom.example.com/api/v1/*     Worker -> https://proxiedmail.com/api/v1/*
+https://mailroom.example.com/gapi/*       Worker -> https://proxiedmail.com/gapi/*
 ```
 
 Replace `mailroom.example.com` with the hostname used for the deployment.
@@ -19,12 +20,12 @@ Replace `mailroom.example.com` with the hostname used for the deployment.
 - `lib/`: Flutter application source.
 - `web/`: Flutter Web entrypoint, manifest, and icons.
 - `build/web/`: generated static Flutter output.
-- `worker.ts`: production Worker. It serves requests through the static asset binding and preserves SPA fallback behavior.
+- `worker.ts`: production Worker. It proxies API requests and serves all other requests through the static asset binding.
 - `wrangler.jsonc`: Worker name, compatibility date, and `build/web` asset binding.
-- `server.js`: local Express static preview server; it is not required in production.
+- `server.js`: local Express static preview and API proxy server; it is not required in production.
 - `package.json`: local build, preview, and deployment commands.
 
-The Worker provides static assets and SPA fallback. API requests go directly from the browser to ProxiedMail.
+The Worker provides static assets, SPA fallback, and the same-origin API boundary required by the browser clients.
 
 ## Prerequisites
 
@@ -81,7 +82,7 @@ The server listens at `http://127.0.0.1:4173` by default. Set `PORT` to choose a
 PORT=5173 npm start
 ```
 
-The local server serves the compiled Flutter files from `build/web` and returns the Flutter entrypoint for browser navigation requests. The Flutter client sends API requests directly to `https://proxiedmail.com`.
+The local server serves `build/web`, returns the Flutter entrypoint for browser navigation, and proxies `/api/v1/*` and `/gapi/*` to ProxiedMail.
 
 ## Worker configuration
 
@@ -97,7 +98,7 @@ The local server serves the compiled Flutter files from `build/web` and returns 
 }
 ```
 
-`worker.ts` calls the Cloudflare `ASSETS` binding, which serves the compiled Flutter application and handles SPA fallback. It does not route API traffic.
+`worker.ts` forwards `/api/v1/*` and `/gapi/*` requests to `https://proxiedmail.com`, preserving methods, bodies, query strings, and authentication headers. Other requests use the Cloudflare `ASSETS` binding and SPA fallback.
 
 ## Deploy manually
 
@@ -147,7 +148,7 @@ Create two Cloudflare apps, each connected to this repository's artifact branch:
 - Deploy command: `npx wrangler deploy --config wrangler.jsonc`
 - Worker assets: `dist`
 
-The Angular artifact includes its own `worker.ts` and `wrangler.jsonc`. That Worker only serves Angular assets and handles SPA fallback.
+The Angular artifact includes its own `worker.ts` and `wrangler.jsonc`. That Worker provides the same API forwarding behavior as the Flutter Worker.
 
 Do not point Cloudflare at `main` for deployment: `main` contains source and intentionally does not commit either application build. Do not add direct Wrangler deployments to the workflow; Cloudflare deploys the published artifact branches.
 
@@ -167,10 +168,12 @@ Browser -> mailroom.example.com
        -> worker.ts
        -> ASSETS for Flutter files
 
-Browser -> proxiedmail.com/api/v1/* or /gapi/*
+Browser -> mailroom.example.com/api/v1/* or /gapi/*
+  -> worker.ts
+  -> proxiedmail.com
 ```
 
-No dashboard backend, API router, or production Express server is required. ProxiedMail supplies the API CORS policy.
+No dashboard backend or production Express server is required. The Worker is the production API proxy.
 
 ## Verify deployment
 
@@ -179,7 +182,7 @@ After deployment, verify:
 1. The root URL loads the Flutter application.
 2. The Flutter manifest is reachable at `/manifest.json`.
 3. Flutter service-worker assets are reachable from the root output.
-4. Browser requests go directly to `https://proxiedmail.com`.
+4. `/api/v1/*` and `/gapi/*` requests reach ProxiedMail through the Worker.
 5. `GET`, `POST`, `PATCH`, and `DELETE` resource requests preserve their methods and bodies.
 6. Both `Authorization: Bearer ...` and `Token: ...` headers reach the upstream API as required.
 7. Refreshing a browser route still returns the Flutter application shell.

@@ -129,7 +129,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get token => 'Token';
 
   @override
-  String get enterToken => 'Introduce tu token de portador';
+  String get enterToken => 'Introduce tu token de API';
 
   @override
   String get startManaging =>

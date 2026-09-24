@@ -1,21 +1,42 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'api.dart';
+import 'binding_dialogs.dart';
 import 'navigation.dart';
 import 'l10n/app_localizations.dart';
+import 'settings_screen.dart';
 
 void main() => runApp(const ProxiedMailApp());
 
-class ProxiedMailApp extends StatelessWidget {
+class ProxiedMailApp extends StatefulWidget {
   const ProxiedMailApp({super.key});
+
+  @override
+  State<ProxiedMailApp> createState() => _ProxiedMailAppState();
+}
+
+class _ProxiedMailAppState extends State<ProxiedMailApp> {
+  Locale locale = const Locale('en');
+
+  @override
+  void initState() {
+    super.initState();
+    SharedPreferences.getInstance().then((preferences) {
+      final saved = preferences.getString('proxiedmail.locale');
+      if (mounted && saved != null) setState(() => locale = Locale(saved));
+    });
+  }
 
   @override
   Widget build(BuildContext context) => MaterialApp(
       onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
+        locale: locale,
         theme: ThemeData(
           useMaterial3: true,
           colorScheme: const ColorScheme.light(
@@ -33,12 +54,14 @@ class ProxiedMailApp extends StatelessWidget {
           scaffoldBackgroundColor: Color(0xfff8faff),
           appBarTheme: AppBarTheme(backgroundColor: Colors.white, foregroundColor: Color(0xff1b1b1f)),
         ),
-        home: const AppEntry(),
+          home: AppEntry(onLocaleChanged: (value) => setState(() => locale = value)),
       );
 }
 
 class AppEntry extends StatefulWidget {
-  const AppEntry({super.key});
+        const AppEntry({required this.onLocaleChanged, super.key});
+
+        final ValueChanged<Locale> onLocaleChanged;
 
   @override
   State<AppEntry> createState() => _AppEntryState();
@@ -89,7 +112,7 @@ class _AppEntryState extends State<AppEntry> {
   Widget build(BuildContext context) {
     if (booting) return const Scaffold(body: Center(child: CircularProgressIndicator()));
     if (data == null) return const SizedBox.shrink();
-    return DashboardScreen(api: api, data: data!, onRefresh: signedIn, onLogout: signedOut);
+    return DashboardScreen(api: api, data: data!, onRefresh: signedIn, onLogout: signedOut, onLocaleChanged: widget.onLocaleChanged);
   }
 }
 
@@ -158,12 +181,13 @@ class _AuthScreenState extends State<AuthScreen> {
 }
 
 class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({required this.api, required this.data, required this.onRefresh, required this.onLogout, super.key});
+  const DashboardScreen({required this.api, required this.data, required this.onRefresh, required this.onLogout, required this.onLocaleChanged, super.key});
 
   final ProxiedMailApi api;
   final DashboardData data;
   final Future<void> Function() onRefresh;
   final Future<void> Function() onLogout;
+  final ValueChanged<Locale> onLocaleChanged;
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -177,18 +201,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final forwardingBusy = <String>{};
   int destination = 0;
   bool showHero = true;
+  bool hideIamRich = false;
+  bool creatingProxy = false;
   String createDomain = '';
   String get query => search.text.toLowerCase();
 
   @override
   void initState() {
     super.initState();
-    _loadHeroPreference();
+    _loadPreferences();
   }
 
-  Future<void> _loadHeroPreference() async {
+  Future<void> _loadPreferences() async {
     final preferences = await SharedPreferences.getInstance();
-    if (mounted) setState(() => showHero = !(preferences.getBool('proxiedmail.hideDashboardHero') ?? false));
+    if (mounted) {
+      setState(() {
+        showHero = !(preferences.getBool('proxiedmail.hideDashboardHero') ?? false);
+        hideIamRich = preferences.getBool('proxiedmail.hideIamRich') ?? false;
+      });
+    }
   }
 
   Future<void> _dismissHero() async {
@@ -205,15 +236,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
       final compact = constraints.maxWidth < 760;
       final narrow = constraints.maxWidth < 600;
       final navigation = NavigationRail(selectedIndex: destination, onDestinationSelected: (value) => setState(() => destination = value), labelType: NavigationRailLabelType.all, destinations: [NavigationRailDestination(icon: const Icon(Icons.inbox_outlined), selectedIcon: const Icon(Icons.inbox), label: Text(l10n.proxies)), NavigationRailDestination(icon: const Icon(Icons.settings_outlined), selectedIcon: const Icon(Icons.settings), label: Text(l10n.settings))]);
-      final content = destination == 0 ? _dashboard(context, matches, narrow) : Center(child: Text(l10n.settingsPlaceholder));
+      final content = destination == 0 ? _dashboard(context, matches, narrow) : SettingsScreen(api: widget.api, locale: Localizations.localeOf(context), onLocaleChanged: widget.onLocaleChanged, onLocalPreferencesChanged: _loadPreferences);
       return Scaffold(appBar: AppBar(backgroundColor: const Color(0xff4169ef), foregroundColor: Colors.white, title: Text(l10n.appTitle), actions: [IconButton(onPressed: widget.onRefresh, tooltip: l10n.refresh, icon: const Icon(Icons.refresh)), IconButton(onPressed: widget.onLogout, tooltip: l10n.signOut, icon: const Icon(Icons.logout)), const Padding(padding: EdgeInsets.only(right: 16), child: CircleAvatar(backgroundColor: Color(0xffdce5ff), child: Padding(padding: EdgeInsets.all(7), child: Image(image: NetworkImage('/images/v2/favicons/favicon-32x32.png'))))) ]), bottomNavigationBar: compact ? NavigationBar(selectedIndex: destination, onDestinationSelected: (value) => setState(() => destination = value), destinations: [NavigationDestination(icon: const Icon(Icons.inbox_outlined), selectedIcon: const Icon(Icons.inbox), label: l10n.proxies), NavigationDestination(icon: const Icon(Icons.settings_outlined), selectedIcon: const Icon(Icons.settings), label: l10n.settings)]) : null, body: compact ? content : Row(children: [navigation, const VerticalDivider(width: 1), Expanded(child: content)]));
     });
   }
 
   Widget _dashboard(BuildContext context, List<ProxyBinding> matches, bool narrow) {
     final l10n = AppLocalizations.of(context);
-    final domains = widget.data.domains.isEmpty ? ['proxiedmail.com'] : widget.data.domains;
-    final selectedDomain = domains.contains(createDomain) ? createDomain : domains.first;
+    final visibleDomains = widget.data.domains.where((domain) => !hideIamRich || domain != 'iam-rich.net').toList();
+    final domains = visibleDomains.isEmpty ? ['proxiedmail.com'] : visibleDomains;
+    final selectedDomain = domains.contains(createDomain) ? createDomain : (domains.contains(widget.data.defaultDomain) ? widget.data.defaultDomain : domains.first);
     final hero = showHero ? Container(
       padding: EdgeInsets.all(narrow ? 22 : 32),
       decoration: BoxDecoration(
@@ -279,6 +311,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Container(width: 32, height: 32, decoration: BoxDecoration(color: const Color(0xffe8eeff), borderRadius: BorderRadius.circular(10)), child: const Icon(Icons.alternate_email, color: Color(0xff4169ef), size: 18)),
             const SizedBox(width: 10),
             Expanded(child: Text(binding.address, softWrap: true, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700, color: const Color(0xff183b8c)))),
+            IconButton(tooltip: 'Open contacts', onPressed: () => _openContacts(context, binding), icon: const Icon(Icons.contacts_outlined)),
             IconButton(tooltip: l10n.editProxy, onPressed: () => _edit(context, binding), icon: const Icon(Icons.edit_outlined)),
             IconButton(tooltip: 'Copy address', onPressed: () => _copyAddress(context, binding.address), icon: const Icon(Icons.copy_all_outlined)),
           ]),
@@ -362,26 +395,43 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _createProxyRow(BuildContext context, AppLocalizations l10n, List<String> domains, String selectedDomain, bool narrow) {
     final fields = [
-      Expanded(flex: 2, child: TextField(controller: createAlias, onChanged: (_) => setState(() {}), decoration: InputDecoration(labelText: l10n.alias))),
+      Expanded(flex: 2, child: TextField(controller: createAlias, onChanged: (_) => setState(() {}), decoration: InputDecoration(labelText: l10n.alias, suffixIcon: IconButton(onPressed: _generateAlias, tooltip: 'Generate alias', icon: const Icon(Icons.autorenew))))),
       Expanded(flex: 2, child: DropdownButtonFormField<String>(initialValue: selectedDomain, decoration: InputDecoration(labelText: l10n.domain), items: domains.map((item) => DropdownMenuItem(value: item, child: Text(item))).toList(), onChanged: (value) => setState(() => createDomain = value ?? selectedDomain))),
       Expanded(flex: 3, child: Autocomplete<String>(optionsBuilder: (value) => widget.data.realEmails.where((email) => email.toLowerCase().contains(value.text.toLowerCase())), onSelected: (value) => createForwarding.text = value, fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) { controller.value = createForwarding.value; controller.addListener(() => createForwarding.value = controller.value); return TextField(controller: controller, focusNode: focusNode, decoration: InputDecoration(labelText: l10n.forwardTo)); })),
     ];
-    final button = FilledButton(onPressed: createAlias.text.trim().isEmpty ? null : _createProxy, child: Text(l10n.create));
+    final canCreate = createAlias.text.trim().isNotEmpty && createForwarding.text.trim().isNotEmpty && !creatingProxy;
+    final button = FilledButton(onPressed: canCreate ? _createProxy : null, child: creatingProxy ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2)) : Text(l10n.create));
     return Card(color: const Color(0xffeef3ff), elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)), child: Padding(padding: const EdgeInsets.all(14), child: narrow ? Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [...fields.map((field) => Padding(padding: const EdgeInsets.only(bottom: 10), child: field)), button]) : Row(children: [...fields.expand((field) => [field, const SizedBox(width: 10)]).toList()..removeLast(), button])));
   }
 
   Future<void> _createProxy() async {
-    final domains = widget.data.domains.isEmpty ? ['proxiedmail.com'] : widget.data.domains;
-    final domain = domains.contains(createDomain) ? createDomain : domains.first;
-    await widget.api.createBinding(alias: createAlias.text.trim(), domain: domain, forwarding: createForwarding.text.trim());
-    createAlias.clear();
-    createForwarding.clear();
-    await widget.onRefresh();
+    final visibleDomains = widget.data.domains.where((domain) => !hideIamRich || domain != 'iam-rich.net').toList();
+    final domains = visibleDomains.isEmpty ? ['proxiedmail.com'] : visibleDomains;
+    final domain = domains.contains(createDomain) ? createDomain : (domains.contains(widget.data.defaultDomain) ? widget.data.defaultDomain : domains.first);
+    setState(() => creatingProxy = true);
+    try {
+      await widget.api.createBinding(alias: createAlias.text.trim(), domain: domain, forwarding: createForwarding.text.trim());
+      createAlias.clear();
+      createForwarding.clear();
+      await widget.onRefresh();
+    } catch (exception) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(exception.toString().replaceFirst('Exception: ', ''))));
+    } finally {
+      if (mounted) setState(() => creatingProxy = false);
+    }
+  }
+
+  void _generateAlias() {
+    const characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    final random = Random.secure();
+    createAlias.text = List.generate(10, (_) => characters[random.nextInt(characters.length)]).join();
+    setState(() {});
   }
 
   Future<void> _edit(BuildContext context, ProxyBinding binding) async {
-    final l10n = AppLocalizations.of(context);
-    final forwarding = TextEditingController(text: binding.forwarding.join(', '));
-    await showDialog<void>(context: context, builder: (context) => AlertDialog(title: Text(l10n.editProxy), content: TextField(controller: forwarding, decoration: InputDecoration(labelText: l10n.forwardTo)), actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.cancel)), FilledButton(onPressed: () async { await widget.api.updateBinding(binding: binding, forwarding: forwarding.text); if (context.mounted) Navigator.pop(context); await widget.onRefresh(); }, child: Text(l10n.saveChanges))]));
+    final changed = await showDialog<bool>(context: context, builder: (context) => BindingEditorDialog(api: widget.api, binding: binding, passwordPreferences: widget.data.passwordPreferences));
+    if (changed == true) await widget.onRefresh();
   }
+
+  Future<void> _openContacts(BuildContext context, ProxyBinding binding) => showDialog<void>(context: context, builder: (context) => ContactsDialog(api: widget.api, binding: binding));
 }

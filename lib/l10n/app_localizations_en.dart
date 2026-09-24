@@ -128,7 +128,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get token => 'Token';
 
   @override
-  String get enterToken => 'Enter your bearer token';
+  String get enterToken => 'Enter your API token';
 
   @override
   String get startManaging => 'Start managing private forwarding addresses.';

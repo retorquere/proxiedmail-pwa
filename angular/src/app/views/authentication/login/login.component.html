@@ -7,7 +7,7 @@
         <p class="intro" i18n>Manage private aliases without exposing your inbox.</p>
         <form (submit)="submit(); $event.preventDefault()">
           <label cLabel for="token" i18n>Token</label>
-          <input cFormControl id="token" name="token" type="password" autocomplete="off" placeholder="Your bearer token" i18n-placeholder [ngModel]="token()" (ngModelChange)="token.set($event)" required />
+          <input cFormControl id="token" name="token" type="password" autocomplete="off" placeholder="Your API token" i18n-placeholder [ngModel]="token()" (ngModelChange)="token.set($event)" required />
           <div class="error" *ngIf="error()">{{ error() }}</div>
           <button cButton color="primary" class="w-100 mt-4" type="submit" [disabled]="busy()">
             {{ busy() ? busyLabel() : signInLabel() }}

@@ -299,7 +299,7 @@ abstract class AppLocalizations {
   /// No description provided for @enterToken.
   ///
   /// In en, this message translates to:
-  /// **'Enter your bearer token'**
+  /// **'Enter your API token'**
   String get enterToken;
 
   /// No description provided for @startManaging.

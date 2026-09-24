@@ -22,6 +22,7 @@ export class DashboardComponent implements OnInit {
   readonly forwardingQuery = signal('')
   readonly forwardingOpen = signal(false)
   readonly loading = signal(false)
+  readonly error = signal('')
   get filtered() {
     const query = this.query().toLowerCase()
     return this.bindings().filter(binding => `${binding.address} ${binding.description}`.toLowerCase().includes(query))
@@ -42,6 +43,7 @@ export class DashboardComponent implements OnInit {
   async refresh() {
     const startedAt = performance.now()
     this.loading.set(true)
+    this.error.set('')
     try {
       const data = await this.api.dashboard()
       this.bindings.set(data.bindings)
@@ -51,6 +53,12 @@ export class DashboardComponent implements OnInit {
       this.twoFactor.set(data.twoFactor)
       this.passwordPreferences.set(data.passwordPreferences)
       if (!this.domain()) this.domain.set(data.domains.includes(data.defaultDomain) ? data.defaultDomain : data.domains[0] ?? '')
+    }
+    catch (error) {
+      const response = error as any
+      const detail = response?.error?.message ?? response?.error?.detail
+      const status = response?.status ? `${response.status}${response.statusText ? ` ${response.statusText}` : ''}` : ''
+      this.error.set(detail ?? (status ? $localize`Unable to load proxy addresses (${status}). Check that the supplied token is valid.` : error instanceof Error ? error.message : $localize`Unable to load proxy addresses.`))
     }
     finally {
       const remaining = 500 - (performance.now() - startedAt)
