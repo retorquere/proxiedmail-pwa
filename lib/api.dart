@@ -106,7 +106,7 @@ class ProxiedMailApi {
     bearerToken = null;
   }
 
-  Map<String, String> _headers({bool bearer = false}) => {'Accept': 'application/json', 'Content-Type': 'application/json', if (bearer && bearerToken != null) 'Authorization': 'Bearer $bearerToken', if ((!bearer || bearerToken == null) && apiToken != null) 'Token': apiToken!};
+  Map<String, String> _headers({bool bearer = false}) => {'Accept': 'application/json', 'Content-Type': 'application/json', if (bearer && (bearerToken ?? apiToken) != null) 'Authorization': 'Bearer ${bearerToken ?? apiToken}', if (!bearer && apiToken != null) 'Token': apiToken!};
 
   Future<dynamic> _request(String path, {String method = 'GET', Object? body, bool bearer = false}) async {
     final request = http.Request(method, Uri.parse(path))..headers.addAll(_headers(bearer: bearer));

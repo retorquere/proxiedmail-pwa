@@ -78,6 +78,21 @@ void main() {
     expect(data.domains, isEmpty);
   });
 
+  test('settings use the supplied token as Bearer when no separate bearer is stored', () async {
+    final client = MockClient((request) async {
+      expect(request.headers['Authorization'], 'Bearer api-token');
+      if (request.url.path == '/gapi/available-domains') return _json([{'domain': 'example.com'}]);
+      if (request.url.path == '/gapi/settings') return _json([{'key': 'password_length', 'value': '18'}]);
+      fail('Unexpected request: ${request.url}');
+    });
+    final api = ProxiedMailApi(client: client)..apiToken = 'api-token';
+
+    final data = await api.settingsData();
+
+    expect(data.domains, ['example.com']);
+    expect(data.settings['password_length'], '18');
+  });
+
   test('binding update sends all editable fields and recipient states', () async {
     late http.Request captured;
     final client = MockClient((request) async {

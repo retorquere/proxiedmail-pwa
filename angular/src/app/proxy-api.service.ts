@@ -38,7 +38,7 @@ export class ProxyApiService {
   private headers(bearer = false) {
     const bearerToken = localStorage.getItem('proxiedmail.bearerToken')
     const apiToken = localStorage.getItem('proxiedmail.apiToken')
-    const auth: Record<string, string> = bearer && bearerToken ? { Authorization: `Bearer ${bearerToken}` } : apiToken ? { Token: apiToken } : {}
+    const auth: Record<string, string> = bearer && (bearerToken || apiToken) ? { Authorization: `Bearer ${bearerToken || apiToken}` } : apiToken ? { Token: apiToken } : {}
     return new HttpHeaders({ Accept: 'application/json', 'Content-Type': 'application/json', ...auth })
   }
   private request<T>(url: string, options: { method?: string; body?: unknown; bearer?: boolean } = {}): Observable<T> {
