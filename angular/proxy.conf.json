@@ -1,0 +1,4 @@
+{
+  "/api/v1": { "target": "https://proxiedmail.com", "secure": true, "changeOrigin": true },
+  "/gapi": { "target": "https://proxiedmail.com", "secure": true, "changeOrigin": true }
+}
