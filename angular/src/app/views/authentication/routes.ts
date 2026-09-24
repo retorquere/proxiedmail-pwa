@@ -20,13 +20,6 @@ export const routes: Routes = [
         },
       },
       {
-        path: 'two-factor',
-        loadComponent: () => import('./two-factor/two-factor.component').then(m => m.TwoFactorComponent),
-        data: {
-          title: $localize`Two-factor authentication`,
-        },
-      },
-      {
         path: 'register',
         loadComponent: () => import('./register/register.component').then(m => m.RegisterComponent),
         data: {

@@ -49,7 +49,6 @@ export class ProxyApiService {
     if (!apiToken) throw new Error('The token response was incomplete.')
     localStorage.setItem('proxiedmail.bearerToken', bearer)
     localStorage.setItem('proxiedmail.apiToken', apiToken)
-    sessionStorage.removeItem('proxiedmail.pendingBearerToken')
   }
   async login(token: string) {
     const bearer = token.trim().replace(/^Bearer\s+/i, '')
@@ -64,17 +63,9 @@ export class ProxyApiService {
       throw error
     }
   }
-  async confirmTwoFactor(code: string) {
-    const bearer = sessionStorage.getItem('proxiedmail.pendingBearerToken')
-    if (!bearer) throw new Error('Your sign-in session expired. Please sign in again.')
-    await firstValueFrom(this.request<any>('/api/v1/confirm-2fa', { method: 'POST', bearer: true, body: { data: { code } } }))
-    await this.finishLogin(bearer)
-  }
-
   logout() {
     localStorage.removeItem('proxiedmail.bearerToken')
     localStorage.removeItem('proxiedmail.apiToken')
-    sessionStorage.removeItem('proxiedmail.pendingBearerToken')
   }
   async dashboard() {
     const [bindings, profile, domains, emails, usedOn, passwords, settings] = await Promise.all([firstValueFrom(this.request<any>('/api/v1/proxy-bindings?sort=desc')), firstValueFrom(this.request<any>('/api/v1/users/me')), firstValueFrom(this.request<any>('/gapi/available-domains', { bearer: true })), firstValueFrom(this.request<any>('/gapi/real-emails', { bearer: true })), firstValueFrom(this.request<any>('/gapi/used-on', { bearer: true })), firstValueFrom(this.request<any>('/gapi/passwords', { bearer: true })), firstValueFrom(this.request<any>('/gapi/settings', { bearer: true }))])
