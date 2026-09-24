@@ -190,6 +190,41 @@ class ProxiedMailApi {
     return SettingsData(domains: domains, settings: _settingsMap(results[1]));
   }
 
+  Future<Map<String, dynamic>> exportConfiguration({DateTime? exportedAt}) async {
+    final dashboardData = await dashboard();
+    SettingsData settingsDataResult;
+    try {
+      settingsDataResult = await settingsData();
+    } catch (_) {
+      settingsDataResult = const SettingsData(domains: [], settings: {});
+    }
+    final proxies = await Future.wait(dashboardData.bindings.map((binding) async {
+      List<ProxyContact> bindingContacts;
+      try {
+        bindingContacts = await contacts(binding);
+      } catch (_) {
+        bindingContacts = const [];
+      }
+      return <String, dynamic>{
+        'proxyAddress': binding.address,
+        'description': binding.description,
+        'callbackUrl': binding.callbackUrl,
+        'browsable': binding.browsable,
+        'targets': binding.forwarding.map((address) => {'address': address, 'enabled': binding.forwardingStates[address] != false}).toList(),
+        'usedOn': binding.usedOn,
+        'sitePassword': binding.password,
+        'contacts': bindingContacts.map((contact) => {'recipientAddress': contact.recipientEmail, 'reverseProxyAddress': contact.reverseProxyAddress}).toList(),
+      };
+    }));
+    return {
+      'format': 'proxiedmail-portable-config',
+      'version': 1,
+      'exportedAt': (exportedAt ?? DateTime.now()).toUtc().toIso8601String(),
+      'settings': settingsDataResult.settings,
+      'proxies': proxies,
+    };
+  }
+
   Future<void> updateSettings(Map<String, String> settings) => _request('/gapi/settings/update', method: 'PATCH', bearer: true, body: {'settings': settings.entries.map((entry) => {'key': entry.key, 'value': entry.value}).toList()});
 
   List<Map<String, dynamic>> _responseList(dynamic response) {

@@ -27,6 +27,7 @@ export class SettingsComponent implements OnInit {
   readonly useNumbers = signal(true)
   readonly useLetters = signal(true)
   readonly bitwardenVisible = signal(false)
+  readonly exporting = signal(false)
   readonly locale = signal<SupportedLocale>(currentLocale())
   get availableDomains() {
     return this.domains().filter(domain => !(this.hideIamRich() && domain === 'iam-rich.net'))
@@ -91,6 +92,28 @@ export class SettingsComponent implements OnInit {
 
   changeLocale() {
     setLocale(this.locale())
+  }
+
+  async downloadConfiguration() {
+    this.exporting.set(true)
+    this.error.set('')
+    try {
+      const configuration = await this.api.exportConfiguration()
+      const blob = new Blob([JSON.stringify(configuration, null, 2)], { type: 'application/json' })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `proxiedmail-config-${new Date().toISOString().slice(0, 10)}.json`
+      link.click()
+      URL.revokeObjectURL(url)
+      this.message.set($localize`Configuration downloaded.`)
+    }
+    catch (error) {
+      this.error.set(error instanceof Error ? error.message : $localize`Unable to export configuration.`)
+    }
+    finally {
+      this.exporting.set(false)
+    }
   }
 
   async saveRetention() {

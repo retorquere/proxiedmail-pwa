@@ -93,6 +93,46 @@ void main() {
     expect(data.settings['password_length'], '18');
   });
 
+  test('configuration export is portable and excludes authentication tokens', () async {
+    final client = MockClient((request) async {
+      switch (request.url.path) {
+        case '/api/v1/proxy-bindings':
+          return _json({'data': [{'id': 'binding-1', 'attributes': {'proxy_address': 'alias@example.com', 'description': 'Shopping', 'callback_url': 'https://example.com/hook', 'is_browsable': true, 'real_addresses': {'inbox@example.com': {'is_enabled': false}}}}], 'meta': {}});
+        case '/api/v1/proxy-bindings/binding-1/contacts':
+          return _json({'data': [{'id': 'contact-1', 'attributes': {'recipient_email': 'shop@example.net', 'reverse_proxy_address': 'reverse@example.com'}}]});
+        case '/gapi/available-domains':
+          return _json([{'domain': 'example.com'}]);
+        case '/gapi/real-emails':
+          return _json([{'email': 'inbox@example.com'}]);
+        case '/gapi/used-on':
+          return _json([{'proxy_binding_id': 'binding-1', 'list': ['shop.example']}]);
+        case '/gapi/passwords':
+          return _json([{'related_to_id': 'binding-1', 'password': 'site-secret'}]);
+        case '/gapi/settings':
+          return _json([{'key': 'random_alias_default_domain', 'value': 'example.com'}]);
+        default:
+          fail('Unexpected request: ${request.url}');
+      }
+    });
+    final api = ProxiedMailApi(client: client)
+      ..apiToken = 'authentication-secret'
+      ..bearerToken = 'bearer-secret';
+
+    final export = await api.exportConfiguration(exportedAt: DateTime.utc(2026, 9, 25));
+    final proxy = (export['proxies'] as List).single as Map<String, dynamic>;
+
+    expect(export['format'], 'proxiedmail-portable-config');
+    expect(export['version'], 1);
+    expect(export['exportedAt'], '2026-09-25T00:00:00.000Z');
+    expect(proxy['proxyAddress'], 'alias@example.com');
+    expect(proxy['targets'], [{'address': 'inbox@example.com', 'enabled': false}]);
+    expect(proxy['usedOn'], ['shop.example']);
+    expect(proxy['sitePassword'], 'site-secret');
+    expect(proxy['contacts'], [{'recipientAddress': 'shop@example.net', 'reverseProxyAddress': 'reverse@example.com'}]);
+    expect(jsonEncode(export), isNot(contains('authentication-secret')));
+    expect(jsonEncode(export), isNot(contains('bearer-secret')));
+  });
+
   test('binding update sends all editable fields and recipient states', () async {
     late http.Request captured;
     final client = MockClient((request) async {

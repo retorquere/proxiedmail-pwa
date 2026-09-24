@@ -108,5 +108,15 @@
         </c-card-body>
       </c-card>
     </c-col>
+    <c-col lg="6">
+      <c-card>
+        <c-card-body>
+          <h2 class="h5" i18n>Export configuration</h2>
+          <p class="text-body-secondary" i18n>Download a portable JSON backup of proxy addresses, targets, contacts, callbacks, site associations, passwords, and account settings. Authentication tokens are never included.</p>
+          <button cButton color="primary" variant="outline" type="button" [disabled]="exporting()" (click)="downloadConfiguration()" i18n>Download JSON</button>
+          <p class="small text-body-secondary mt-3 mb-0" i18n>The exported file may contain site passwords and private email addresses. Store it securely.</p>
+        </c-card-body>
+      </c-card>
+    </c-col>
   </c-row>
 }

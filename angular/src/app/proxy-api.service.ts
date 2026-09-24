@@ -6,6 +6,7 @@ export interface Binding {
   id: string
   address: string
   description: string
+  browsable: boolean
   received: number
   callbackUrl: string
   usedOn: string[]
@@ -69,7 +70,7 @@ export class ProxyApiService {
       const map = attributes.real_addresses ?? {}
       const bindingUsedOn = (Array.isArray(usedOn) ? usedOn : usedOn?.data ?? []).find((entry: any) => (entry.proxy_binding_id ?? entry.related_to_id) === item.id)?.list ?? []
       const bindingPassword = (Array.isArray(passwords) ? passwords : passwords?.data ?? []).find((entry: any) => (entry.related_to_id ?? entry.proxy_binding_id) === item.id)?.password ?? ''
-      return { id: item.id, address: attributes.proxy_address ?? '', description: attributes.description ?? '', received: attributes.received_emails ?? 0, callbackUrl: attributes.callback_url ?? '', usedOn: bindingUsedOn, password: bindingPassword, recipients: Object.keys(map), states: Object.fromEntries(Object.entries(map).map(([key, value]: any) => [key, value?.is_enabled !== false])) }
+      return { id: item.id, address: attributes.proxy_address ?? '', description: attributes.description ?? '', browsable: attributes.is_browsable === true, received: attributes.received_emails ?? 0, callbackUrl: attributes.callback_url ?? '', usedOn: bindingUsedOn, password: bindingPassword, recipients: Object.keys(map), states: Object.fromEntries(Object.entries(map).map(([key, value]: any) => [key, value?.is_enabled !== false])) }
     })
     const settingList = Array.isArray(settings) ? settings : settings?.data ?? []
     return { bindings: list, available: bindings?.meta?.availableProxyBindings ?? 0, domains: (Array.isArray(domains) ? domains : domains?.data ?? []).map((item: any) => item.domain ?? item.name ?? item).filter(Boolean), emails: (Array.isArray(emails) ? emails : emails?.data ?? []).map((item: any) => item.email ?? item).filter(Boolean), defaultDomain: settingList.find((setting: any) => setting.key === 'random_alias_default_domain')?.value ?? '', passwordPreferences: { length: Number(settingList.find((setting: any) => setting.key === 'password_length')?.value) || 13, symbols: settingList.find((setting: any) => setting.key === 'use_symbols')?.value !== 'false', numbers: settingList.find((setting: any) => setting.key === 'use_numbers')?.value !== 'false', letters: settingList.find((setting: any) => setting.key === 'use_letters')?.value !== 'false' } }
@@ -106,6 +107,39 @@ export class ProxyApiService {
   async settingsData() {
     const [domains, settings] = await Promise.all([firstValueFrom(this.request<any>('/gapi/available-domains', { bearer: true })), firstValueFrom(this.request<any>('/gapi/settings', { bearer: true }))])
     return { domains: (Array.isArray(domains) ? domains : domains?.data ?? []).map((item: any) => item.domain ?? item.name ?? item).filter(Boolean), settings: Array.isArray(settings) ? settings : settings?.data ?? [] }
+  }
+  async exportConfiguration() {
+    const dashboard = await this.dashboard()
+    const settingsResponse = await this.optional(this.request<any>('/gapi/settings', { bearer: true }), [])
+    const settingList = Array.isArray(settingsResponse) ? settingsResponse : settingsResponse?.data ?? []
+    const proxies = await Promise.all(dashboard.bindings.map(async (binding: Binding) => {
+      const contacts = await this.optionalContacts(binding)
+      return {
+        proxyAddress: binding.address,
+        description: binding.description,
+        callbackUrl: binding.callbackUrl,
+        browsable: binding.browsable,
+        targets: binding.recipients.map((address: string) => ({ address, enabled: binding.states[address] !== false })),
+        usedOn: binding.usedOn,
+        sitePassword: binding.password,
+        contacts: contacts.map(contact => ({ recipientAddress: contact.recipientEmail, reverseProxyAddress: contact.reverseProxyAddress })),
+      }
+    }))
+    return {
+      format: 'proxiedmail-portable-config',
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      settings: Object.fromEntries(settingList.filter((setting: any) => setting?.key).map((setting: any) => [setting.key, setting.value])),
+      proxies,
+    }
+  }
+  private async optionalContacts(binding: Binding): Promise<ProxyContact[]> {
+    try {
+      return await this.contacts(binding)
+    }
+    catch {
+      return []
+    }
   }
   async customDomains(): Promise<CustomDomain[]> {
     const response = await firstValueFrom(this.request<any>('/gapi/custom-domains?ignoreProcessing=1', { bearer: true }))

@@ -1055,33 +1055,75 @@
           <context context-type="linenumber">105,106</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="1638964448887902795" datatype="html">
+        <source>Export configuration</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/settings/settings.component.html</context>
+          <context context-type="linenumber">114,115</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7804541470459725160" datatype="html">
+        <source>Download a portable JSON backup of proxy addresses, targets, contacts, callbacks, site associations, passwords, and account settings. Authentication tokens are never included.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/settings/settings.component.html</context>
+          <context context-type="linenumber">115,116</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1577702806640177787" datatype="html">
+        <source>Download JSON</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/settings/settings.component.html</context>
+          <context context-type="linenumber">116,117</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="930982457521137798" datatype="html">
+        <source>The exported file may contain site passwords and private email addresses. Store it securely.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/settings/settings.component.html</context>
+          <context context-type="linenumber">117,118</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="412098242291426657" datatype="html">
         <source>Unable to load settings.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/views/settings/settings.component.ts</context>
-          <context context-type="linenumber">57</context>
+          <context context-type="linenumber">58</context>
         </context-group>
       </trans-unit>
       <trans-unit id="2037812837109831482" datatype="html">
         <source>Settings saved.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/views/settings/settings.component.ts</context>
-          <context context-type="linenumber">72</context>
+          <context context-type="linenumber">73</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/views/settings/settings.component.ts</context>
-          <context context-type="linenumber">102</context>
+          <context context-type="linenumber">125</context>
         </context-group>
       </trans-unit>
       <trans-unit id="8118866603612492394" datatype="html">
         <source>Unable to save settings.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/views/settings/settings.component.ts</context>
-          <context context-type="linenumber">75</context>
+          <context context-type="linenumber">76</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/views/settings/settings.component.ts</context>
-          <context context-type="linenumber">105</context>
+          <context context-type="linenumber">128</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5347681698923096065" datatype="html">
+        <source>Configuration downloaded.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/settings/settings.component.ts</context>
+          <context context-type="linenumber">109</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="510434533041120184" datatype="html">
+        <source>Unable to export configuration.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/views/settings/settings.component.ts</context>
+          <context context-type="linenumber">112</context>
         </context-group>
       </trans-unit>
     </body>

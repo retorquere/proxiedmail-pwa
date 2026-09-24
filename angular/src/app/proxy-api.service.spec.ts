@@ -51,4 +51,47 @@ describe('ProxyApiService', () => {
     expect(localStorage.getItem('proxiedmail.apiToken')).toBe('api-token')
     expect(localStorage.getItem('proxiedmail.bearerToken')).toBe('bearer-candidate')
   })
+
+  it('exports portable proxy configuration without authentication tokens', async () => {
+    localStorage.setItem('proxiedmail.apiToken', 'authentication-secret')
+    localStorage.setItem('proxiedmail.bearerToken', 'bearer-secret')
+
+    const result = api.exportConfiguration()
+
+    http.expectOne('/api/v1/proxy-bindings?sort=desc').flush({
+      data: [{ id: 'binding-1', attributes: { proxy_address: 'alias@example.com', description: 'Shopping', callback_url: 'https://example.com/hook', is_browsable: true, real_addresses: { 'inbox@example.com': { is_enabled: false } } } }],
+      meta: {},
+    })
+    await Promise.resolve()
+    await Promise.resolve()
+
+    http.expectOne('/gapi/available-domains').flush([{ domain: 'example.com' }])
+    http.expectOne('/gapi/real-emails').flush([{ email: 'inbox@example.com' }])
+    http.expectOne('/gapi/used-on').flush([{ proxy_binding_id: 'binding-1', list: ['shop.example'] }])
+    http.expectOne('/gapi/passwords').flush([{ related_to_id: 'binding-1', password: 'site-secret' }])
+    http.expectOne('/gapi/settings').flush([{ key: 'random_alias_default_domain', value: 'example.com' }])
+    await new Promise(resolve => setTimeout(resolve, 0))
+
+    http.expectOne('/gapi/settings').flush([{ key: 'random_alias_default_domain', value: 'example.com' }])
+    await new Promise(resolve => setTimeout(resolve, 0))
+
+    http.expectOne('/api/v1/proxy-bindings/binding-1/contacts').flush({ data: [{ id: 'contact-1', attributes: { recipient_email: 'shop@example.net', reverse_proxy_address: 'reverse@example.com' } }] })
+
+    const exported = await result
+    expect(exported.format).toBe('proxiedmail-portable-config')
+    expect(exported.version).toBe(1)
+    expect(exported.settings).toEqual({ random_alias_default_domain: 'example.com' })
+    expect(exported.proxies[0]).toEqual({
+      proxyAddress: 'alias@example.com',
+      description: 'Shopping',
+      callbackUrl: 'https://example.com/hook',
+      browsable: true,
+      targets: [{ address: 'inbox@example.com', enabled: false }],
+      usedOn: ['shop.example'],
+      sitePassword: 'site-secret',
+      contacts: [{ recipientAddress: 'shop@example.net', reverseProxyAddress: 'reverse@example.com' }],
+    })
+    expect(JSON.stringify(exported)).not.toContain('authentication-secret')
+    expect(JSON.stringify(exported)).not.toContain('bearer-secret')
+  })
 })

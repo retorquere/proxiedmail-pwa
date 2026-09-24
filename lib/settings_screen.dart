@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'api.dart';
+import 'navigation.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({required this.api, required this.locale, required this.onLocaleChanged, required this.onLocalPreferencesChanged, super.key});
@@ -26,6 +29,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool useNumbers = true;
   bool useSymbols = true;
   bool bitwardenExpanded = false;
+  bool exporting = false;
   String retention = 'never';
   String selectedDomain = '';
   List<String> domains = const [];
@@ -107,6 +111,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('API key copied.')));
   }
 
+  Future<void> exportConfiguration() async {
+    setState(() { exporting = true; message = null; error = null; });
+    try {
+      final configuration = await widget.api.exportConfiguration();
+      final date = DateTime.now().toUtc().toIso8601String().substring(0, 10);
+      downloadTextFile('proxiedmail-config-$date.json', const JsonEncoder.withIndent('  ').convert(configuration));
+      if (mounted) setState(() => message = 'Configuration downloaded.');
+    } catch (exception) {
+      if (mounted) setState(() => error = _message(exception));
+    } finally {
+      if (mounted) setState(() => exporting = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (loading) return const Center(child: CircularProgressIndicator());
@@ -133,6 +151,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _section(context, title: 'This browser', subtitle: 'These choices are saved only in this browser.', children: [
         DropdownButtonFormField<String>(initialValue: widget.locale.languageCode, decoration: const InputDecoration(labelText: 'Language'), items: const [DropdownMenuItem(value: 'en', child: Text('English')), DropdownMenuItem(value: 'es', child: Text('Español'))], onChanged: changeLocale),
         SwitchListTile(contentPadding: EdgeInsets.zero, title: const Text('Hide iam-rich.net from the proxy domain list'), value: hideIamRich, onChanged: setHideIamRich),
+      ]),
+      const SizedBox(height: 16),
+      _section(context, title: 'Export configuration', subtitle: 'Download a portable JSON backup of proxy addresses, targets, contacts, callbacks, site associations, passwords, and account settings. Authentication tokens are never included.', children: [
+        OutlinedButton.icon(onPressed: exporting ? null : exportConfiguration, icon: exporting ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.download_outlined), label: const Text('Download JSON')),
+        const SizedBox(height: 10),
+        const Text('The exported file may contain site passwords and private email addresses. Store it securely.'),
       ]),
       const SizedBox(height: 16),
       _section(context, title: 'Bitwarden setup', subtitle: 'Use ProxiedMail as an Addy.io-compatible forwarded email alias service.', children: [
