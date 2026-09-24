@@ -199,6 +199,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final createForwarding = TextEditingController();
   final forwardingOverrides = <String, bool>{};
   final forwardingBusy = <String>{};
+  final verificationBusy = <String>{};
   int destination = 0;
   bool showHero = true;
   bool hideIamRich = false;
@@ -318,9 +319,44 @@ class _DashboardScreenState extends State<DashboardScreen> {
           SizedBox(height: 20, child: binding.description.isNotEmpty ? Padding(padding: const EdgeInsets.only(left: 42), child: Text(binding.description, maxLines: 1, overflow: TextOverflow.ellipsis, softWrap: true)) : null),
           const SizedBox(height: 10),
           Wrap(spacing: 14, runSpacing: 6, crossAxisAlignment: WrapCrossAlignment.center, children: [_compactDetail(context, Icons.forward_to_inbox_outlined, l10n.recipients(binding.forwarding.length)), _compactDetail(context, Icons.mark_email_read_outlined, l10n.forwarded(binding.forwarded)), _forwardingControl(context, binding, l10n, forwardingEnabled, isBusy)]),
+          if (binding.forwarding.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Column(crossAxisAlignment: CrossAxisAlignment.start, children: binding.forwarding.map((address) => _recipientStatus(context, binding, address)).toList()),
+          ],
         ]),
       ),
     );
+  }
+
+  Widget _recipientStatus(BuildContext context, ProxyBinding binding, String address) {
+    final l10n = AppLocalizations.of(context);
+    final verified = binding.verificationStates[address] == true;
+    final busy = verificationBusy.contains(address);
+    final color = verified ? const Color(0xff247a4b) : const Color(0xff9a5b00);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Wrap(crossAxisAlignment: WrapCrossAlignment.center, spacing: 8, runSpacing: 4, children: [
+        Icon(verified ? Icons.verified_outlined : Icons.warning_amber_rounded, size: 16, color: color),
+        Text(address, style: Theme.of(context).textTheme.bodySmall),
+        Chip(label: Text(verified ? l10n.verified : l10n.verificationRequired), labelStyle: TextStyle(color: color), side: BorderSide(color: color.withValues(alpha: 0.35)), backgroundColor: color.withValues(alpha: 0.08), visualDensity: VisualDensity.compact),
+        if (!verified) TextButton.icon(onPressed: busy ? null : () => _resendVerification(context, address), icon: busy ? const SizedBox.square(dimension: 14, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.mark_email_read_outlined, size: 16), label: Text(l10n.sendVerification)),
+      ]),
+    );
+  }
+
+  Future<void> _resendVerification(BuildContext context, String address) async {
+    setState(() => verificationBusy.add(address));
+    try {
+      await widget.api.resendConfirmation(address);
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).verificationSent(address))));
+    } catch (exception) {
+      if (!context.mounted) return;
+      final detail = exception.toString().replaceFirst('Exception: ', '');
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).verificationFailed(detail))));
+    } finally {
+      if (mounted) setState(() => verificationBusy.remove(address));
+    }
   }
 
   Widget _compactDetail(BuildContext context, IconData icon, String value) => Row(mainAxisSize: MainAxisSize.min, children: [Icon(icon, size: 16, color: const Color(0xff65758b)), const SizedBox(width: 4), Text(value, style: Theme.of(context).textTheme.bodySmall)]);
@@ -397,7 +433,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final fields = [
       Expanded(flex: 2, child: TextField(controller: createAlias, onChanged: (_) => setState(() {}), decoration: InputDecoration(labelText: l10n.alias, suffixIcon: IconButton(onPressed: _generateAlias, tooltip: 'Generate alias', icon: const Icon(Icons.autorenew))))),
       Expanded(flex: 2, child: DropdownButtonFormField<String>(initialValue: selectedDomain, decoration: InputDecoration(labelText: l10n.domain), items: domains.map((item) => DropdownMenuItem(value: item, child: Text(item))).toList(), onChanged: (value) => setState(() => createDomain = value ?? selectedDomain))),
-      Expanded(flex: 3, child: Autocomplete<String>(optionsBuilder: (value) => widget.data.realEmails.where((email) => email.toLowerCase().contains(value.text.toLowerCase())), onSelected: (value) => createForwarding.text = value, fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) { controller.value = createForwarding.value; controller.addListener(() => createForwarding.value = controller.value); return TextField(controller: controller, focusNode: focusNode, decoration: InputDecoration(labelText: l10n.forwardTo)); })),
+      Expanded(flex: 3, child: Autocomplete<String>(optionsBuilder: (value) => widget.data.realEmails.map((email) => email.address).where((email) => email.toLowerCase().contains(value.text.toLowerCase())), onSelected: (value) => createForwarding.text = value, fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) { controller.value = createForwarding.value; controller.addListener(() => createForwarding.value = controller.value); return TextField(controller: controller, focusNode: focusNode, decoration: InputDecoration(labelText: l10n.forwardTo)); })),
     ];
     final canCreate = createAlias.text.trim().isNotEmpty && createForwarding.text.trim().isNotEmpty && !creatingProxy;
     final button = FilledButton(onPressed: canCreate ? _createProxy : null, child: creatingProxy ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2)) : Text(l10n.create));

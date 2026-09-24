@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProxyBinding {
-  const ProxyBinding({required this.id, required this.address, required this.description, required this.browsable, required this.forwarding, required this.forwardingStates, required this.forwarded, this.callbackUrl = '', this.usedOn = const [], this.password = ''});
+  const ProxyBinding({required this.id, required this.address, required this.description, required this.browsable, required this.forwarding, required this.forwardingStates, required this.verificationStates, required this.forwarded, this.callbackUrl = '', this.usedOn = const [], this.password = ''});
 
   final String id;
   final String address;
@@ -12,18 +12,32 @@ class ProxyBinding {
   final bool browsable;
   final List<String> forwarding;
   final Map<String, bool> forwardingStates;
+  final Map<String, bool> verificationStates;
   final int forwarded;
   final String callbackUrl;
   final List<String> usedOn;
   final String password;
 
-  factory ProxyBinding.fromJson(Map<String, dynamic> json, {List<String> usedOn = const [], String password = ''}) {
+  factory ProxyBinding.fromJson(Map<String, dynamic> json, {List<String> usedOn = const [], String password = '', Map<String, bool> verificationStates = const {}}) {
     final attributes = (json['attributes'] as Map?)?.cast<String, dynamic>() ?? {};
     final realAddressMap = (attributes['real_addresses'] as Map?)?.cast<String, dynamic>() ?? {};
     final realAddresses = realAddressMap.keys.toList();
     final forwardingStates = {for (final entry in realAddressMap.entries) entry.key: (entry.value is Map ? (entry.value['is_enabled'] != false) : true)};
-    return ProxyBinding(id: '${json['id'] ?? ''}', address: '${attributes['proxy_address'] ?? 'Unnamed address'}', description: '${attributes['description'] ?? ''}', browsable: attributes['is_browsable'] == true, forwarding: realAddresses, forwardingStates: forwardingStates, forwarded: (attributes['received_emails'] as num?)?.toInt() ?? 0, callbackUrl: '${attributes['callback_url'] ?? ''}', usedOn: usedOn, password: password);
+    final bindingVerificationStates = <String, bool>{};
+    for (final entry in realAddressMap.entries) {
+      if (entry.value is Map && (entry.value as Map).containsKey('is_verified')) {
+        bindingVerificationStates[entry.key] = entry.value['is_verified'] == true;
+      }
+    }
+    return ProxyBinding(id: '${json['id'] ?? ''}', address: '${attributes['proxy_address'] ?? 'Unnamed address'}', description: '${attributes['description'] ?? ''}', browsable: attributes['is_browsable'] == true, forwarding: realAddresses, forwardingStates: forwardingStates, verificationStates: {...bindingVerificationStates, ...verificationStates}, forwarded: (attributes['received_emails'] as num?)?.toInt() ?? 0, callbackUrl: '${attributes['callback_url'] ?? ''}', usedOn: usedOn, password: password);
   }
+}
+
+class RealEmail {
+  const RealEmail({required this.address, required this.verified});
+
+  final String address;
+  final bool verified;
 }
 
 class PasswordPreferences {
@@ -56,7 +70,7 @@ class DashboardData {
   final List<ProxyBinding> bindings;
   final int available;
   final List<String> domains;
-  final List<String> realEmails;
+  final List<RealEmail> realEmails;
   final String defaultDomain;
   final PasswordPreferences passwordPreferences;
 
@@ -134,6 +148,9 @@ class ProxiedMailApi {
   Future<DashboardData> dashboard() async {
     final bindingsPayload = await _request('/api/v1/proxy-bindings?sort=desc') as Map;
     final results = await Future.wait([_optional('/gapi/available-domains', []), _optional('/gapi/real-emails', []), _optional('/gapi/used-on', []), _optional('/gapi/passwords', []), _optional('/gapi/settings', [])]);
+    final realEmailEntries = _responseList(results[1]);
+    final realEmails = realEmailEntries.map((item) => RealEmail(address: '${item['email'] ?? ''}', verified: item['is_verified'] == true)).where((item) => item.address.isNotEmpty).toList();
+    final verificationStates = {for (final email in realEmails) email.address: email.verified};
     final usedOnEntries = _responseList(results[2]);
     final passwordEntries = _responseList(results[3]);
     final settings = _settingsMap(results[4]);
@@ -142,15 +159,12 @@ class ProxiedMailApi {
       final id = '${json['id'] ?? ''}';
       final usedOn = usedOnEntries.where((entry) => '${entry['proxy_binding_id'] ?? entry['related_to_id'] ?? ''}' == id).map((entry) => entry['list']).whereType<List>().expand((items) => items).map((item) => '$item').toList();
       final password = passwordEntries.where((entry) => '${entry['proxy_binding_id'] ?? entry['related_to_id'] ?? ''}' == id).map((entry) => '${entry['password'] ?? ''}').firstOrNull ?? '';
-      return ProxyBinding.fromJson(json, usedOn: usedOn, password: password);
+      return ProxyBinding.fromJson(json, usedOn: usedOn, password: password, verificationStates: verificationStates);
     }).toList();
     final meta = (bindingsPayload['meta'] as Map?) ?? {};
     final domainPayload = results[0];
-    final emailPayload = results[1];
     final domainList = (domainPayload is List ? domainPayload : (domainPayload is Map ? domainPayload['data'] : null)) as List?;
-    final emailList = (emailPayload is List ? emailPayload : (emailPayload is Map ? emailPayload['data'] : null)) as List?;
     final domains = (domainList ?? []).map((item) => item is Map ? '${item['domain'] ?? item['name'] ?? ''}' : '$item').where((item) => item.isNotEmpty).toList();
-    final realEmails = (emailList ?? []).map((item) => item is Map ? '${item['email'] ?? ''}' : '$item').where((item) => item.isNotEmpty).toList();
     return DashboardData(bindings: list, available: (meta['availableProxyBindings'] as num?)?.toInt() ?? 0, domains: domains, realEmails: realEmails, defaultDomain: settings['random_alias_default_domain'] ?? '', passwordPreferences: PasswordPreferences(length: int.tryParse(settings['password_length'] ?? '') ?? 13, symbols: settings['use_symbols'] != 'false', numbers: settings['use_numbers'] != 'false', letters: settings['use_letters'] != 'false'));
   }
 
@@ -177,6 +191,8 @@ class ProxiedMailApi {
   }
 
   Future<void> createContact(ProxyBinding binding, String recipientEmail) => _request('/api/v1/contacts', method: 'POST', body: {'data': {'type': 'proxy_binding_contacts', 'attributes': {'recipient_email': recipientEmail}, 'relationships': {'proxy_binding': {'data': {'type': 'proxy_bindings', 'id': binding.id}}}}});
+
+  Future<void> resendConfirmation(String address) => _request('/api/v1/resend-confirmation', method: 'POST', body: {'data': {'type': 'confirmation', 'attributes': {'email': address}}});
 
   Future<void> updateUsedOn(ProxyBinding binding, List<String> list) => _request('/gapi/used-on', method: 'PATCH', bearer: true, body: {'proxy_binding_id': binding.id, 'list': list});
 

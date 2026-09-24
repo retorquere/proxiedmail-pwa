@@ -36,7 +36,7 @@ void main() {
           expect(request.headers['Authorization'], 'Bearer bearer-token');
           return _json([{'domain': 'example.com'}]);
         case '/gapi/real-emails':
-          return _json([{'email': 'inbox@example.com'}]);
+          return _json([{'email': 'inbox@example.com', 'is_verified': false}]);
         case '/gapi/used-on':
           return _json([{'proxy_binding_id': 'binding-1', 'list': ['shop.example']}]);
         case '/gapi/passwords':
@@ -60,6 +60,25 @@ void main() {
     expect(data.bindings.single.callbackUrl, 'https://example.com/hook');
     expect(data.bindings.single.usedOn, ['shop.example']);
     expect(data.bindings.single.password, 'secret');
+    expect(data.bindings.single.verificationStates['inbox@example.com'], isFalse);
+    expect(data.realEmails.single.verified, isFalse);
+  });
+
+  test('resends confirmation for a real email address', () async {
+    late http.Request captured;
+    final client = MockClient((request) async {
+      captured = request;
+      return _json({});
+    });
+    final api = ProxiedMailApi(client: client)..apiToken = 'api-token';
+
+    await api.resendConfirmation('inbox@example.com');
+
+    expect(captured.method, 'POST');
+    expect(captured.url.toString(), '/api/v1/resend-confirmation');
+    expect(jsonDecode(captured.body), {
+      'data': {'type': 'confirmation', 'attributes': {'email': 'inbox@example.com'}},
+    });
   });
 
   test('dashboard loads core bindings when optional metadata requests fail', () async {
@@ -140,7 +159,7 @@ void main() {
       return _json({});
     });
     final api = ProxiedMailApi(client: client)..apiToken = 'api-token';
-    const binding = ProxyBinding(id: 'binding-1', address: 'alias@example.com', description: '', browsable: false, forwarding: ['old@example.com'], forwardingStates: {'old@example.com': false}, forwarded: 0);
+    const binding = ProxyBinding(id: 'binding-1', address: 'alias@example.com', description: '', browsable: false, forwarding: ['old@example.com'], forwardingStates: {'old@example.com': false}, verificationStates: {'old@example.com': true}, forwarded: 0);
 
     await api.updateBinding(binding: binding, forwarding: 'old@example.com, new@example.com', description: 'Accounts', callbackUrl: 'https://example.com/callback');
 

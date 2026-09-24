@@ -94,6 +94,25 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get verified => 'Verified';
+
+  @override
+  String get verificationRequired => 'Verification required';
+
+  @override
+  String get sendVerification => 'Verify';
+
+  @override
+  String verificationSent(Object address) {
+    return 'Verification email sent to $address';
+  }
+
+  @override
+  String verificationFailed(Object detail) {
+    return 'Could not send verification email: $detail';
+  }
+
+  @override
   String get settingsPlaceholder => 'Settings';
 
   @override

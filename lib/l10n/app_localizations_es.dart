@@ -95,6 +95,25 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String get verified => 'Verificado';
+
+  @override
+  String get verificationRequired => 'Verificación necesaria';
+
+  @override
+  String get sendVerification => 'Verificar';
+
+  @override
+  String verificationSent(Object address) {
+    return 'Correo de verificación enviado a $address';
+  }
+
+  @override
+  String verificationFailed(Object detail) {
+    return 'No se pudo enviar el correo de verificación: $detail';
+  }
+
+  @override
   String get settingsPlaceholder => 'Configuración';
 
   @override

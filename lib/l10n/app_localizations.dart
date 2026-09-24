@@ -230,6 +230,36 @@ abstract class AppLocalizations {
   /// **'Some forwarding recipients could not be disabled. Forwarding remains on. {detail}'**
   String someCouldNotDisable(Object detail);
 
+  /// No description provided for @verified.
+  ///
+  /// In en, this message translates to:
+  /// **'Verified'**
+  String get verified;
+
+  /// No description provided for @verificationRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Verification required'**
+  String get verificationRequired;
+
+  /// No description provided for @sendVerification.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify'**
+  String get sendVerification;
+
+  /// No description provided for @verificationSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Verification email sent to {address}'**
+  String verificationSent(Object address);
+
+  /// No description provided for @verificationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not send verification email: {detail}'**
+  String verificationFailed(Object detail);
+
   /// No description provided for @settingsPlaceholder.
   ///
   /// In en, this message translates to:
