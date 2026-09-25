@@ -147,6 +147,7 @@ void main() {
       if (request.url.path == '/gapi/custom-domains') return _json([{'attributes': {'domain': 'custom.example'}}]);
       if (request.url.path == '/gapi/real-emails') return _json([{'email': 'inbox@example.com'}]);
       if (request.url.path == '/gapi/settings') return _json([{'key': 'password_length', 'value': '18'}]);
+      if (request.url.path == '/api/v1/proxy-bindings') return _json({'data': [{'id': 'settings-1', 'attributes': {'proxy_address': 'settings@example.com', 'description': 'hideIamRich: true; onlyCustomDomains: false', 'real_addresses': {'settings@proxiedmail.internal': {'is_enabled': false}}}}]});
       fail('Unexpected request: ${request.url}');
     });
     final api = ProxiedMailApi(client: client)..apiToken = 'api-token';
@@ -156,6 +157,7 @@ void main() {
     expect(data.domains, ['example.com']);
     expect(data.customDomains, ['custom.example']);
     expect(data.targetAddresses, ['inbox@example.com']);
+    expect(data.appSettings, {'hideIamRich': 'true', 'onlyCustomDomains': 'false'});
     expect(data.settings['password_length'], '18');
   });
 
@@ -180,7 +182,7 @@ void main() {
     final client = MockClient((request) async {
       switch (request.url.path) {
         case '/api/v1/proxy-bindings':
-          return _json({'data': [{'id': 'binding-1', 'attributes': {'proxy_address': 'alias@example.com', 'description': 'Shopping', 'callback_url': 'https://example.com/hook', 'is_browsable': true, 'real_addresses': {'inbox@example.com': {'is_enabled': false}}}}], 'meta': {}});
+          return _json({'data': [{'id': 'binding-1', 'attributes': {'proxy_address': 'alias@example.com', 'description': 'Shopping', 'callback_url': 'https://example.com/hook', 'is_browsable': true, 'real_addresses': {'inbox@example.com': {'is_enabled': false}}}}, {'id': 'settings-1', 'attributes': {'proxy_address': 'settings@example.com', 'description': 'hideIamRich: true; onlyCustomDomains: false', 'real_addresses': {'settings@proxiedmail.internal': {'is_enabled': false}}}}], 'meta': {}});
         case '/api/v1/proxy-bindings/binding-1/contacts':
           return _json({'data': [{'id': 'contact-1', 'attributes': {'recipient_email': 'shop@example.net', 'reverse_proxy_address': 'reverse@example.com'}}]});
         case '/gapi/available-domains':
@@ -207,6 +209,7 @@ void main() {
     expect(export['format'], 'proxiedmail-portable-config');
     expect(export['version'], 1);
     expect(export['exportedAt'], '2026-09-25T00:00:00.000Z');
+    expect(export['appSettings'], {'hideIamRich': 'true', 'onlyCustomDomains': 'false'});
     expect(proxy['proxyAddress'], 'alias@example.com');
     expect(proxy['targets'], [{'address': 'inbox@example.com', 'enabled': false}]);
     expect(proxy['usedOn'], ['shop.example']);

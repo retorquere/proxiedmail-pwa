@@ -17,8 +17,10 @@ export class SettingsComponent implements OnInit {
   readonly saving = signal(false)
   readonly message = signal('')
   readonly error = signal('')
-  readonly hideIamRich = signal(this.readPreference('proxiedmail.hideIamRich'))
-  readonly onlyCustomDomains = signal(this.readPreference('proxiedmail.onlyCustomDomains'))
+  readonly hideIamRich = signal(false)
+  readonly onlyCustomDomains = signal(false)
+  readonly senderNameMode = signal('1')
+  readonly senderCustomName = signal('')
   readonly removeMailInfoBanner = signal(false)
   readonly retention = signal('never')
   readonly domains = signal<string[]>([])
@@ -34,6 +36,7 @@ export class SettingsComponent implements OnInit {
   readonly bitwardenVisible = signal(false)
   readonly exporting = signal(false)
   readonly replacingTarget = signal(false)
+  readonly savingDisplayPreferences = signal(false)
   readonly locale = signal<SupportedLocale>(currentLocale())
   get availableDomains() {
     return this.domains().filter(domain => !(this.hideIamRich() && domain === 'iam-rich.net'))
@@ -58,11 +61,16 @@ export class SettingsComponent implements OnInit {
       this.customDomains.set(data.customDomains)
       this.targetAddresses.set(data.targetAddresses)
       this.selectedTargetAddress.set(data.targetAddresses[0] ?? '')
+      this.hideIamRich.set(data.appSettings['hideIamRich'] === 'true')
+      this.onlyCustomDomains.set(data.appSettings['onlyCustomDomains'] === 'true' && data.customDomains.length > 0)
+      const setting = (key: string) => data.settings.find((entry: any) => entry.key === key)?.value
+      const senderNameSetting = setting('sender_name_mode') ?? '1'
+      this.senderNameMode.set(['0', '1'].includes(senderNameSetting) ? senderNameSetting : 'custom')
+      this.senderCustomName.set(this.senderNameMode() === 'custom' ? senderNameSetting : '')
       if (!data.customDomains.length) this.onlyCustomDomains.set(false)
       if (this.availableDomains.length) this.selectedDomain.set(this.availableDomains[0])
       const retentionSetting = data.settings.find((setting: any) => /retention|message/i.test(setting.key ?? ''))
       if (retentionSetting?.value) this.retention.set(retentionSetting.value)
-      const setting = (key: string) => data.settings.find((entry: any) => entry.key === key)?.value
       this.removeMailInfoBanner.set(setting('hide_banner') === 'hide')
       if (setting('password_length')) this.passwordLength.set(Number(setting('password_length')) || 13)
       this.useSymbols.set(setting('use_symbols') !== 'false')
@@ -78,18 +86,50 @@ export class SettingsComponent implements OnInit {
     }
   }
 
-  saveLocalPreference() {
-    this.writeCookie('proxiedmail.hideIamRich', String(this.hideIamRich()))
-    localStorage.setItem('proxiedmail.hideIamRich', String(this.hideIamRich()))
-    if (!this.availableDomains.includes(this.selectedDomain())) this.selectedDomain.set(this.availableDomains[0] ?? '')
+  async saveLocalPreference() {
+    this.savingDisplayPreferences.set(true)
+    this.error.set('')
+    try {
+      await this.api.saveAppSettings({ hideIamRich: String(this.hideIamRich()) }, this.domains(), this.customDomains())
+      if (!this.availableDomains.includes(this.selectedDomain())) this.selectedDomain.set(this.availableDomains[0] ?? '')
+    }
+    catch (error) {
+      this.error.set(error instanceof Error ? error.message : $localize`Unable to save display preferences.`)
+    }
+    finally {
+      this.savingDisplayPreferences.set(false)
+    }
   }
-  saveOnlyCustomDomainsPreference() {
+  async saveOnlyCustomDomainsPreference() {
     if (!this.hasCustomDomains) return
-    this.writeCookie('proxiedmail.onlyCustomDomains', String(this.onlyCustomDomains()))
-    localStorage.setItem('proxiedmail.onlyCustomDomains', String(this.onlyCustomDomains()))
-    if (this.onlyCustomDomains() && !this.customDomains().includes(this.selectedDomain()) && this.availableCustomDomains.length) {
-      this.selectedDomain.set(this.availableCustomDomains[0])
-      this.saveDefaultDomain()
+    this.savingDisplayPreferences.set(true)
+    this.error.set('')
+    try {
+      await this.api.saveAppSettings({ onlyCustomDomains: String(this.onlyCustomDomains()) }, this.domains(), this.customDomains())
+      if (this.onlyCustomDomains() && !this.customDomains().includes(this.selectedDomain()) && this.availableCustomDomains.length) {
+        this.selectedDomain.set(this.availableCustomDomains[0])
+        this.saveDefaultDomain()
+      }
+    }
+    catch (error) {
+      this.error.set(error instanceof Error ? error.message : $localize`Unable to save display preferences.`)
+    }
+    finally {
+      this.savingDisplayPreferences.set(false)
+    }
+  }
+  async saveSenderNamePreference() {
+    this.savingDisplayPreferences.set(true)
+    this.error.set('')
+    try {
+      const value = this.senderNameMode() === 'custom' ? this.senderCustomName().trim() : this.senderNameMode()
+      await this.api.updateSettings([{ key: 'sender_name_mode', value: value || '1' }]).toPromise()
+    }
+    catch (error) {
+      this.error.set(error instanceof Error ? error.message : $localize`Unable to save display preferences.`)
+    }
+    finally {
+      this.savingDisplayPreferences.set(false)
     }
   }
   async saveMailInfoPreference() {
@@ -176,18 +216,5 @@ export class SettingsComponent implements OnInit {
     finally {
       this.replacingTarget.set(false)
     }
-  }
-
-  private readCookie(name: string) {
-    return document.cookie.split('; ').some(cookie => cookie === `${name}=true`)
-  }
-  private readPreference(name: string) {
-    const cookieValue = document.cookie.split('; ').find(cookie => cookie.startsWith(`${name}=`))?.split('=').slice(1).join('=')
-    const storedValue = localStorage.getItem(name)
-    return [cookieValue, storedValue].some(value => ['true', '1', 'on'].includes(value?.toLowerCase() ?? ''))
-  }
-
-  private writeCookie(name: string, value: string) {
-    document.cookie = `${name}=${value}; Max-Age=31536000; Path=/; SameSite=Lax`
   }
 }

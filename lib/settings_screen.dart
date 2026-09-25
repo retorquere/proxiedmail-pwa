@@ -22,6 +22,7 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   final passwordLength = TextEditingController(text: '13');
   final replacementTarget = TextEditingController();
+  final senderCustomName = TextEditingController();
   bool loading = true;
   bool saving = false;
   bool hideIamRich = false;
@@ -33,7 +34,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool bitwardenExpanded = false;
   bool exporting = false;
   bool replacingTarget = false;
+  bool savingDisplayPreferences = false;
   String retention = 'never';
+  String senderNameMode = '1';
   String selectedDomain = '';
   String selectedTargetAddress = '';
   List<String> domains = const [];
@@ -56,23 +59,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void dispose() {
     passwordLength.dispose();
     replacementTarget.dispose();
+    senderCustomName.dispose();
     super.dispose();
   }
 
   Future<void> load() async {
     try {
-      final results = await Future.wait([widget.api.settingsData(), SharedPreferences.getInstance()]);
-      final data = results[0] as SettingsData;
-      final preferences = results[1] as SharedPreferences;
+      final data = await widget.api.settingsData();
       final settings = data.settings;
+      final appSettings = data.appSettings;
       if (!mounted) return;
       setState(() {
         domains = data.domains;
         customDomains = data.customDomains;
         targetAddresses = data.targetAddresses;
         selectedTargetAddress = data.targetAddresses.firstOrNull ?? '';
-        hideIamRich = preferences.getBool('proxiedmail.hideIamRich') ?? false;
-        onlyCustomDomains = (preferences.getBool('proxiedmail.onlyCustomDomains') ?? false) && data.customDomains.isNotEmpty;
+        hideIamRich = appSettings['hideIamRich'] == 'true';
+        onlyCustomDomains = appSettings['onlyCustomDomains'] == 'true' && data.customDomains.isNotEmpty;
+        final senderNameSetting = settings['sender_name_mode'] ?? '1';
+        senderNameMode = senderNameSetting == '0' || senderNameSetting == '1' ? senderNameSetting : 'custom';
+        senderCustomName.text = senderNameMode == 'custom' ? senderNameSetting : '';
         retention = settings['received_messages_retention'] ?? 'never';
         hideBanner = settings['hide_banner'] == 'hide';
         passwordLength.text = settings['password_length'] ?? '13';
@@ -101,31 +107,56 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> setHideIamRich(bool value) async {
-    final preferences = await SharedPreferences.getInstance();
-    await preferences.setBool('proxiedmail.hideIamRich', value);
-    if (!mounted) return;
-    setState(() {
-      hideIamRich = value;
-      if (!availableDomains.contains(selectedDomain)) selectedDomain = availableDomains.firstOrNull ?? '';
-    });
-    widget.onLocalPreferencesChanged();
+    setState(() { savingDisplayPreferences = true; error = null; });
+    try {
+      await widget.api.saveAppSettings({'hideIamRich': '$value'}, domains: domains, customDomains: customDomains);
+      if (!mounted) return;
+      setState(() {
+        hideIamRich = value;
+        if (!availableDomains.contains(selectedDomain)) selectedDomain = availableDomains.firstOrNull ?? '';
+      });
+      widget.onLocalPreferencesChanged();
+    } catch (exception) {
+      if (mounted) setState(() => error = _message(exception));
+    } finally {
+      if (mounted) setState(() => savingDisplayPreferences = false);
+    }
   }
 
   Future<void> setOnlyCustomDomains(bool value) async {
     if (!hasCustomDomains) return;
-    final preferences = await SharedPreferences.getInstance();
-    await preferences.setBool('proxiedmail.onlyCustomDomains', value);
     if (!mounted) return;
     String? newDefaultDomain;
     if (value && !customDomains.contains(selectedDomain) && availableCustomDomains.isNotEmpty) {
       newDefaultDomain = availableCustomDomains.first;
     }
-    setState(() {
-      onlyCustomDomains = value;
-      if (newDefaultDomain != null) selectedDomain = newDefaultDomain;
-    });
-    if (newDefaultDomain != null) await save({'random_alias_default_domain': newDefaultDomain}, success: 'Default proxy domain changed to $newDefaultDomain.');
-    widget.onLocalPreferencesChanged();
+    setState(() { savingDisplayPreferences = true; error = null; });
+    try {
+      await widget.api.saveAppSettings({'onlyCustomDomains': '$value'}, domains: domains, customDomains: customDomains);
+      if (!mounted) return;
+      setState(() {
+        onlyCustomDomains = value;
+        if (newDefaultDomain != null) selectedDomain = newDefaultDomain;
+      });
+      if (newDefaultDomain != null) await save({'random_alias_default_domain': newDefaultDomain}, success: 'Default proxy domain changed to $newDefaultDomain.');
+      widget.onLocalPreferencesChanged();
+    } catch (exception) {
+      if (mounted) setState(() => error = _message(exception));
+    } finally {
+      if (mounted) setState(() => savingDisplayPreferences = false);
+    }
+  }
+
+  Future<void> saveSenderName() async {
+    setState(() { savingDisplayPreferences = true; error = null; });
+    try {
+      final value = senderNameMode == 'custom' ? senderCustomName.text.trim() : senderNameMode;
+      await widget.api.updateSettings({'sender_name_mode': value.isEmpty ? '1' : value});
+    } catch (exception) {
+      if (mounted) setState(() => error = _message(exception));
+    } finally {
+      if (mounted) setState(() => savingDisplayPreferences = false);
+    }
   }
 
   Future<void> changeLocale(String? value) async {
@@ -181,7 +212,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (error != null) _notice(context, error!, error: true),
       if (message != null) _notice(context, message!),
       const SizedBox(height: 18),
-      _section(context, title: 'Your account', subtitle: 'These choices are saved to your ProxiedMail account.', children: [
+      _section(context, title: 'Account settings', subtitle: 'These choices apply to your ProxiedMail account.', children: [
         DropdownButtonFormField<String>(initialValue: retention, decoration: const InputDecoration(labelText: 'Received-message retention'), items: const [DropdownMenuItem(value: '1-day', child: Text('1 day')), DropdownMenuItem(value: '3-days', child: Text('3 days')), DropdownMenuItem(value: 'never', child: Text('Never'))], onChanged: saving ? null : (value) { if (value == null) return; setState(() => retention = value); save({'received_messages_retention': value}); }),
         const SizedBox(height: 14),
         DropdownButtonFormField<String>(initialValue: availableDomains.contains(selectedDomain) ? selectedDomain : null, decoration: const InputDecoration(labelText: 'Default proxy domain'), items: availableDomains.map((domain) => DropdownMenuItem(value: domain, child: Text(domain))).toList(), onChanged: saving ? null : (value) { if (value == null) return; setState(() => selectedDomain = value); save({'random_alias_default_domain': value}); }),
@@ -193,10 +224,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _passwordSettings(context),
       ]),
       const SizedBox(height: 16),
-      _section(context, title: 'This browser', subtitle: 'These choices are saved only in this browser.', children: [
+      _section(context, title: 'Display preferences', subtitle: 'Choose how this dashboard is shown.', children: [
         DropdownButtonFormField<String>(initialValue: widget.locale.languageCode, decoration: const InputDecoration(labelText: 'Language'), items: const [DropdownMenuItem(value: 'en', child: Text('English')), DropdownMenuItem(value: 'es', child: Text('Español'))], onChanged: changeLocale),
-        SwitchListTile(contentPadding: EdgeInsets.zero, title: const Text('Hide iam-rich.net from the proxy domain list'), value: hideIamRich, onChanged: setHideIamRich),
-        SwitchListTile(contentPadding: EdgeInsets.zero, title: const Text('Only use custom domains'), subtitle: Text(hasCustomDomains ? 'New proxies will only offer your custom domains.' : 'Add a custom domain to enable this setting.'), value: onlyCustomDomains && hasCustomDomains, onChanged: hasCustomDomains ? setOnlyCustomDomains : null),
+        SwitchListTile(contentPadding: EdgeInsets.zero, title: const Text('Hide iam-rich.net from the proxy domain list'), value: hideIamRich, onChanged: savingDisplayPreferences ? null : setHideIamRich),
+        SwitchListTile(contentPadding: EdgeInsets.zero, title: const Text('Only use custom domains'), subtitle: Text(hasCustomDomains ? 'New proxies will only offer your custom domains.' : 'Add a custom domain to enable this setting.'), value: onlyCustomDomains && hasCustomDomains, onChanged: savingDisplayPreferences || !hasCustomDomains ? null : setOnlyCustomDomains),
+        const Divider(),
+        _senderNameSettings(context),
+        if (savingDisplayPreferences) const Padding(padding: EdgeInsets.only(top: 8), child: Row(children: [SizedBox.square(dimension: 16, child: CircularProgressIndicator(strokeWidth: 2)), SizedBox(width: 10), Text('Saving display preferences...')]))
       ]),
       const SizedBox(height: 16),
       _section(context, title: 'Export configuration', subtitle: 'Download a portable JSON backup of proxy addresses, targets, contacts, callbacks, site associations, passwords, and account settings. Authentication tokens are never included.', children: [
@@ -228,6 +262,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _notice(BuildContext context, String text, {bool error = false}) => Container(margin: const EdgeInsets.only(top: 16), padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: error ? Theme.of(context).colorScheme.errorContainer : const Color(0xffe5f5e9), borderRadius: BorderRadius.circular(6)), child: Text(text));
 
   Widget _targetReplacement(BuildContext context) => Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(border: Border.all(color: const Color(0xffe2e8f2)), borderRadius: BorderRadius.circular(12)), child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [Text('Replace target address', style: Theme.of(context).textTheme.titleMedium), const SizedBox(height: 12), DropdownButtonFormField<String>(initialValue: targetAddresses.contains(selectedTargetAddress) ? selectedTargetAddress : null, decoration: const InputDecoration(labelText: 'Target address'), items: targetAddresses.map((address) => DropdownMenuItem(value: address, child: Text(address))).toList(), onChanged: replacingTarget ? null : (value) => setState(() => selectedTargetAddress = value ?? '')), const SizedBox(height: 12), TextField(controller: replacementTarget, keyboardType: TextInputType.emailAddress, enabled: !replacingTarget, onChanged: (_) => setState(() {}), decoration: const InputDecoration(labelText: 'Replacement address')), const SizedBox(height: 12), Align(alignment: Alignment.centerRight, child: FilledButton.icon(onPressed: replacingTarget || selectedTargetAddress.isEmpty || replacementTarget.text.trim().isEmpty ? null : replaceTargetAddress, icon: replacingTarget ? const SizedBox.square(dimension: 16, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.swap_horiz), label: const Text('Replace target')))]));
+
+  Widget _senderNameSettings(BuildContext context) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [Text('Sender name', style: Theme.of(context).textTheme.titleMedium), const SizedBox(height: 4), const Text('Choose how you want your name to appear in emails.'), const SizedBox(height: 12), DropdownButtonFormField<String>(initialValue: senderNameMode, decoration: const InputDecoration(labelText: 'Sender name mode'), items: const [DropdownMenuItem(value: '1', child: Text('Default')), DropdownMenuItem(value: '0', child: Text('Hide name')), DropdownMenuItem(value: 'custom', child: Text('Custom name'))], onChanged: savingDisplayPreferences ? null : (value) { setState(() => senderNameMode = value ?? '1'); if (senderNameMode != 'custom') saveSenderName(); }), if (senderNameMode == 'custom') ...[const SizedBox(height: 12), TextField(controller: senderCustomName, enabled: !savingDisplayPreferences, textInputAction: TextInputAction.done, decoration: const InputDecoration(labelText: 'Custom sender name'), onSubmitted: (_) => saveSenderName(), onChanged: (_) => setState(() {}))]]);
 
   Widget _passwordSettings(BuildContext context) => Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(border: Border.all(color: const Color(0xffe2e8f2)), borderRadius: BorderRadius.circular(12)), child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [Text('Password generator', style: Theme.of(context).textTheme.titleMedium), const SizedBox(height: 12), TextField(controller: passwordLength, keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly], decoration: const InputDecoration(labelText: 'Password length', helperText: '6 to 128 characters'), onSubmitted: (_) => savePasswordPreferences()), SwitchListTile(contentPadding: EdgeInsets.zero, title: const Text('Use letters'), value: useLetters, onChanged: saving ? null : (value) { setState(() => useLetters = value); savePasswordPreferences(); }), SwitchListTile(contentPadding: EdgeInsets.zero, title: const Text('Use numbers'), value: useNumbers, onChanged: saving ? null : (value) { setState(() => useNumbers = value); savePasswordPreferences(); }), SwitchListTile(contentPadding: EdgeInsets.zero, title: const Text('Use symbols'), value: useSymbols, onChanged: saving ? null : (value) { setState(() => useSymbols = value); savePasswordPreferences(); })]));
 

@@ -60,7 +60,7 @@ describe('ProxyApiService', () => {
     const result = api.exportConfiguration()
 
     http.expectOne('/api/v1/proxy-bindings?sort=desc').flush({
-      data: [{ id: 'binding-1', attributes: { proxy_address: 'alias@example.com', description: 'Shopping', callback_url: 'https://example.com/hook', is_browsable: true, real_addresses: { 'inbox@example.com': { is_enabled: false } } } }],
+      data: [{ id: 'binding-1', attributes: { proxy_address: 'alias@example.com', description: 'Shopping', callback_url: 'https://example.com/hook', is_browsable: true, real_addresses: { 'inbox@example.com': { is_enabled: false } } } }, { id: 'settings-1', attributes: { proxy_address: 'settings@example.com', description: 'hideIamRich: true; onlyCustomDomains: false', real_addresses: { 'settings@proxiedmail.internal': { is_enabled: false } } } }],
       meta: {},
     })
     await Promise.resolve()
@@ -83,6 +83,8 @@ describe('ProxyApiService', () => {
     expect(exported.format).toBe('proxiedmail-portable-config')
     expect(exported.version).toBe(1)
     expect(exported.settings).toEqual({ random_alias_default_domain: 'example.com' })
+    expect(exported.appSettings).toEqual({ hideIamRich: 'true', onlyCustomDomains: 'false' })
+    expect(exported.proxies).toHaveLength(1)
     expect(exported.proxies[0]).toEqual({
       proxyAddress: 'alias@example.com',
       description: 'Shopping',

@@ -23,8 +23,8 @@
     <c-col xs="12">
       <c-card>
         <c-card-body>
-          <h2 class="h5" i18n>Your account</h2>
-          <p class="text-body-secondary" i18n>These choices are saved to your ProxiedMail account.</p>
+          <h2 class="h5" i18n>Account settings</h2>
+          <p class="text-body-secondary" i18n>These choices apply to your ProxiedMail account.</p>
           <div class="settings-inline">
             <label cFormLabel for="retention" i18n>Received-message retention</label>
             <select cSelect class="settings-select" id="retention" [(ngModel)]="retention" (ngModelChange)="saveRetention()">
@@ -81,8 +81,8 @@
     <c-col xs="12">
       <c-card>
         <c-card-body>
-          <h2 class="h5" i18n>This browser</h2>
-          <p class="text-body-secondary" i18n>These choices are saved only in this browser.</p>
+          <h2 class="h5" i18n>Display preferences</h2>
+          <p class="text-body-secondary" i18n>Choose how this dashboard is shown.</p>
           <div class="settings-inline">
             <label cFormLabel for="locale" i18n>Language</label>
             <select cSelect class="settings-select" id="locale" [(ngModel)]="locale" (change)="changeLocale()">
@@ -91,14 +91,30 @@
             </select>
           </div>
           <c-form-check [switch]="true">
-            <input cFormCheckInput id="hideIamRich" type="checkbox" [(ngModel)]="hideIamRich" (change)="saveLocalPreference()" />
+            <input cFormCheckInput id="hideIamRich" type="checkbox" [(ngModel)]="hideIamRich" [disabled]="savingDisplayPreferences()" (change)="saveLocalPreference()" />
             <label cFormCheckLabel for="hideIamRich" i18n>Hide iam-rich.net from the proxy domain list</label>
           </c-form-check>
           <c-form-check [switch]="true">
-            <input cFormCheckInput id="onlyCustomDomains" type="checkbox" [(ngModel)]="onlyCustomDomains" [disabled]="!hasCustomDomains" (change)="saveOnlyCustomDomainsPreference()" />
+            <input cFormCheckInput id="onlyCustomDomains" type="checkbox" [(ngModel)]="onlyCustomDomains" [disabled]="savingDisplayPreferences() || !hasCustomDomains" (change)="saveOnlyCustomDomainsPreference()" />
             <label cFormCheckLabel for="onlyCustomDomains" i18n>Only use custom domains</label>
           </c-form-check>
           <p class="small text-body-secondary browser-setting-note" i18n>{{ hasCustomDomains ? 'New proxies will only offer your custom domains.' : 'Add a custom domain to enable this setting.' }}</p>
+          <hr />
+          <div class="sender-name-settings">
+            <h3 class="h6" i18n>Sender name</h3>
+            <p class="text-body-secondary" i18n>Choose how you want your name to appear in emails.</p>
+            <div class="sender-name-options">
+              <label><input type="radio" name="senderNameMode" value="1" [(ngModel)]="senderNameMode" [disabled]="savingDisplayPreferences()" (change)="saveSenderNamePreference()" /> <span i18n>Default</span></label>
+              <label><input type="radio" name="senderNameMode" value="0" [(ngModel)]="senderNameMode" [disabled]="savingDisplayPreferences()" (change)="saveSenderNamePreference()" /> <span i18n>Hide name</span></label>
+              <label><input type="radio" name="senderNameMode" value="custom" [(ngModel)]="senderNameMode" [disabled]="savingDisplayPreferences()" (change)="saveSenderNamePreference()" /> <span i18n>Custom name</span></label>
+            </div>
+            @if (senderNameMode() === 'custom') {
+              <input cFormControl type="text" placeholder="Custom sender name" i18n-placeholder [(ngModel)]="senderCustomName" [disabled]="savingDisplayPreferences()" (change)="saveSenderNamePreference()" />
+            }
+          </div>
+          @if (savingDisplayPreferences()) {
+            <div class="settings-saving" role="status"><c-spinner size="sm" aria-hidden="true" /><span i18n>Saving display preferences...</span></div>
+          }
         </c-card-body>
       </c-card>
     </c-col>

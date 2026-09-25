@@ -1,7 +1,10 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+
+const settingsTargetAddress = 'settings@proxiedmail.internal';
 
 class ProxyBinding {
   const ProxyBinding({required this.id, required this.address, required this.description, required this.browsable, required this.forwarding, required this.forwardingStates, required this.verificationStates, required this.forwarded, this.callbackUrl = '', this.usedOn = const [], this.password = ''});
@@ -17,6 +20,8 @@ class ProxyBinding {
   final String callbackUrl;
   final List<String> usedOn;
   final String password;
+
+  bool get isSettingsBinding => forwarding.contains(settingsTargetAddress);
 
   factory ProxyBinding.fromJson(Map<String, dynamic> json, {List<String> usedOn = const [], String password = '', Map<String, bool> verificationStates = const {}}) {
     final attributes = (json['attributes'] as Map?)?.cast<String, dynamic>() ?? {};
@@ -75,16 +80,17 @@ class ProxyContact {
 }
 
 class SettingsData {
-  const SettingsData({required this.domains, required this.customDomains, required this.targetAddresses, required this.settings});
+  const SettingsData({required this.domains, required this.customDomains, required this.targetAddresses, required this.settings, required this.appSettings});
 
   final List<String> domains;
   final List<String> customDomains;
   final List<String> targetAddresses;
   final Map<String, String> settings;
+  final Map<String, String> appSettings;
 }
 
 class DashboardData {
-  const DashboardData({required this.bindings, required this.available, required this.domains, required this.customDomains, required this.realEmails, required this.defaultDomain, required this.passwordPreferences});
+  const DashboardData({required this.bindings, required this.available, required this.domains, required this.customDomains, required this.realEmails, required this.defaultDomain, required this.passwordPreferences, required this.appSettings});
 
   final List<ProxyBinding> bindings;
   final int available;
@@ -93,6 +99,7 @@ class DashboardData {
   final List<RealEmail> realEmails;
   final String defaultDomain;
   final PasswordPreferences passwordPreferences;
+  final Map<String, String> appSettings;
 
   int get activeProxies => bindings.length;
 }
@@ -174,17 +181,19 @@ class ProxiedMailApi {
     final usedOnEntries = _responseList(results[3]);
     final passwordEntries = _responseList(results[4]);
     final settings = _settingsMap(results[5]);
-    final list = ((bindingsPayload['data'] as List?) ?? []).map((item) {
+    final allBindings = ((bindingsPayload['data'] as List?) ?? []).map((item) {
       final json = (item as Map).cast<String, dynamic>();
       final id = '${json['id'] ?? ''}';
       final usedOn = usedOnEntries.where((entry) => '${entry['proxy_binding_id'] ?? entry['related_to_id'] ?? ''}' == id).map((entry) => entry['list']).whereType<List>().expand((items) => items).map((item) => '$item').toList();
       final password = passwordEntries.where((entry) => '${entry['proxy_binding_id'] ?? entry['related_to_id'] ?? ''}' == id).map((entry) => '${entry['password'] ?? ''}').firstOrNull ?? '';
       return ProxyBinding.fromJson(json, usedOn: usedOn, password: password, verificationStates: verificationStates);
     }).toList();
+    final appSettings = _appSettingsFromBindings(allBindings);
+    final list = allBindings.where((binding) => !binding.isSettingsBinding).toList();
     final meta = (bindingsPayload['meta'] as Map?) ?? {};
     final domains = _domainList(results[0]);
     final customDomains = _domainList(results[1]);
-    return DashboardData(bindings: list, available: (meta['availableProxyBindings'] as num?)?.toInt() ?? 0, domains: domains, customDomains: customDomains, realEmails: realEmails, defaultDomain: settings['random_alias_default_domain'] ?? '', passwordPreferences: PasswordPreferences(length: int.tryParse(settings['password_length'] ?? '') ?? 13, symbols: settings['use_symbols'] != 'false', numbers: settings['use_numbers'] != 'false', letters: settings['use_letters'] != 'false'));
+    return DashboardData(bindings: list, available: (meta['availableProxyBindings'] as num?)?.toInt() ?? 0, domains: domains, customDomains: customDomains, realEmails: realEmails, defaultDomain: settings['random_alias_default_domain'] ?? '', passwordPreferences: PasswordPreferences(length: int.tryParse(settings['password_length'] ?? '') ?? 13, symbols: settings['use_symbols'] != 'false', numbers: settings['use_numbers'] != 'false', letters: settings['use_letters'] != 'false'), appSettings: appSettings);
   }
 
   Future<dynamic> _optional(String path, dynamic fallback) async {
@@ -221,9 +230,15 @@ class ProxiedMailApi {
 
   Future<void> replaceTargetAddress({required String oldEmail, required String newEmail}) => _request('/api/v1/emails/replace', method: 'POST', body: {'data': {'type': 'replace-real-emails', 'attributes': {'oldEmail': oldEmail, 'newEmail': newEmail}}});
 
+  Future<void> saveAppSettings(Map<String, String> settings, {required List<String> domains, required List<String> customDomains}) async {
+    final binding = await _ensureSettingsBinding(domains: domains, customDomains: customDomains);
+    final merged = {..._parseAppSettings(binding.description), ...settings};
+    await _request('/api/v1/proxy-bindings/${binding.id}', method: 'PATCH', body: {'data': {'id': binding.id, 'type': 'proxy_bindings', 'attributes': {'proxy_address': binding.address, 'description': _encodeAppSettings(merged), 'callback_url': '', 'real_addresses': {settingsTargetAddress: false}}}});
+  }
+
   Future<SettingsData> settingsData() async {
-    final results = await Future.wait([_request('/gapi/available-domains', bearer: true), _optional('/gapi/custom-domains?ignoreProcessing=1', []), _optional('/gapi/real-emails', []), _request('/gapi/settings', bearer: true)]);
-    return SettingsData(domains: _domainList(results[0]), customDomains: _domainList(results[1]), targetAddresses: _emailList(results[2]), settings: _settingsMap(results[3]));
+    final results = await Future.wait([_request('/gapi/available-domains', bearer: true), _optional('/gapi/custom-domains?ignoreProcessing=1', []), _optional('/gapi/real-emails', []), _request('/gapi/settings', bearer: true), _optional('/api/v1/proxy-bindings?sort=desc', {'data': []})]);
+    return SettingsData(domains: _domainList(results[0]), customDomains: _domainList(results[1]), targetAddresses: _emailList(results[2]), settings: _settingsMap(results[3]), appSettings: _appSettingsFromBindings(_bindingList(results[4])));
   }
 
   Future<Map<String, dynamic>> exportConfiguration({DateTime? exportedAt}) async {
@@ -232,9 +247,9 @@ class ProxiedMailApi {
     try {
       settingsDataResult = await settingsData();
     } catch (_) {
-      settingsDataResult = const SettingsData(domains: [], customDomains: [], targetAddresses: [], settings: {});
+      settingsDataResult = const SettingsData(domains: [], customDomains: [], targetAddresses: [], settings: {}, appSettings: {});
     }
-    final proxies = await Future.wait(dashboardData.bindings.map((binding) async {
+    final proxies = await Future.wait(dashboardData.bindings.where((binding) => !binding.isSettingsBinding).map((binding) async {
       List<ProxyContact> bindingContacts;
       try {
         bindingContacts = await contacts(binding);
@@ -257,6 +272,7 @@ class ProxiedMailApi {
       'version': 1,
       'exportedAt': (exportedAt ?? DateTime.now()).toUtc().toIso8601String(),
       'settings': settingsDataResult.settings,
+      'appSettings': dashboardData.appSettings.isNotEmpty ? dashboardData.appSettings : settingsDataResult.appSettings,
       'proxies': proxies,
     };
   }
@@ -277,9 +293,38 @@ class ProxiedMailApi {
     }).where((item) => item.isNotEmpty).toList();
   }
 
-  List<String> _emailList(dynamic response) => _responseList(response).map((item) => '${item['email'] ?? item['address'] ?? ''}').where((item) => item.isNotEmpty).toSet().toList();
+  List<String> _emailList(dynamic response) => _responseList(response).map((item) => '${item['email'] ?? item['address'] ?? ''}').where((item) => item.isNotEmpty && item != settingsTargetAddress).toSet().toList();
 
   Map<String, String> _settingsMap(dynamic response) => {for (final entry in _responseList(response)) '${entry['key'] ?? ''}': '${entry['value'] ?? ''}'};
+
+  List<ProxyBinding> _bindingList(dynamic response) => ((response is Map ? response['data'] : null) as List? ?? []).map((item) => ProxyBinding.fromJson((item as Map).cast<String, dynamic>())).toList();
+
+  Map<String, String> _appSettingsFromBindings(List<ProxyBinding> bindings) {
+    final binding = bindings.where((binding) => binding.isSettingsBinding).firstOrNull;
+    return binding == null ? {} : _parseAppSettings(binding.description);
+  }
+
+  Map<String, String> _parseAppSettings(String description) => {for (final part in description.split(';').map((item) => item.trim()).where((item) => item.contains(':'))) part.split(':').first.trim(): part.split(':').skip(1).join(':').trim()};
+
+  String _encodeAppSettings(Map<String, String> settings) => settings.entries.map((entry) => '${entry.key}: ${entry.value}').join('; ');
+
+  Future<ProxyBinding> _ensureSettingsBinding({required List<String> domains, required List<String> customDomains}) async {
+    final bindings = _bindingList(await _request('/api/v1/proxy-bindings?sort=desc'));
+    final existing = bindings.where((binding) => binding.isSettingsBinding).firstOrNull;
+    if (existing != null) return existing;
+    final customDomainSet = customDomains.toSet();
+    final domain = domains.where((domain) => !customDomainSet.contains(domain)).firstOrNull ?? domains.firstOrNull ?? 'proxiedmail.com';
+    await createBinding(alias: _settingsAlias(), domain: domain, forwarding: settingsTargetAddress);
+    final created = _bindingList(await _request('/api/v1/proxy-bindings?sort=desc')).where((binding) => binding.isSettingsBinding).firstOrNull;
+    if (created == null) throw Exception('Could not create settings proxy.');
+    return created;
+  }
+
+  String _settingsAlias() {
+    final random = Random.secure();
+    String segment(int length) => List.generate(length, (_) => random.nextInt(16).toRadixString(16)).join();
+    return '${segment(8)}-${segment(4)}-${segment(4)}-${segment(4)}-${segment(12)}';
+  }
 
   Future<ForwardingUpdateResult> setForwarding(ProxyBinding binding, bool enabled) async {
     var succeeded = 0;

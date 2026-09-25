@@ -16,6 +16,8 @@ export class DashboardComponent implements OnInit {
   readonly available = signal(0)
   readonly query = signal('')
   readonly heroVisible = signal(localStorage.getItem('proxiedmail.hideDashboardHero') !== 'true')
+  readonly hideIamRich = signal(false)
+  readonly onlyCustomDomains = signal(false)
   readonly alias = signal('')
   readonly domain = signal('')
   readonly forwarding = signal('')
@@ -45,6 +47,8 @@ export class DashboardComponent implements OnInit {
       const data = await this.api.dashboard()
       this.bindings.set(data.bindings)
       this.customDomains.set(data.customDomains)
+      this.hideIamRich.set(data.appSettings['hideIamRich'] === 'true')
+      this.onlyCustomDomains.set(data.appSettings['onlyCustomDomains'] === 'true')
       this.domains.set(this.createDomains(data.domains, data.customDomains))
       this.emails.set(data.emails)
       this.available.set(data.available)
@@ -95,19 +99,9 @@ export class DashboardComponent implements OnInit {
     const characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
     this.alias.set(Array.from({ length: 10 }, () => characters[Math.floor(Math.random() * characters.length)]).join(''))
   }
-  private hideIamRichPreference() {
-    const cookieValue = document.cookie.split('; ').find(cookie => cookie.startsWith('proxiedmail.hideIamRich='))?.split('=').slice(1).join('=')
-    const storedValue = localStorage.getItem('proxiedmail.hideIamRich')
-    return [cookieValue, storedValue].some(value => ['true', '1', 'on'].includes(value?.toLowerCase() ?? ''))
-  }
-  private onlyCustomDomainsPreference() {
-    const cookieValue = document.cookie.split('; ').find(cookie => cookie.startsWith('proxiedmail.onlyCustomDomains='))?.split('=').slice(1).join('=')
-    const storedValue = localStorage.getItem('proxiedmail.onlyCustomDomains')
-    return [cookieValue, storedValue].some(value => ['true', '1', 'on'].includes(value?.toLowerCase() ?? ''))
-  }
   private createDomains(domains: string[], customDomains: string[]) {
-    const visibleDomains = domains.filter(domain => !(domain === 'iam-rich.net' && this.hideIamRichPreference()))
-    if (this.onlyCustomDomainsPreference() && customDomains.length) {
+    const visibleDomains = domains.filter(domain => !(domain === 'iam-rich.net' && this.hideIamRich()))
+    if (this.onlyCustomDomains() && customDomains.length) {
       const customDomainSet = new Set(customDomains)
       const filtered = visibleDomains.filter(domain => customDomainSet.has(domain))
       if (filtered.length) return filtered

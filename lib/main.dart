@@ -219,8 +219,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (mounted) {
       setState(() {
         showHero = !(preferences.getBool('proxiedmail.hideDashboardHero') ?? false);
-        hideIamRich = preferences.getBool('proxiedmail.hideIamRich') ?? false;
-        onlyCustomDomains = preferences.getBool('proxiedmail.onlyCustomDomains') ?? false;
+        hideIamRich = widget.data.appSettings['hideIamRich'] == 'true';
+        onlyCustomDomains = widget.data.appSettings['onlyCustomDomains'] == 'true';
       });
     }
   }
