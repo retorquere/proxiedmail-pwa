@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en" data-beasties-container>
+  <head>
+    <meta charset="utf-8">
+    <base href="/">
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
+    <meta content="Manage ProxiedMail private forwarding addresses." name="description">
+    <meta content="ProxiedMail" name="author">
+    <meta content="ProxiedMail,private email,forwarding" name="keyword">
+    <link href="assets/favicon.png" rel="icon" type="image/png">
+    <title>ProxiedMail</title>
+    <style>
+      :root { color-scheme: light; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; --blue: #4169ef; --ink: #202124; --muted: #686b73; }
+      * { box-sizing: border-box; }
+      body { margin: 0; min-width: 320px; color: var(--ink); background: linear-gradient(145deg, #f7f9ff, #fff 58%); }
+      .token-page { min-height: 100vh; display: grid; grid-template-rows: auto 1fr auto; }
+      .token-header { display: flex; align-items: center; gap: 10px; width: min(100% - 40px, 960px); margin: 0 auto; padding: 24px 0; font-size: 20px; font-weight: 700; }
+      .token-mark { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; background: var(--blue); color: #fff; }
+      .token-main { display: grid; place-items: center; padding: 32px 20px 80px; }
+      .token-panel { width: min(100%, 420px); padding: 30px; border: 1px solid #e2e5ec; border-radius: 8px; background: #fff; box-shadow: 0 18px 55px #23356814; }
+      .token-page h1 { margin: 0 0 8px; font-size: 28px; letter-spacing: 0; }
+      .token-intro { margin: 0 0 24px; color: var(--muted); line-height: 1.5; }
+      .token-page label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 650; }
+      .token-page input { width: 100%; min-height: 48px; padding: 11px 13px; border: 1px solid #c9cdd7; border-radius: 6px; font: inherit; }
+      .token-page input:focus { outline: 3px solid #dce5ff; border-color: var(--blue); }
+      .token-page button { width: 100%; min-height: 48px; margin-top: 18px; border: 0; border-radius: 6px; background: var(--blue); color: #fff; font: inherit; font-weight: 700; cursor: pointer; }
+      .token-page button:disabled { opacity: .65; cursor: wait; }
+      #token-error { min-height: 20px; margin: 14px 0 -4px; color: #b3261e; font-size: 14px; }
+      .token-footer { padding: 22px; color: var(--muted); text-align: center; font-size: 13px; }
+    </style>
+  <style>:root{--cui-blue:#0d6efd;--cui-indigo:#6610f2;--cui-purple:#6f42c1;--cui-pink:#d63384;--cui-red:#dc3545;--cui-orange:#fd7e14;--cui-yellow:#ffc107;--cui-green:#198754;--cui-teal:#20c997;--cui-cyan:#0dcaf0;--cui-black:#080a0c;--cui-white:#fff;--cui-gray:#6d7d9c;--cui-gray-dark:#323a49;--cui-gray-100:#f3f4f7;--cui-gray-200:#e7eaee;--cui-gray-300:#dbdfe6;--cui-gray-400:#cfd4de;--cui-gray-500:#aab3c5;--cui-gray-600:#6d7d9c;--cui-gray-700:#4a566d;--cui-gray-800:#323a49;--cui-gray-900:#212631;--cui-primary:#5856d6;--cui-secondary:#6b7785;--cui-success:#1b9e3e;--cui-info:#39f;--cui-warning:#f9b115;--cui-danger:#e55353;--cui-light:#f3f4f7;--cui-dark:#212631;--cui-primary-rgb:88, 86, 214;--cui-secondary-rgb:107, 119, 133;--cui-success-rgb:27, 158, 62;--cui-info-rgb:51, 153, 255;--cui-warning-rgb:249, 177, 21;--cui-danger-rgb:229, 83, 83;--cui-light-rgb:243, 244, 247;--cui-dark-rgb:33, 38, 49;--cui-primary-text-emphasis:#3634a3;--cui-secondary-text-emphasis:#212233;--cui-success-text-emphasis:#0f5722;--cui-info-text-emphasis:#184c77;--cui-warning-text-emphasis:#764705;--cui-danger-text-emphasis:#671414;--cui-light-text-emphasis:#4a566d;--cui-dark-text-emphasis:#323a49;--cui-primary-bg-subtle:#cfc7f3;--cui-secondary-bg-subtle:#ced2d8;--cui-success-bg-subtle:#cbedd6;--cui-info-bg-subtle:#c0e6ff;--cui-warning-bg-subtle:#feecc5;--cui-danger-bg-subtle:#f9d4d4;--cui-light-bg-subtle:rgb(249, 249.5, 251);--cui-dark-bg-subtle:#cfd4de;--cui-primary-border-subtle:#9d92e6;--cui-secondary-border-subtle:#9da5b1;--cui-success-border-subtle:#96dbad;--cui-info-border-subtle:#80c6ff;--cui-warning-border-subtle:#fcd88a;--cui-danger-border-subtle:#f2a9a9;--cui-light-border-subtle:#e7eaee;--cui-dark-border-subtle:#aab3c5;--cui-primary-contrast:#fff;--cui-secondary-contrast:#fff;--cui-success-contrast:#080a0c;--cui-info-contrast:#080a0c;--cui-warning-contrast:#080a0c;--cui-danger-contrast:#080a0c;--cui-light-contrast:#080a0c;--cui-dark-contrast:#fff;--cui-white-rgb:255, 255, 255;--cui-black-rgb:8, 10, 12;--cui-font-sans-serif:system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";--cui-font-monospace:SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;--cui-gradient:linear-gradient(180deg, rgba(255, 255, 255, .15), rgba(255, 255, 255, 0));--cui-body-font-family:var(--cui-font-sans-serif);--cui-body-font-size:1rem;--cui-body-font-weight:400;--cui-body-line-height:1.5;--cui-body-color:rgba(37, 42.92, 54.02, .95);--cui-body-color-rgb:37, 42.92, 54.02;--cui-body-bg:#fff;--cui-body-bg-rgb:255, 255, 255;--cui-emphasis-color:#080a0c;--cui-emphasis-color-rgb:8, 10, 12;--cui-secondary-color:rgba(37, 42.92, 54.02, .681);--cui-secondary-color-rgb:37, 42.92, 54.02;--cui-secondary-bg:#e7eaee;--cui-secondary-bg-rgb:231, 234, 238;--cui-tertiary-color:rgba(37, 42.92, 54.02, .38);--cui-tertiary-color-rgb:37, 42.92, 54.02;--cui-tertiary-bg:#f3f4f7;--cui-tertiary-bg-rgb:243, 244, 247;--cui-tertiary-bg-translucent:rgba(135, 145, 175, .1);--cui-body-color-dark:rgba(255, 255, 255, .87);--cui-body-color-rgb-dark:255, 255, 255;--cui-body-bg-dark:#212631;--cui-body-bg-rgb-dark:33, 38, 49;--cui-emphasis-color-dark:#fff;--cui-emphasis-color-rgb-dark:255, 255, 255;--cui-secondary-color-dark:rgba(255, 255, 255, .6);--cui-secondary-color-rgb-dark:255, 255, 255;--cui-secondary-bg-dark:#323a49;--cui-secondary-bg-rgb-dark:50, 58, 73;--cui-tertiary-color-dark:rgba(255, 255, 255, .38);--cui-tertiary-color-rgb-dark:255, 255, 255;--cui-tertiary-bg-dark:rgb(41.5, 48, 61);--cui-tertiary-bg-rgb-dark:41.5, 48, 61;--cui-high-emphasis:rgba(37, 42.92, 54.02, .95);--cui-medium-emphasis:rgba(37, 42.92, 54.02, .681);--cui-disabled:rgba(37, 42.92, 54.02, .38);--cui-high-emphasis-inverse:rgba(255, 255, 255, .87);--cui-medium-emphasis-inverse:rgba(255, 255, 255, .6);--cui-disabled-inverse:rgba(255, 255, 255, .38);--cui-heading-color:inherit;--cui-link-color:#5856d6;--cui-link-color-rgb:88, 86, 214;--cui-link-decoration:underline;--cui-link-hover-color:rgb(70.4, 68.8, 171.2);--cui-link-hover-color-rgb:70.4, 68.8, 171.2;--cui-code-color:#d63384;--cui-highlight-color:rgba(37, 42.92, 54.02, .95);--cui-highlight-bg:rgb(255, 242.6, 205.4);--cui-border-width:1px;--cui-border-style:solid;--cui-border-color:#dbdfe6;--cui-border-color-translucent:rgba(49, 72, 112, .175);--cui-border-radius:.375rem;--cui-border-radius-sm:.25rem;--cui-border-radius-lg:.5rem;--cui-border-radius-xl:1rem;--cui-border-radius-xxl:2rem;--cui-border-radius-2xl:var(--cui-border-radius-xxl);--cui-border-radius-pill:50rem;--cui-box-shadow:0 .5rem 1rem rgba(8, 10, 12, .15);--cui-box-shadow-sm:0 .125rem .25rem rgba(8, 10, 12, .075);--cui-box-shadow-lg:0 1rem 3rem rgba(8, 10, 12, .175);--cui-box-shadow-inset:inset 0 1px 2px rgba(8, 10, 12, .075);--cui-focus-ring-width:.25rem;--cui-focus-ring-opacity:.25;--cui-focus-ring-color:rgba(88, 86, 214, .25);--cui-focus-ring-blur:0;--cui-form-valid-color:#1b9e3e;--cui-form-valid-border-color:#1b9e3e;--cui-form-invalid-color:#e55353;--cui-form-invalid-border-color:#e55353}*,*:before,*:after{box-sizing:border-box}@media(prefers-reduced-motion:no-preference){:root{scroll-behavior:smooth}}body{margin:0;font-family:var(--cui-body-font-family);font-size:var(--cui-body-font-size);font-weight:var(--cui-body-font-weight);line-height:var(--cui-body-line-height);color:var(--cui-body-color);text-align:var(--cui-body-text-align);background-color:var(--cui-body-bg);-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:rgba(8,10,12,0)}h1{margin-top:0;margin-bottom:.5rem;font-weight:500;line-height:1.2;color:var(--cui-heading-color)}h1{font-size:calc(1.375rem + 1.5vw)}@media(min-width:1200px){h1{font-size:2.5rem}}p{margin-top:0;margin-bottom:1rem}label{display:inline-block}button{border-radius:0}button:focus:not(:focus-visible){outline:0}input,button{margin:0;font-family:inherit;font-size:inherit;line-height:inherit}button{text-transform:none}button,[type=submit]{-webkit-appearance:button}button:not(:disabled),[type=submit]:not(:disabled){cursor:pointer}:root{--cui-breakpoint-xs:0;--cui-breakpoint-sm:576px;--cui-breakpoint-md:768px;--cui-breakpoint-lg:992px;--cui-breakpoint-xl:1200px;--cui-breakpoint-xxl:1400px;--cui-mobile-breakpoint:lg}:root{--cui-btn-close-filter: }:root{--cui-carousel-indicator-active-bg:#fff;--cui-carousel-caption-color:#fff;--cui-carousel-control-icon-filter: }body{background-color:var(--cui-tertiary-bg)}@supports (scrollbar-width: thin){*{scrollbar-width:thin;scrollbar-color:#444 transparent}}html,body{max-width:100%;overflow-x:hidden}</style><link rel="stylesheet" href="styles-JR2MOCM6.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="styles-JR2MOCM6.css"></noscript></head>
+  <body>
+    <div class="token-page" id="token-page">
+      <header class="token-header"><span class="token-mark">P</span><span>ProxiedMail</span></header>
+      <main class="token-main">
+        <section class="token-panel" aria-labelledby="token-heading">
+          <h1 id="token-heading">Enter your token</h1>
+          <p class="token-intro">Use your ProxiedMail API token to open the dashboard.</p>
+          <form id="token-form">
+            <label for="token-password">Token</label>
+            <input id="token-password" name="password" type="password" autocomplete="current-password" placeholder="API token" required autofocus>
+            <div id="token-error" role="alert" aria-live="polite"></div>
+            <button id="token-submit" type="submit">Continue</button>
+          </form>
+        </section>
+      </main>
+      <footer class="token-footer">Private forwarding addresses for every service.</footer>
+    </div>
+    <app-root></app-root>
+    <noscript>You need to enable JavaScript to sign in.</noscript>
+    <script>
+      if (localStorage.getItem('proxiedmail.apiToken')) {
+        document.getElementById('token-page').remove();
+      } else {
+        document.getElementById('token-form').addEventListener('submit', async event => {
+          event.preventDefault();
+          const input = document.getElementById('token-password');
+          const submit = document.getElementById('token-submit');
+          const error = document.getElementById('token-error');
+          const token = input.value.trim().replace(/^Token\s+/i, '');
+          error.textContent = '';
+          submit.disabled = true;
+          try {
+            if (!token) throw new Error('Enter an API token.');
+            if (/[\s()]/.test(token)) throw new Error('Paste only the API token, without a label or surrounding text.');
+            localStorage.setItem('proxiedmail.apiToken', token);
+            localStorage.removeItem('proxiedmail.bearerToken');
+            location.replace('/dashboard');
+          } catch (cause) {
+            localStorage.removeItem('proxiedmail.apiToken');
+            localStorage.removeItem('proxiedmail.bearerToken');
+            error.textContent = cause instanceof Error ? cause.message : 'Token verification failed.';
+            submit.disabled = false;
+          }
+        });
+      }
+    </script>
+  <script src="polyfills-PZSJNBYU.js" type="module"></script><script src="main-GZY26TT7.js" type="module"></script></body>
+</html>
