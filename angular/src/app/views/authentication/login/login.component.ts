@@ -36,6 +36,11 @@ export class LoginComponent {
     this.error.set('')
     try {
       await this.api.login(this.token())
+      const account = await this.api.currentUser()
+      if (!account.confirmed) {
+        await this.router.navigate(['/authentication/check-email'], { queryParams: { email: account.email } })
+        return
+      }
       await this.router.navigateByUrl('/dashboard')
     }
     catch (error) {

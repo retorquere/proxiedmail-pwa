@@ -209,6 +209,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       Text('Settings', style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w700)),
       const SizedBox(height: 4),
       Text('Control account preferences and integrations.', style: Theme.of(context).textTheme.bodyLarge),
+      Align(alignment: Alignment.centerLeft, child: TextButton.icon(onPressed: () => openExternalUrl('https://proxiedmail.com/en/board'), icon: const Icon(Icons.open_in_new), label: const Text('Open full dashboard'))),
       if (error != null) _notice(context, error!, error: true),
       if (message != null) _notice(context, message!),
       const SizedBox(height: 18),

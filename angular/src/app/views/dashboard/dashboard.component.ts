@@ -14,6 +14,7 @@ export class DashboardComponent implements OnInit {
   readonly emails = signal<string[]>([])
   readonly passwordPreferences = signal({ length: 13, symbols: true, numbers: true, letters: true })
   readonly available = signal(0)
+  readonly accountStatus = signal({ email: '', username: '', confirmed: true })
   readonly query = signal('')
   readonly heroVisible = signal(localStorage.getItem('proxiedmail.hideDashboardHero') !== 'true')
   readonly hideIamRich = signal(false)
@@ -44,7 +45,10 @@ export class DashboardComponent implements OnInit {
     this.loading.set(true)
     this.error.set('')
     try {
-      const data = await this.api.dashboard()
+      const [data, account] = await Promise.all([
+        this.api.dashboard(),
+        this.api.currentUser().catch(() => ({ email: '', username: '', confirmed: true })),
+      ])
       this.bindings.set(data.bindings)
       this.customDomains.set(data.customDomains)
       this.hideIamRich.set(data.appSettings['hideIamRich'] === 'true')
@@ -53,6 +57,7 @@ export class DashboardComponent implements OnInit {
       this.emails.set(data.emails)
       this.available.set(data.available)
       this.passwordPreferences.set(data.passwordPreferences)
+      this.accountStatus.set(account)
       if (!this.domains().includes(this.domain())) this.domain.set(this.domains().includes(data.defaultDomain) ? data.defaultDomain : this.domains()[0] ?? '')
     }
     catch (error) {
@@ -111,5 +116,14 @@ export class DashboardComponent implements OnInit {
   dismissHero() {
     this.heroVisible.set(false)
     localStorage.setItem('proxiedmail.hideDashboardHero', 'true')
+  }
+  async resendConfirmation() {
+    try {
+      await this.api.resendConfirmation(this.accountStatus().email)
+      this.error.set('Confirmation email sent.')
+    }
+    catch (error) {
+      this.error.set(error instanceof Error ? error.message : 'Unable to resend the confirmation email.')
+    }
   }
 }

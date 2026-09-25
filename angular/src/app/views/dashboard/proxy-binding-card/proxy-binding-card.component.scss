@@ -15,6 +15,13 @@
 .spacer { flex: 1; }
 .copy-icon-button { padding: .25rem .4rem; border: 1px solid var(--cui-border-color); color: var(--cui-primary); background: var(--cui-body-bg); }
 .copy-icon-button:hover, .copy-icon-button:focus-visible { color: var(--cui-primary); border-color: var(--cui-primary); background: var(--cui-primary-bg-subtle); }
+.contact-dialog { position: relative; margin: auto; }
+.contact-row { align-items: flex-start; }
+.contact-addresses { min-width: 0; display: grid; gap: .5rem; }
+.contact-address-item { display: grid; gap: .1rem; min-width: 0; }
+.contact-label { color: var(--cui-secondary-color); font-size: .75rem; font-weight: 600; }
+.contact-address { overflow-wrap: anywhere; }
+.contact-actions { display: flex; flex: 0 0 auto; gap: .35rem; }
 .description { min-height: 1.4rem; color: var(--cui-secondary-color); }
 .binding-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; color: var(--cui-secondary-color); font-size: .875rem; }
 .recipient-statuses { display: grid; gap: .45rem; margin-top: .85rem; }

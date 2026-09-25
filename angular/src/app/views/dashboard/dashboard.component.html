@@ -9,6 +9,18 @@
   </c-card>
 }
 
+@if (!accountStatus().confirmed) {
+  <c-card class="mb-4 border-warning-subtle">
+    <c-card-body class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
+      <div>
+        <div class="fw-semibold" i18n>Your account needs confirmation.</div>
+        <div class="text-body-secondary small" i18n>We sent a confirmation email to {{ accountStatus().email || 'your email' }}.</div>
+      </div>
+      <button cButton color="warning" variant="outline" type="button" (click)="resendConfirmation()" i18n>Resend confirmation</button>
+    </c-card-body>
+  </c-card>
+}
+
 <c-row class="align-items-end mb-4">
   <c-col>
     <div class="eyebrow text-primary" i18n>PROXY MANAGEMENT</div>

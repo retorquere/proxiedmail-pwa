@@ -31,6 +31,12 @@ export interface PasswordPreferences {
   letters: boolean
 }
 
+export interface AccountStatus {
+  email: string
+  username: string
+  confirmed: boolean
+}
+
 export interface CustomDomain {
   domain: string
   [key: string]: any
@@ -54,6 +60,38 @@ export class ProxyApiService {
     if (/[\s()]/.test(apiToken)) throw new Error('Paste only the API token, without a label or surrounding text.')
     localStorage.setItem('proxiedmail.apiToken', apiToken)
     localStorage.removeItem('proxiedmail.bearerToken')
+  }
+  async register(username: string, password: string) {
+    const email = username.trim()
+    const suppliedPassword = password.trim()
+    if (!email || !suppliedPassword) throw new Error('Enter an email and password to create your account.')
+    await firstValueFrom(this.request('/api/v1/users', { method: 'POST', body: { data: { type: 'users', attributes: { username: email, password: suppliedPassword } } } }))
+    localStorage.setItem('proxiedmail.pendingConfirmationEmail', email)
+  }
+  async currentUser(): Promise<AccountStatus> {
+    const response = await firstValueFrom(this.request<any>('/api/v1/users/me'))
+    const data = response?.data ?? response ?? {}
+    const attributes = data.attributes ?? data ?? {}
+    const email = String(attributes.email ?? data.email ?? localStorage.getItem('proxiedmail.pendingConfirmationEmail') ?? '').trim()
+    const username = String(attributes.username ?? data.username ?? '').trim()
+    const confirmed = this.parseConfirmed(attributes.confirmed ?? attributes.is_confirmed ?? attributes.email_confirmed ?? attributes.email_verified ?? data.confirmed ?? data.is_confirmed ?? true)
+    return { email, username, confirmed }
+  }
+  private parseConfirmed(value: unknown): boolean {
+    if (typeof value === 'boolean') return value
+    if (typeof value === 'number') return value !== 0
+    if (typeof value === 'string') {
+      const normalized = value.trim().toLowerCase()
+      if (!normalized) return true
+      if (['true', '1', 'yes', 'confirmed', 'verified', 'active', 'enabled', 'ok'].includes(normalized)) return true
+      if (['false', '0', 'no', 'unconfirmed', 'pending', 'pending_confirmation', 'needs_confirmation', 'verification_required', 'disabled'].includes(normalized)) return false
+    }
+    return true
+  }
+  async resendConfirmation(email?: string) {
+    const target = (email ?? (await this.currentUser()).email).trim()
+    if (!target) throw new Error('No email address is available to resend confirmation.')
+    return firstValueFrom(this.request('/api/v1/resend-confirmation', { method: 'POST', body: { data: { type: 'confirmation', attributes: { email: target } } } }))
   }
   logout() {
     localStorage.removeItem('proxiedmail.bearerToken')
@@ -112,7 +150,9 @@ export class ProxyApiService {
   }
   async settingsData() {
     const [domains, customDomains, emails, settings, bindings] = await Promise.all([firstValueFrom(this.request<any>('/gapi/available-domains', { bearer: true })), this.optional(this.request<any>('/gapi/custom-domains?ignoreProcessing=1', { bearer: true }), []), this.optional(this.request<any>('/gapi/real-emails', { bearer: true }), []), firstValueFrom(this.request<any>('/gapi/settings', { bearer: true })), this.optional(this.request<any>('/api/v1/proxy-bindings?sort=desc'), { data: [] })])
-    return { domains: this.domainList(domains), customDomains: this.domainList(customDomains), targetAddresses: this.emailList(emails), settings: Array.isArray(settings) ? settings : settings?.data ?? [], appSettings: this.appSettingsFromBindings(this.bindingList(bindings)) }
+    const settingsBindings = this.settingsBindings(this.bindingList(bindings))
+    await this.deleteDuplicateSettingsBindings(settingsBindings)
+    return { domains: this.domainList(domains), customDomains: this.domainList(customDomains), targetAddresses: this.emailList(emails), settings: Array.isArray(settings) ? settings : settings?.data ?? [], appSettings: this.appSettingsFromBindings(settingsBindings) }
   }
 
   async saveAppSettings(settings: Record<string, string>, domains: string[], customDomains: string[]) {
@@ -146,7 +186,7 @@ export class ProxyApiService {
   }
 
   private appSettingsFromBindings(bindings: Binding[]) {
-    const binding = bindings.find(item => this.isSettingsBinding(item))
+    const binding = this.settingsBindings(bindings)[0]
     return binding ? this.parseAppSettings(binding.description) : {}
   }
 
@@ -163,13 +203,24 @@ export class ProxyApiService {
 
   private async ensureSettingsBinding(domains: string[], customDomains: string[]) {
     const bindings = this.bindingList(await firstValueFrom(this.request<any>('/api/v1/proxy-bindings?sort=desc')))
-    const existing = bindings.find(binding => this.isSettingsBinding(binding))
-    if (existing) return existing
+    const existing = this.settingsBindings(bindings)
+    if (existing.length) {
+      await this.deleteDuplicateSettingsBindings(existing)
+      return existing[0]
+    }
     const domain = domains.find(item => !customDomains.includes(item)) ?? domains[0] ?? 'proxiedmail.com'
     await firstValueFrom(this.create(crypto.randomUUID(), domain, settingsTargetAddress))
     const created = this.bindingList(await firstValueFrom(this.request<any>('/api/v1/proxy-bindings?sort=desc'))).find(binding => this.isSettingsBinding(binding))
     if (!created) throw new Error('Could not create settings proxy.')
     return created
+  }
+
+  private settingsBindings(bindings: Binding[]) {
+    return bindings.filter(binding => this.isSettingsBinding(binding)).sort((left, right) => left.id.localeCompare(right.id))
+  }
+
+  private async deleteDuplicateSettingsBindings(bindings: Binding[]) {
+    await Promise.all(bindings.slice(1).map(binding => firstValueFrom(this.delete(binding)).catch(() => undefined)))
   }
   async exportConfiguration() {
     const dashboard = await this.dashboard()

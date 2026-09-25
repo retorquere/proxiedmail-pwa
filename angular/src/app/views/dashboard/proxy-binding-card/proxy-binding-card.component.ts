@@ -88,6 +88,9 @@ export class ProxyBindingCardComponent {
     this.toast.set($localize`Contact address copied.`)
     setTimeout(() => this.toast.set(''), 2200)
   }
+  openEmailApp(address: string) {
+    window.location.href = `mailto:${encodeURIComponent(address)}`
+  }
   generateSitePassword() {
     const preferences = this.passwordPreferences()
     const letters = preferences.letters ? 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ' : ''

@@ -15,12 +15,12 @@
               </c-col>
               <c-col xs="12">
                 <label cLabel for="email" i18n>Email address</label>
-                <input autocomplete="email" cFormControl id="email" name="email" ngModel placeholder="your@email.com" i18n-placeholder type="email" />
+                <input autocomplete="email" cFormControl id="email" name="email" ngModel placeholder="your@email.com" i18n-placeholder type="email" required />
               </c-col>
               <c-col xs="12">
                 <label cLabel for="password" i18n>Password</label>
                 <c-input-group>
-                  <input autocomplete="new-password" cFormControl id="password" name="password" ngModel placeholder="Your password" i18n-placeholder type="password" />
+                  <input autocomplete="new-password" cFormControl id="password" name="password" ngModel placeholder="Your password" i18n-placeholder type="password" required />
                   <span cInputGroupText>
                     <button aria-label="Show password" i18n-aria-label cButton cTooltip="Show password" i18n-cTooltip class="p-0 link-secondary" color="link" type="button">
                       <svg cIcon name="eye" size="sm"></svg>
@@ -34,8 +34,13 @@
                   <label cFormCheckLabel for="acceptTerms" i18n>I accept the <a routerLink="./">terms and conditions</a> </label>
                 </c-form-check>
               </c-col>
+              <c-col xs="12" *ngIf="error() as message" class="text-danger small">
+                {{ message }}
+              </c-col>
               <c-col xs="12">
-                <button cButton class="w-100" color="primary" type="submit">Create new account</button>
+                <button cButton class="w-100" color="primary" type="submit" [disabled]="busy()">
+                  {{ busy() ? 'Creating account...' : 'Create new account' }}
+                </button>
               </c-col>
             </form>
             <div class="position-relative">

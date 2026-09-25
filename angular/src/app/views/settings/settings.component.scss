@@ -1,6 +1,7 @@
 :host { display: block; }
 .eyebrow { font-size: .72rem; font-weight: 700; letter-spacing: .12em; }
 .settings-loading { display: flex; align-items: center; gap: .75rem; margin-bottom: 1.5rem; padding: .75rem 1rem; border: 1px solid var(--cui-primary-border-subtle); border-radius: var(--cui-border-radius); color: var(--cui-primary); background: var(--cui-primary-bg-subtle); }
+.settings-dashboard-link { display: inline-block; margin-top: .5rem; }
 .settings-saving { display: flex; align-items: center; gap: .5rem; margin-top: .75rem; color: var(--cui-secondary-color); font-size: .875rem; }
 .settings-debug { max-height: 16rem; overflow: auto; padding: 1rem; border-radius: var(--cui-border-radius); background: var(--cui-tertiary-bg); font-size: .8rem; }
 .integration-toggle { display: flex; flex-direction: column; align-items: flex-start; gap: .25rem; padding: 0; text-align: left; }

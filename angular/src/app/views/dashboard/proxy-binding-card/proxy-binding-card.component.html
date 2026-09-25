@@ -89,11 +89,20 @@
       }
       @for (contact of contacts(); track contact.id) {
         <div class="contact-row">
-          <div>
-            <strong>{{ contact.reverseProxyAddress }}</strong
-            ><small>{{ contact.recipientEmail }}</small>
+          <div class="contact-addresses">
+            <div class="contact-address-item">
+              <span class="contact-label" i18n>Contact address</span>
+              <strong class="contact-address">{{ contact.reverseProxyAddress }}</strong>
+            </div>
+            <div class="contact-address-item">
+              <span class="contact-label" i18n>Target address</span>
+              <small class="contact-address">{{ contact.recipientEmail }}</small>
+            </div>
           </div>
-          <button cButton color="light" variant="ghost" size="sm" class="copy-icon-button" (click)="copyContact(contact.reverseProxyAddress)" aria-label="Copy contact address" title="Copy contact address" i18n-aria-label i18n-title><svg cIcon name="cilCopy" aria-hidden="true"></svg></button>
+          <div class="contact-actions">
+            <button cButton color="light" variant="ghost" size="sm" class="copy-icon-button" (click)="openEmailApp(contact.reverseProxyAddress)" aria-label="Open in email app" title="Open in email app" i18n-aria-label i18n-title><svg cIcon name="cilEnvelopeClosed" aria-hidden="true"></svg></button>
+            <button cButton color="light" variant="ghost" size="sm" class="copy-icon-button" (click)="copyContact(contact.reverseProxyAddress)" aria-label="Copy contact address" title="Copy contact address" i18n-aria-label i18n-title><svg cIcon name="cilCopy" aria-hidden="true"></svg></button>
+          </div>
         </div>
       } @empty {
         @if (!contactsLoading()) {

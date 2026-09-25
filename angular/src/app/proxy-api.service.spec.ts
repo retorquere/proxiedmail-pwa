@@ -150,4 +150,28 @@ describe('ProxyApiService', () => {
     expect(request.request.body).toEqual({ data: { type: 'replace-real-emails', attributes: { oldEmail: 'old@example.com', newEmail: 'new@example.com' } } })
     request.flush({})
   })
+
+  it('saves app settings through one hidden settings proxy and deletes duplicates', async () => {
+    localStorage.setItem('proxiedmail.apiToken', 'api-token')
+
+    const result = api.saveAppSettings({ onlyCustomDomains: 'true' }, ['example.com'], [])
+
+    http.expectOne('/api/v1/proxy-bindings?sort=desc').flush({ data: [
+      { id: 'settings-a', attributes: { proxy_address: 'settings-a@example.com', description: 'hideIamRich: false', real_addresses: { 'settings@proxiedmail.internal': { is_enabled: false } } } },
+      { id: 'settings-b', attributes: { proxy_address: 'settings-b@example.com', description: 'hideIamRich: true', real_addresses: { 'settings@proxiedmail.internal': { is_enabled: false } } } },
+    ] })
+    await Promise.resolve()
+
+    const deleteRequest = http.expectOne('/api/v1/proxy-bindings/settings-b')
+    expect(deleteRequest.request.method).toBe('DELETE')
+    deleteRequest.flush({})
+    await new Promise(resolve => setTimeout(resolve, 0))
+
+    const patch = http.expectOne(request => request.method === 'PATCH' && request.url === '/api/v1/proxy-bindings/settings-a')
+    expect(patch.request.method).toBe('PATCH')
+    expect(patch.request.body.data.attributes.description).toBe('hideIamRich: false; onlyCustomDomains: true')
+    patch.flush({})
+
+    await result
+  })
 })

@@ -107,6 +107,45 @@ void main() {
     expect(data.bindings.single.verificationStates['inbox@example.com'], isTrue);
   });
 
+  test('dashboard exposes the account confirmation state from the current user profile', () async {
+    final client = MockClient((request) async {
+      switch (request.url.path) {
+        case '/api/v1/proxy-bindings':
+          return _json({'data': [], 'meta': {}});
+        case '/api/v1/users/me':
+          return _json({'data': {'attributes': {'email': 'user@example.com', 'confirmed': false}}});
+        default:
+          return _json([]);
+      }
+    });
+    final api = ProxiedMailApi(client: client)..apiToken = 'api-token';
+
+    final data = await api.dashboard();
+
+    expect(data.accountConfirmed, isFalse);
+    expect(data.accountEmail, 'user@example.com');
+  });
+
+  test('resends confirmation for the active account email when no explicit address is given', () async {
+    late http.Request captured;
+    final client = MockClient((request) async {
+      captured = request;
+      if (request.url.path == '/api/v1/users/me') {
+        return _json({'data': {'attributes': {'email': 'user@example.com', 'confirmed': false}}});
+      }
+      return _json({});
+    });
+    final api = ProxiedMailApi(client: client)..apiToken = 'api-token';
+
+    await api.resendConfirmation();
+
+    expect(captured.method, 'POST');
+    expect(captured.url.toString(), '/api/v1/resend-confirmation');
+    expect(jsonDecode(captured.body), {
+      'data': {'type': 'confirmation', 'attributes': {'email': 'user@example.com'}},
+    });
+  });
+
   test('resends confirmation for a real email address', () async {
     late http.Request captured;
     final client = MockClient((request) async {
@@ -176,6 +215,29 @@ void main() {
     expect(jsonDecode(captured.body), {
       'data': {'type': 'replace-real-emails', 'attributes': {'oldEmail': 'old@example.com', 'newEmail': 'new@example.com'}},
     });
+  });
+
+  test('saving app settings reuses one hidden settings proxy and deletes duplicates', () async {
+    final requests = <http.Request>[];
+    final client = MockClient((request) async {
+      requests.add(request);
+      if (request.method == 'GET' && request.url.path == '/api/v1/proxy-bindings') {
+        return _json({'data': [
+          {'id': 'settings-a', 'attributes': {'proxy_address': 'settings-a@example.com', 'description': 'hideIamRich: false', 'real_addresses': {'settings@proxiedmail.internal': {'is_enabled': false}}}},
+          {'id': 'settings-b', 'attributes': {'proxy_address': 'settings-b@example.com', 'description': 'hideIamRich: true', 'real_addresses': {'settings@proxiedmail.internal': {'is_enabled': false}}}},
+        ]});
+      }
+      return _json({});
+    });
+    final api = ProxiedMailApi(client: client)..apiToken = 'api-token';
+
+    await api.saveAppSettings({'onlyCustomDomains': 'true'}, domains: ['example.com'], customDomains: []);
+
+    expect(requests.any((request) => request.method == 'DELETE' && request.url.toString() == '/api/v1/proxy-bindings/settings-b'), isTrue);
+    final patch = requests.singleWhere((request) => request.method == 'PATCH');
+    expect(patch.url.toString(), '/api/v1/proxy-bindings/settings-a');
+    final attributes = jsonDecode(patch.body)['data']['attributes'] as Map;
+    expect(attributes['description'], 'hideIamRich: false; onlyCustomDomains: true');
   });
 
   test('configuration export is portable and excludes authentication tokens', () async {

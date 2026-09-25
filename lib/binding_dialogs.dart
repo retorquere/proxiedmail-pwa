@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'api.dart';
+import 'navigation.dart';
 
 class BindingEditorDialog extends StatefulWidget {
   const BindingEditorDialog({required this.api, required this.binding, required this.passwordPreferences, super.key});
@@ -173,7 +174,7 @@ class _ContactsDialogState extends State<ContactsDialog> {
       if (error != null) Padding(padding: const EdgeInsets.only(top: 8), child: Text(error!, style: TextStyle(color: Theme.of(context).colorScheme.error))),
       if (contacts == null && error == null) const Padding(padding: EdgeInsets.all(20), child: Center(child: CircularProgressIndicator())),
       if (contacts?.isEmpty == true) const Padding(padding: EdgeInsets.only(top: 12), child: Text('No contacts created yet.')),
-      for (final contact in contacts ?? <ProxyContact>[]) ListTile(contentPadding: EdgeInsets.zero, title: Text(contact.reverseProxyAddress), subtitle: Text(contact.recipientEmail), trailing: IconButton(onPressed: () => copy(contact.reverseProxyAddress), tooltip: 'Copy contact address', icon: const Icon(Icons.copy_outlined))),
+      for (final contact in contacts ?? <ProxyContact>[]) ListTile(contentPadding: EdgeInsets.zero, title: Text(contact.reverseProxyAddress), subtitle: Text(contact.recipientEmail), trailing: Row(mainAxisSize: MainAxisSize.min, children: [IconButton(onPressed: () => openExternalUrl('mailto:${Uri.encodeComponent(contact.reverseProxyAddress)}'), tooltip: 'Open in email app', icon: const Icon(Icons.email_outlined)), IconButton(onPressed: () => copy(contact.reverseProxyAddress), tooltip: 'Copy contact address', icon: const Icon(Icons.copy_outlined))])),
     ]))),
     actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close'))],
   );

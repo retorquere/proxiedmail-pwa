@@ -131,18 +131,46 @@ class _AuthScreenState extends State<AuthScreen> {
   final formKey = GlobalKey<FormState>();
   final token = TextEditingController();
   bool busy = false;
+  bool resendingConfirmation = false;
   String? message;
+  String? accountEmail;
 
   Future<void> submit() async {
     if (!formKey.currentState!.validate()) return;
     setState(() => busy = true);
     try {
       await widget.api.login(token.text);
+      final profile = await widget.api.currentUserProfile();
+      if (!profile.confirmed) {
+        if (mounted) {
+          setState(() {
+            accountEmail = profile.email;
+            message = 'Your account is waiting for email confirmation.';
+          });
+        }
+        return;
+      }
       await widget.onSignedIn();
     } catch (exception) {
       setState(() => message = exception.toString().replaceFirst('Exception: ', ''));
     } finally {
       if (mounted) setState(() => busy = false);
+    }
+  }
+
+  Future<void> resendConfirmation() async {
+    if (accountEmail == null || accountEmail!.trim().isEmpty) return;
+    setState(() => resendingConfirmation = true);
+    try {
+      await widget.api.resendConfirmation(accountEmail!);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Confirmation email sent.')));
+    } catch (exception) {
+      if (!mounted) return;
+      final detail = exception.toString().replaceFirst('Exception: ', '');
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(detail.isEmpty ? 'Unable to resend confirmation.' : detail)));
+    } finally {
+      if (mounted) setState(() => resendingConfirmation = false);
     }
   }
 
@@ -167,6 +195,14 @@ class _AuthScreenState extends State<AuthScreen> {
                     Text(l10n.manageAliases),
                     const SizedBox(height: 24),
                     if (message != null || widget.error != null) Padding(padding: const EdgeInsets.only(bottom: 16), child: Text(message ?? widget.error!, style: TextStyle(color: Theme.of(context).colorScheme.error))),
+                    if (accountEmail != null && accountEmail!.isNotEmpty) Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: FilledButton.tonalIcon(
+                        onPressed: resendingConfirmation ? null : resendConfirmation,
+                        icon: resendingConfirmation ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.mark_email_read_outlined),
+                        label: const Text('Resend confirmation'),
+                      ),
+                    ),
                     TextFormField(controller: token, obscureText: true, textInputAction: TextInputAction.done, onEditingComplete: submit, decoration: InputDecoration(labelText: l10n.token, prefixIcon: const Icon(Icons.key_outlined)), validator: (value) => value == null || value.trim().isEmpty ? l10n.enterToken : null),
                     const SizedBox(height: 24),
                     FilledButton.icon(onPressed: busy ? null : submit, icon: busy ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.arrow_forward), label: Text(l10n.signIn)),
@@ -200,6 +236,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final forwardingOverrides = <String, bool>{};
   final forwardingBusy = <String>{};
   final verificationBusy = <String>{};
+  bool resendingConfirmation = false;
   int destination = 0;
   bool showHero = true;
   bool hideIamRich = false;
@@ -229,6 +266,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
     setState(() => showHero = false);
     final preferences = await SharedPreferences.getInstance();
     await preferences.setBool('proxiedmail.hideDashboardHero', true);
+  }
+
+  Future<void> _resendDashboardConfirmation() async {
+    final email = widget.data.accountEmail.trim();
+    if (email.isEmpty) return;
+    setState(() => resendingConfirmation = true);
+    try {
+      await widget.api.resendConfirmation(email);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Confirmation email sent.')));
+    } catch (exception) {
+      if (!mounted) return;
+      final detail = exception.toString().replaceFirst('Exception: ', '');
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(detail.isEmpty ? 'Unable to resend confirmation.' : detail)));
+    } finally {
+      if (mounted) setState(() => resendingConfirmation = false);
+    }
   }
 
   @override
@@ -269,13 +323,33 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     return ListView(padding: EdgeInsets.all(narrow ? 16 : 32), children: [
       if (hero != null) ...[hero, const SizedBox(height: 24)],
+      if (!widget.data.accountConfirmed) Card(
+        color: Theme.of(context).colorScheme.errorContainer,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(children: [
+            Icon(Icons.warning_amber_rounded, color: Theme.of(context).colorScheme.onErrorContainer),
+            const SizedBox(width: 12),
+            Expanded(child: Text(
+              widget.data.accountEmail.isEmpty ? 'Your account is waiting for email confirmation.' : 'Your account is awaiting confirmation for ${widget.data.accountEmail}.',
+              style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer),
+            )),
+            const SizedBox(width: 12),
+            FilledButton.tonal(
+              onPressed: resendingConfirmation ? null : _resendDashboardConfirmation,
+              child: resendingConfirmation ? const SizedBox.square(dimension: 16, child: CircularProgressIndicator(strokeWidth: 2)) : const Text('Resend'),
+            ),
+          ]),
+        ),
+      ),
+      if (!widget.data.accountConfirmed) const SizedBox(height: 24),
       _metrics(context, l10n, narrow),
-        const SizedBox(height: 24),
-        _createProxyRow(context, l10n, domains, selectedDomain, narrow),
-        const SizedBox(height: 18),
-        TextField(controller: search, onChanged: (_) => setState(() {}), decoration: InputDecoration(labelText: l10n.searchAliases, prefixIcon: const Icon(Icons.search))),
-        const SizedBox(height: 16),
-          if (matches.isEmpty) Card(child: Padding(padding: const EdgeInsets.all(32), child: Center(child: Text(l10n.noProxies)))) else Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Padding(padding: const EdgeInsets.only(bottom: 12), child: Text(l10n.yourProxies, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700))), LayoutBuilder(builder: (context, constraints) => Wrap(spacing: 12, runSpacing: 12, children: matches.map((binding) => SizedBox(width: narrow ? constraints.maxWidth : (constraints.maxWidth - 12) / 2, child: _bindingCard(context, binding))).toList()))])
+      const SizedBox(height: 24),
+      _createProxyRow(context, l10n, domains, selectedDomain, narrow),
+      const SizedBox(height: 18),
+      TextField(controller: search, onChanged: (_) => setState(() {}), decoration: InputDecoration(labelText: l10n.searchAliases, prefixIcon: const Icon(Icons.search))),
+      const SizedBox(height: 16),
+      if (matches.isEmpty) Card(child: Padding(padding: const EdgeInsets.all(32), child: Center(child: Text(l10n.noProxies)))) else Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Padding(padding: const EdgeInsets.only(bottom: 12), child: Text(l10n.yourProxies, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700))), LayoutBuilder(builder: (context, constraints) => Wrap(spacing: 12, runSpacing: 12, children: matches.map((binding) => SizedBox(width: narrow ? constraints.maxWidth : (constraints.maxWidth - 12) / 2, child: _bindingCard(context, binding))).toList()))])
     ]);
   }
 
