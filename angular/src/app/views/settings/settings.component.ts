@@ -18,19 +18,31 @@ export class SettingsComponent implements OnInit {
   readonly message = signal('')
   readonly error = signal('')
   readonly hideIamRich = signal(this.readPreference('proxiedmail.hideIamRich'))
+  readonly onlyCustomDomains = signal(this.readPreference('proxiedmail.onlyCustomDomains'))
   readonly removeMailInfoBanner = signal(false)
   readonly retention = signal('never')
   readonly domains = signal<string[]>([])
+  readonly customDomains = signal<string[]>([])
+  readonly targetAddresses = signal<string[]>([])
   readonly selectedDomain = signal('')
+  readonly selectedTargetAddress = signal('')
+  readonly replacementTargetAddress = signal('')
   readonly passwordLength = signal(13)
   readonly useSymbols = signal(true)
   readonly useNumbers = signal(true)
   readonly useLetters = signal(true)
   readonly bitwardenVisible = signal(false)
   readonly exporting = signal(false)
+  readonly replacingTarget = signal(false)
   readonly locale = signal<SupportedLocale>(currentLocale())
   get availableDomains() {
     return this.domains().filter(domain => !(this.hideIamRich() && domain === 'iam-rich.net'))
+  }
+  get hasCustomDomains() {
+    return this.customDomains().length > 0
+  }
+  get availableCustomDomains() {
+    return this.customDomains().filter(domain => this.availableDomains.includes(domain))
   }
 
   ngOnInit() {
@@ -43,6 +55,10 @@ export class SettingsComponent implements OnInit {
     try {
       const data = await this.api.settingsData()
       this.domains.set(data.domains)
+      this.customDomains.set(data.customDomains)
+      this.targetAddresses.set(data.targetAddresses)
+      this.selectedTargetAddress.set(data.targetAddresses[0] ?? '')
+      if (!data.customDomains.length) this.onlyCustomDomains.set(false)
       if (this.availableDomains.length) this.selectedDomain.set(this.availableDomains[0])
       const retentionSetting = data.settings.find((setting: any) => /retention|message/i.test(setting.key ?? ''))
       if (retentionSetting?.value) this.retention.set(retentionSetting.value)
@@ -64,7 +80,17 @@ export class SettingsComponent implements OnInit {
 
   saveLocalPreference() {
     this.writeCookie('proxiedmail.hideIamRich', String(this.hideIamRich()))
+    localStorage.setItem('proxiedmail.hideIamRich', String(this.hideIamRich()))
     if (!this.availableDomains.includes(this.selectedDomain())) this.selectedDomain.set(this.availableDomains[0] ?? '')
+  }
+  saveOnlyCustomDomainsPreference() {
+    if (!this.hasCustomDomains) return
+    this.writeCookie('proxiedmail.onlyCustomDomains', String(this.onlyCustomDomains()))
+    localStorage.setItem('proxiedmail.onlyCustomDomains', String(this.onlyCustomDomains()))
+    if (this.onlyCustomDomains() && !this.customDomains().includes(this.selectedDomain()) && this.availableCustomDomains.length) {
+      this.selectedDomain.set(this.availableCustomDomains[0])
+      this.saveDefaultDomain()
+    }
   }
   async saveMailInfoPreference() {
     this.error.set('')
@@ -129,6 +155,26 @@ export class SettingsComponent implements OnInit {
     }
     finally {
       this.saving.set(false)
+    }
+  }
+
+  async replaceTargetAddress() {
+    const oldEmail = this.selectedTargetAddress().trim()
+    const newEmail = this.replacementTargetAddress().trim()
+    if (!oldEmail || !newEmail) return
+    this.replacingTarget.set(true)
+    this.message.set('')
+    this.error.set('')
+    try {
+      await this.api.replaceTargetAddress(oldEmail, newEmail).toPromise()
+      this.replacementTargetAddress.set('')
+      this.message.set($localize`Target address replacement started.`)
+    }
+    catch (error) {
+      this.error.set(error instanceof Error ? error.message : $localize`Unable to replace target address.`)
+    }
+    finally {
+      this.replacingTarget.set(false)
     }
   }
 

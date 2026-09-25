@@ -34,7 +34,10 @@ void main() {
           return _json({'data': [{'id': 'binding-1', 'attributes': {'proxy_address': 'alias@example.com', 'description': 'Shopping', 'callback_url': 'https://example.com/hook', 'received_emails': 7, 'real_addresses': {'inbox@example.com': {'is_enabled': true}}}}], 'meta': {'availableProxyBindings': 12}});
         case '/gapi/available-domains':
           expect(request.headers['Authorization'], 'Bearer bearer-token');
-          return _json([{'domain': 'example.com'}]);
+          return _json([{'domain': 'example.com'}, {'domain': 'custom.example'}]);
+        case '/gapi/custom-domains':
+          expect(request.url.queryParameters['ignoreProcessing'], '1');
+          return _json([{'domain': 'custom.example'}]);
         case '/gapi/real-emails':
           return _json([{'email': 'inbox@example.com', 'is_verified': false}]);
         case '/gapi/used-on':
@@ -54,6 +57,8 @@ void main() {
     final data = await api.dashboard();
 
     expect(data.available, 12);
+    expect(data.domains, ['example.com', 'custom.example']);
+    expect(data.customDomains, ['custom.example']);
     expect(data.defaultDomain, 'example.com');
     expect(data.passwordPreferences.length, 20);
     expect(data.passwordPreferences.symbols, isFalse);
@@ -82,6 +87,24 @@ void main() {
     expect(data.bindings.single.forwarding, ['inbox@example.com']);
     expect(data.bindings.single.forwardingStates['inbox@example.com'], isTrue);
     expect(data.bindings.single.verificationStates['inbox@example.com'], isFalse);
+  });
+
+  test('dashboard prefers binding verification over account email metadata', () async {
+    final client = MockClient((request) async {
+      switch (request.url.path) {
+        case '/api/v1/proxy-bindings':
+          return _json({'data': [{'id': 'binding-1', 'attributes': {'proxy_address': 'alias@example.com', 'real_addresses': {'inbox@example.com': {'is_enabled': true, 'is_verified': true}}}}], 'meta': {}});
+        case '/gapi/real-emails':
+          return _json([{'email': 'inbox@example.com'}]);
+        default:
+          return _json([]);
+      }
+    });
+    final api = ProxiedMailApi(client: client)..apiToken = 'api-token';
+
+    final data = await api.dashboard();
+
+    expect(data.bindings.single.verificationStates['inbox@example.com'], isTrue);
   });
 
   test('resends confirmation for a real email address', () async {
@@ -121,6 +144,8 @@ void main() {
     final client = MockClient((request) async {
       expect(request.headers['Authorization'], 'Bearer api-token');
       if (request.url.path == '/gapi/available-domains') return _json([{'domain': 'example.com'}]);
+      if (request.url.path == '/gapi/custom-domains') return _json([{'attributes': {'domain': 'custom.example'}}]);
+      if (request.url.path == '/gapi/real-emails') return _json([{'email': 'inbox@example.com'}]);
       if (request.url.path == '/gapi/settings') return _json([{'key': 'password_length', 'value': '18'}]);
       fail('Unexpected request: ${request.url}');
     });
@@ -129,7 +154,26 @@ void main() {
     final data = await api.settingsData();
 
     expect(data.domains, ['example.com']);
+    expect(data.customDomains, ['custom.example']);
+    expect(data.targetAddresses, ['inbox@example.com']);
     expect(data.settings['password_length'], '18');
+  });
+
+  test('replaces a target address in bulk', () async {
+    late http.Request captured;
+    final client = MockClient((request) async {
+      captured = request;
+      return _json({});
+    });
+    final api = ProxiedMailApi(client: client)..apiToken = 'api-token';
+
+    await api.replaceTargetAddress(oldEmail: 'old@example.com', newEmail: 'new@example.com');
+
+    expect(captured.method, 'POST');
+    expect(captured.url.toString(), '/api/v1/emails/replace');
+    expect(jsonDecode(captured.body), {
+      'data': {'type': 'replace-real-emails', 'attributes': {'oldEmail': 'old@example.com', 'newEmail': 'new@example.com'}},
+    });
   });
 
   test('configuration export is portable and excludes authentication tokens', () async {

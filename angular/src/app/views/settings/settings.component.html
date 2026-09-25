@@ -44,13 +44,36 @@
             <label cFormCheckLabel for="removeMailInfoBanner" i18n>Remove ProxiedMail mail-info banner in forwarded emails</label>
           </c-form-check>
           <hr />
-          <div class="settings-inline mt-3">
-            <label cFormLabel for="passwordLength" i18n>Password length</label>
-            <input cFormControl class="settings-number" id="passwordLength" type="number" min="6" max="128" [(ngModel)]="passwordLength" (ngModelChange)="savePasswordPreferences()" />
+          <div class="target-replacement mt-3">
+            <div class="target-replacement-header">
+              <h3 class="h6" i18n>Replace target address</h3>
+              <p class="text-body-secondary" i18n>Update a forwarding target everywhere it is used.</p>
+            </div>
+            <div class="target-replacement-grid">
+              <div>
+                <label cFormLabel for="targetAddress" i18n>Target address</label>
+                <select cSelect id="targetAddress" [(ngModel)]="selectedTargetAddress" [disabled]="replacingTarget() || !targetAddresses().length">
+                  <option *ngFor="let address of targetAddresses()" [value]="address">{{ address }}</option>
+                </select>
+              </div>
+              <div>
+                <label cFormLabel for="replacementTargetAddress" i18n>Replacement address</label>
+                <input cFormControl id="replacementTargetAddress" type="email" placeholder="new@example.com" i18n-placeholder [(ngModel)]="replacementTargetAddress" [disabled]="replacingTarget()" />
+              </div>
+            </div>
+            <div class="target-replacement-actions"><button cButton color="primary" type="button" [disabled]="replacingTarget() || !selectedTargetAddress().trim() || !replacementTargetAddress().trim()" (click)="replaceTargetAddress()" i18n>Replace target</button></div>
           </div>
-          <c-form-check [switch]="true"><input cFormCheckInput id="useLetters" type="checkbox" [(ngModel)]="useLetters" (change)="savePasswordPreferences()" /><label cFormCheckLabel for="useLetters" i18n>Use letters</label></c-form-check>
-          <c-form-check [switch]="true"><input cFormCheckInput id="useNumbers" type="checkbox" [(ngModel)]="useNumbers" (change)="savePasswordPreferences()" /><label cFormCheckLabel for="useNumbers" i18n>Use numbers</label></c-form-check>
-          <c-form-check [switch]="true"><input cFormCheckInput id="useSymbols" type="checkbox" [(ngModel)]="useSymbols" (change)="savePasswordPreferences()" /><label cFormCheckLabel for="useSymbols" i18n>Use symbols</label></c-form-check>
+          <hr />
+          <div class="password-settings mt-3">
+            <h3 class="h6" i18n>Password generator</h3>
+            <div class="settings-inline">
+              <label cFormLabel for="passwordLength" i18n>Password length</label>
+              <input cFormControl class="settings-number" id="passwordLength" type="number" min="6" max="128" [(ngModel)]="passwordLength" (ngModelChange)="savePasswordPreferences()" />
+            </div>
+            <c-form-check [switch]="true"><input cFormCheckInput id="useLetters" type="checkbox" [(ngModel)]="useLetters" (change)="savePasswordPreferences()" /><label cFormCheckLabel for="useLetters" i18n>Use letters</label></c-form-check>
+            <c-form-check [switch]="true"><input cFormCheckInput id="useNumbers" type="checkbox" [(ngModel)]="useNumbers" (change)="savePasswordPreferences()" /><label cFormCheckLabel for="useNumbers" i18n>Use numbers</label></c-form-check>
+            <c-form-check [switch]="true"><input cFormCheckInput id="useSymbols" type="checkbox" [(ngModel)]="useSymbols" (change)="savePasswordPreferences()" /><label cFormCheckLabel for="useSymbols" i18n>Use symbols</label></c-form-check>
+          </div>
         </c-card-body>
       </c-card>
     </c-col>
@@ -71,6 +94,11 @@
             <input cFormCheckInput id="hideIamRich" type="checkbox" [(ngModel)]="hideIamRich" (change)="saveLocalPreference()" />
             <label cFormCheckLabel for="hideIamRich" i18n>Hide iam-rich.net from the proxy domain list</label>
           </c-form-check>
+          <c-form-check [switch]="true">
+            <input cFormCheckInput id="onlyCustomDomains" type="checkbox" [(ngModel)]="onlyCustomDomains" [disabled]="!hasCustomDomains" (change)="saveOnlyCustomDomainsPreference()" />
+            <label cFormCheckLabel for="onlyCustomDomains" i18n>Only use custom domains</label>
+          </c-form-check>
+          <p class="small text-body-secondary browser-setting-note" i18n>{{ hasCustomDomains ? 'New proxies will only offer your custom domains.' : 'Add a custom domain to enable this setting.' }}</p>
         </c-card-body>
       </c-card>
     </c-col>

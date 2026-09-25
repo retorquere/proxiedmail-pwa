@@ -203,6 +203,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   int destination = 0;
   bool showHero = true;
   bool hideIamRich = false;
+  bool onlyCustomDomains = false;
   bool creatingProxy = false;
   String createDomain = '';
   String get query => search.text.toLowerCase();
@@ -219,6 +220,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       setState(() {
         showHero = !(preferences.getBool('proxiedmail.hideDashboardHero') ?? false);
         hideIamRich = preferences.getBool('proxiedmail.hideIamRich') ?? false;
+        onlyCustomDomains = preferences.getBool('proxiedmail.onlyCustomDomains') ?? false;
       });
     }
   }
@@ -244,8 +246,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _dashboard(BuildContext context, List<ProxyBinding> matches, bool narrow) {
     final l10n = AppLocalizations.of(context);
-    final visibleDomains = widget.data.domains.where((domain) => !hideIamRich || domain != 'iam-rich.net').toList();
-    final domains = visibleDomains.isEmpty ? ['proxiedmail.com'] : visibleDomains;
+    final domains = _createDomains();
     final selectedDomain = domains.contains(createDomain) ? createDomain : (domains.contains(widget.data.defaultDomain) ? widget.data.defaultDomain : domains.first);
     final hero = showHero ? Container(
       padding: EdgeInsets.all(narrow ? 22 : 32),
@@ -276,6 +277,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
         const SizedBox(height: 16),
           if (matches.isEmpty) Card(child: Padding(padding: const EdgeInsets.all(32), child: Center(child: Text(l10n.noProxies)))) else Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Padding(padding: const EdgeInsets.only(bottom: 12), child: Text(l10n.yourProxies, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700))), LayoutBuilder(builder: (context, constraints) => Wrap(spacing: 12, runSpacing: 12, children: matches.map((binding) => SizedBox(width: narrow ? constraints.maxWidth : (constraints.maxWidth - 12) / 2, child: _bindingCard(context, binding))).toList()))])
     ]);
+  }
+
+  List<String> _createDomains() {
+    final visibleDomains = widget.data.domains.where((domain) => !hideIamRich || domain != 'iam-rich.net').toList();
+    if (onlyCustomDomains && widget.data.customDomains.isNotEmpty) {
+      final customDomainSet = widget.data.customDomains.toSet();
+      final customDomains = visibleDomains.where(customDomainSet.contains).toList();
+      if (customDomains.isNotEmpty) return customDomains;
+    }
+    return visibleDomains.isEmpty ? ['proxiedmail.com'] : visibleDomains;
   }
 
   Widget _metrics(BuildContext context, AppLocalizations l10n, bool narrow) {
@@ -440,18 +451,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _createProxyRow(BuildContext context, AppLocalizations l10n, List<String> domains, String selectedDomain, bool narrow) {
     final fields = [
-      Expanded(flex: 2, child: TextField(controller: createAlias, onChanged: (_) => setState(() {}), decoration: InputDecoration(labelText: l10n.alias, suffixIcon: IconButton(onPressed: _generateAlias, tooltip: 'Generate alias', icon: const Icon(Icons.autorenew))))),
-      Expanded(flex: 2, child: DropdownButtonFormField<String>(initialValue: selectedDomain, decoration: InputDecoration(labelText: l10n.domain), items: domains.map((item) => DropdownMenuItem(value: item, child: Text(item))).toList(), onChanged: (value) => setState(() => createDomain = value ?? selectedDomain))),
-      Expanded(flex: 3, child: Autocomplete<String>(optionsBuilder: (value) => widget.data.realEmails.map((email) => email.address).where((email) => email.toLowerCase().contains(value.text.toLowerCase())), onSelected: (value) => createForwarding.text = value, fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) { controller.value = createForwarding.value; controller.addListener(() => createForwarding.value = controller.value); return TextField(controller: controller, focusNode: focusNode, decoration: InputDecoration(labelText: l10n.forwardTo)); })),
+      TextField(controller: createAlias, onChanged: (_) => setState(() {}), decoration: InputDecoration(labelText: l10n.alias, suffixIcon: IconButton(onPressed: _generateAlias, tooltip: 'Generate alias', icon: const Icon(Icons.autorenew)))),
+      DropdownButtonFormField<String>(initialValue: selectedDomain, decoration: InputDecoration(labelText: l10n.domain), items: domains.map((item) => DropdownMenuItem(value: item, child: Text(item))).toList(), onChanged: (value) => setState(() => createDomain = value ?? selectedDomain)),
+      Autocomplete<String>(optionsBuilder: (value) => widget.data.realEmails.map((email) => email.address).where((email) => email.toLowerCase().contains(value.text.toLowerCase())), onSelected: (value) => setState(() => createForwarding.text = value), fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) { controller.value = createForwarding.value; return TextField(controller: controller, focusNode: focusNode, onChanged: (_) { createForwarding.value = controller.value; setState(() {}); }, decoration: InputDecoration(labelText: l10n.forwardTo)); }),
     ];
     final canCreate = createAlias.text.trim().isNotEmpty && createForwarding.text.trim().isNotEmpty && !creatingProxy;
     final button = FilledButton(onPressed: canCreate ? _createProxy : null, child: creatingProxy ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2)) : Text(l10n.create));
-    return Card(color: const Color(0xffeef3ff), elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)), child: Padding(padding: const EdgeInsets.all(14), child: narrow ? Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [...fields.map((field) => Padding(padding: const EdgeInsets.only(bottom: 10), child: field)), button]) : Row(children: [...fields.expand((field) => [field, const SizedBox(width: 10)]).toList()..removeLast(), button])));
+    final desktopFields = [Expanded(flex: 2, child: fields[0]), Expanded(flex: 2, child: fields[1]), Expanded(flex: 3, child: fields[2])];
+    return Card(color: const Color(0xffeef3ff), elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)), child: Padding(padding: const EdgeInsets.all(14), child: narrow ? Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [...fields.map((field) => Padding(padding: const EdgeInsets.only(bottom: 10), child: field)), button]) : Row(children: [...desktopFields.expand((field) => [field, const SizedBox(width: 10)]).toList()..removeLast(), button])));
   }
 
   Future<void> _createProxy() async {
-    final visibleDomains = widget.data.domains.where((domain) => !hideIamRich || domain != 'iam-rich.net').toList();
-    final domains = visibleDomains.isEmpty ? ['proxiedmail.com'] : visibleDomains;
+    final domains = _createDomains();
     final domain = domains.contains(createDomain) ? createDomain : (domains.contains(widget.data.defaultDomain) ? widget.data.defaultDomain : domains.first);
     setState(() => creatingProxy = true);
     try {

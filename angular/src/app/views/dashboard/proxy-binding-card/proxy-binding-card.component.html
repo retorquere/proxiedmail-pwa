@@ -55,6 +55,18 @@
         ><span>{{ binding().received }} <ng-container i18n>forwarded</ng-container></span
         ><c-form-check [switch]="true"><input cFormCheckInput type="checkbox" [checked]="isForwardingEnabled" (change)="setRecipients($any($event.target).checked)" /><label cFormCheckLabel i18n>Forwarding</label></c-form-check>
       </div>
+      <div class="recipient-statuses" *ngIf="binding().recipients.length">
+        <div class="recipient-status" *ngFor="let recipient of binding().recipients">
+          <span class="recipient-address">{{ recipient }}</span>
+          <span class="verification-chip" [class.verified]="isVerified(recipient)">
+            @if (isVerified(recipient)) {
+              <ng-container i18n>Verified</ng-container>
+            } @else {
+              <ng-container i18n>Verification required</ng-container>
+            }
+          </span>
+        </div>
+      </div>
     }
   </c-card-body>
 </c-card>

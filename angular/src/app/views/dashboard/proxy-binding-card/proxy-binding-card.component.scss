@@ -18,6 +18,11 @@
 .copy-icon-button:hover, .copy-icon-button:focus-visible { color: var(--cui-primary); border-color: var(--cui-primary); background: var(--cui-primary-bg-subtle); }
 .description { min-height: 1.4rem; color: var(--cui-secondary-color); }
 .binding-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; color: var(--cui-secondary-color); font-size: .875rem; }
+.recipient-statuses { display: grid; gap: .45rem; margin-top: .85rem; }
+.recipient-status { display: flex; flex-wrap: wrap; align-items: center; gap: .45rem .65rem; font-size: .875rem; }
+.recipient-address { overflow-wrap: anywhere; }
+.verification-chip { display: inline-flex; align-items: center; padding: .15rem .45rem; border: 1px solid rgba(154, 91, 0, .35); border-radius: 999px; color: #9a5b00; background: rgba(154, 91, 0, .08); font-size: .75rem; font-weight: 600; }
+.verification-chip.verified { border-color: rgba(36, 122, 75, .35); color: #247a4b; background: rgba(36, 122, 75, .08); }
 .combobox { position: relative; }
 .combobox-editor { min-height: calc(1.5em + .75rem + 2px); padding: .375rem .75rem; overflow: hidden; border: 1px solid var(--cui-border-color); border-radius: var(--cui-border-radius); background: var(--cui-body-bg); color: var(--cui-body-color); white-space: nowrap; }
 .combobox-editor:focus { border-color: var(--cui-primary); outline: 0; box-shadow: 0 0 0 .25rem rgba(var(--cui-primary-rgb), .25); }

@@ -29,7 +29,7 @@ class ProxyBinding {
         bindingVerificationStates[entry.key] = entry.value['is_verified'] == true;
       }
     }
-    return ProxyBinding(id: '${json['id'] ?? ''}', address: '${attributes['proxy_address'] ?? 'Unnamed address'}', description: '${attributes['description'] ?? ''}', browsable: attributes['is_browsable'] == true, forwarding: realAddresses, forwardingStates: forwardingStates, verificationStates: {...bindingVerificationStates, ...verificationStates}, forwarded: (attributes['received_emails'] as num?)?.toInt() ?? 0, callbackUrl: '${attributes['callback_url'] ?? ''}', usedOn: usedOn, password: password);
+    return ProxyBinding(id: '${json['id'] ?? ''}', address: '${attributes['proxy_address'] ?? 'Unnamed address'}', description: '${attributes['description'] ?? ''}', browsable: attributes['is_browsable'] == true, forwarding: realAddresses, forwardingStates: forwardingStates, verificationStates: {...verificationStates, ...bindingVerificationStates}, forwarded: (attributes['received_emails'] as num?)?.toInt() ?? 0, callbackUrl: '${attributes['callback_url'] ?? ''}', usedOn: usedOn, password: password);
   }
 
   static Map<String, dynamic> _realAddressEntries(dynamic value) {
@@ -75,18 +75,21 @@ class ProxyContact {
 }
 
 class SettingsData {
-  const SettingsData({required this.domains, required this.settings});
+  const SettingsData({required this.domains, required this.customDomains, required this.targetAddresses, required this.settings});
 
   final List<String> domains;
+  final List<String> customDomains;
+  final List<String> targetAddresses;
   final Map<String, String> settings;
 }
 
 class DashboardData {
-  const DashboardData({required this.bindings, required this.available, required this.domains, required this.realEmails, required this.defaultDomain, required this.passwordPreferences});
+  const DashboardData({required this.bindings, required this.available, required this.domains, required this.customDomains, required this.realEmails, required this.defaultDomain, required this.passwordPreferences});
 
   final List<ProxyBinding> bindings;
   final int available;
   final List<String> domains;
+  final List<String> customDomains;
   final List<RealEmail> realEmails;
   final String defaultDomain;
   final PasswordPreferences passwordPreferences;
@@ -164,13 +167,13 @@ class ProxiedMailApi {
 
   Future<DashboardData> dashboard() async {
     final bindingsPayload = await _request('/api/v1/proxy-bindings?sort=desc') as Map;
-    final results = await Future.wait([_optional('/gapi/available-domains', []), _optional('/gapi/real-emails', []), _optional('/gapi/used-on', []), _optional('/gapi/passwords', []), _optional('/gapi/settings', [])]);
-    final realEmailEntries = _responseList(results[1]);
+    final results = await Future.wait([_optional('/gapi/available-domains', []), _optional('/gapi/custom-domains?ignoreProcessing=1', []), _optional('/gapi/real-emails', []), _optional('/gapi/used-on', []), _optional('/gapi/passwords', []), _optional('/gapi/settings', [])]);
+    final realEmailEntries = _responseList(results[2]);
     final realEmails = realEmailEntries.map((item) => RealEmail(address: '${item['email'] ?? ''}', verified: item['is_verified'] == true)).where((item) => item.address.isNotEmpty).toList();
-    final verificationStates = {for (final email in realEmails) email.address: email.verified};
-    final usedOnEntries = _responseList(results[2]);
-    final passwordEntries = _responseList(results[3]);
-    final settings = _settingsMap(results[4]);
+    final verificationStates = {for (final entry in realEmailEntries) if (entry.containsKey('is_verified') && '${entry['email'] ?? ''}'.isNotEmpty) '${entry['email']}': entry['is_verified'] == true};
+    final usedOnEntries = _responseList(results[3]);
+    final passwordEntries = _responseList(results[4]);
+    final settings = _settingsMap(results[5]);
     final list = ((bindingsPayload['data'] as List?) ?? []).map((item) {
       final json = (item as Map).cast<String, dynamic>();
       final id = '${json['id'] ?? ''}';
@@ -179,10 +182,9 @@ class ProxiedMailApi {
       return ProxyBinding.fromJson(json, usedOn: usedOn, password: password, verificationStates: verificationStates);
     }).toList();
     final meta = (bindingsPayload['meta'] as Map?) ?? {};
-    final domainPayload = results[0];
-    final domainList = (domainPayload is List ? domainPayload : (domainPayload is Map ? domainPayload['data'] : null)) as List?;
-    final domains = (domainList ?? []).map((item) => item is Map ? '${item['domain'] ?? item['name'] ?? ''}' : '$item').where((item) => item.isNotEmpty).toList();
-    return DashboardData(bindings: list, available: (meta['availableProxyBindings'] as num?)?.toInt() ?? 0, domains: domains, realEmails: realEmails, defaultDomain: settings['random_alias_default_domain'] ?? '', passwordPreferences: PasswordPreferences(length: int.tryParse(settings['password_length'] ?? '') ?? 13, symbols: settings['use_symbols'] != 'false', numbers: settings['use_numbers'] != 'false', letters: settings['use_letters'] != 'false'));
+    final domains = _domainList(results[0]);
+    final customDomains = _domainList(results[1]);
+    return DashboardData(bindings: list, available: (meta['availableProxyBindings'] as num?)?.toInt() ?? 0, domains: domains, customDomains: customDomains, realEmails: realEmails, defaultDomain: settings['random_alias_default_domain'] ?? '', passwordPreferences: PasswordPreferences(length: int.tryParse(settings['password_length'] ?? '') ?? 13, symbols: settings['use_symbols'] != 'false', numbers: settings['use_numbers'] != 'false', letters: settings['use_letters'] != 'false'));
   }
 
   Future<dynamic> _optional(String path, dynamic fallback) async {
@@ -217,10 +219,11 @@ class ProxiedMailApi {
 
   Future<void> setRecipient(ProxyBinding binding, String address, bool enabled) => _request('/api/v1/proxy-bindings/${binding.id}', method: 'PATCH', body: {'data': {'id': binding.id, 'type': 'proxy_bindings', 'attributes': {'proxy_address': binding.address, 'real_addresses': {address: enabled}}}});
 
+  Future<void> replaceTargetAddress({required String oldEmail, required String newEmail}) => _request('/api/v1/emails/replace', method: 'POST', body: {'data': {'type': 'replace-real-emails', 'attributes': {'oldEmail': oldEmail, 'newEmail': newEmail}}});
+
   Future<SettingsData> settingsData() async {
-    final results = await Future.wait([_request('/gapi/available-domains', bearer: true), _request('/gapi/settings', bearer: true)]);
-    final domains = _responseList(results[0]).map((item) => '${item['domain'] ?? item['name'] ?? ''}').where((item) => item.isNotEmpty).toList();
-    return SettingsData(domains: domains, settings: _settingsMap(results[1]));
+    final results = await Future.wait([_request('/gapi/available-domains', bearer: true), _optional('/gapi/custom-domains?ignoreProcessing=1', []), _optional('/gapi/real-emails', []), _request('/gapi/settings', bearer: true)]);
+    return SettingsData(domains: _domainList(results[0]), customDomains: _domainList(results[1]), targetAddresses: _emailList(results[2]), settings: _settingsMap(results[3]));
   }
 
   Future<Map<String, dynamic>> exportConfiguration({DateTime? exportedAt}) async {
@@ -229,7 +232,7 @@ class ProxiedMailApi {
     try {
       settingsDataResult = await settingsData();
     } catch (_) {
-      settingsDataResult = const SettingsData(domains: [], settings: {});
+      settingsDataResult = const SettingsData(domains: [], customDomains: [], targetAddresses: [], settings: {});
     }
     final proxies = await Future.wait(dashboardData.bindings.map((binding) async {
       List<ProxyContact> bindingContacts;
@@ -264,6 +267,17 @@ class ProxiedMailApi {
     final entries = response is List ? response : response is Map ? response['data'] : null;
     return (entries as List? ?? []).map((entry) => (entry as Map).cast<String, dynamic>()).toList();
   }
+
+  List<String> _domainList(dynamic response) {
+    final entries = response is List ? response : response is Map ? response['data'] : null;
+    return (entries as List? ?? []).map((item) {
+      if (item is! Map) return '$item';
+      final attributes = (item['attributes'] as Map?) ?? {};
+      return '${item['domain'] ?? item['name'] ?? attributes['domain'] ?? attributes['name'] ?? ''}';
+    }).where((item) => item.isNotEmpty).toList();
+  }
+
+  List<String> _emailList(dynamic response) => _responseList(response).map((item) => '${item['email'] ?? item['address'] ?? ''}').where((item) => item.isNotEmpty).toSet().toList();
 
   Map<String, String> _settingsMap(dynamic response) => {for (final entry in _responseList(response)) '${entry['key'] ?? ''}': '${entry['value'] ?? ''}'};
 

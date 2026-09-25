@@ -44,6 +44,9 @@ export class ProxyBindingCardComponent {
   get isForwardingEnabled() {
     return Object.values(this.binding().states).some(Boolean)
   }
+  isVerified(recipient: string) {
+    return this.binding().verificationStates[recipient] === true
+  }
   fallbackDescription() {
     return $localize`Private forwarding address`
   }

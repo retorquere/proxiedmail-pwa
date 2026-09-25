@@ -42,6 +42,7 @@ describe('ProxyApiService', () => {
     await Promise.resolve()
 
     http.expectOne('/gapi/available-domains').flush([])
+    http.expectOne('/gapi/custom-domains?ignoreProcessing=1').flush([])
     http.expectOne('/gapi/real-emails').flush([])
     http.expectOne('/gapi/used-on').flush([])
     http.expectOne('/gapi/passwords').flush([])
@@ -66,6 +67,7 @@ describe('ProxyApiService', () => {
     await Promise.resolve()
 
     http.expectOne('/gapi/available-domains').flush([{ domain: 'example.com' }])
+    http.expectOne('/gapi/custom-domains?ignoreProcessing=1').flush([{ domain: 'custom.example' }])
     http.expectOne('/gapi/real-emails').flush([{ email: 'inbox@example.com' }])
     http.expectOne('/gapi/used-on').flush([{ proxy_binding_id: 'binding-1', list: ['shop.example'] }])
     http.expectOne('/gapi/passwords').flush([{ related_to_id: 'binding-1', password: 'site-secret' }])
@@ -93,5 +95,57 @@ describe('ProxyApiService', () => {
     })
     expect(JSON.stringify(exported)).not.toContain('authentication-secret')
     expect(JSON.stringify(exported)).not.toContain('bearer-secret')
+  })
+
+  it('keeps recipient verification states from proxy bindings', async () => {
+    localStorage.setItem('proxiedmail.apiToken', 'api-token')
+
+    const result = api.dashboard()
+
+    http.expectOne('/api/v1/proxy-bindings?sort=desc').flush({
+      data: [{ id: 'binding-1', attributes: { proxy_address: 'alias@example.com', real_addresses: { 'inbox@example.com': { is_enabled: true, is_verified: false } } } }],
+      meta: {},
+    })
+    await Promise.resolve()
+    await Promise.resolve()
+
+    http.expectOne('/gapi/available-domains').flush([])
+    http.expectOne('/gapi/custom-domains?ignoreProcessing=1').flush([])
+    http.expectOne('/gapi/real-emails').flush([{ email: 'inbox@example.com' }])
+    http.expectOne('/gapi/used-on').flush([])
+    http.expectOne('/gapi/passwords').flush([])
+    http.expectOne('/gapi/settings').flush([])
+
+    expect((await result).bindings[0].verificationStates['inbox@example.com']).toBe(false)
+  })
+
+  it('loads custom domains for dashboard domain filtering', async () => {
+    localStorage.setItem('proxiedmail.apiToken', 'api-token')
+
+    const result = api.dashboard()
+
+    http.expectOne('/api/v1/proxy-bindings?sort=desc').flush({ data: [], meta: {} })
+    await Promise.resolve()
+    await Promise.resolve()
+
+    http.expectOne('/gapi/available-domains').flush([{ domain: 'example.com' }, { domain: 'custom.example' }])
+    http.expectOne('/gapi/custom-domains?ignoreProcessing=1').flush([{ attributes: { domain: 'custom.example' } }])
+    http.expectOne('/gapi/real-emails').flush([])
+    http.expectOne('/gapi/used-on').flush([])
+    http.expectOne('/gapi/passwords').flush([])
+    http.expectOne('/gapi/settings').flush([])
+
+    expect((await result).customDomains).toEqual(['custom.example'])
+  })
+
+  it('replaces a target address in bulk', async () => {
+    localStorage.setItem('proxiedmail.apiToken', 'api-token')
+
+    api.replaceTargetAddress('old@example.com', 'new@example.com').subscribe()
+
+    const request = http.expectOne('/api/v1/emails/replace')
+    expect(request.request.method).toBe('POST')
+    expect(request.request.body).toEqual({ data: { type: 'replace-real-emails', attributes: { oldEmail: 'old@example.com', newEmail: 'new@example.com' } } })
+    request.flush({})
   })
 })

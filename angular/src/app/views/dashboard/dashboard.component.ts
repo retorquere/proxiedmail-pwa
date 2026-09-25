@@ -10,6 +10,7 @@ export class DashboardComponent implements OnInit {
   private readonly api = inject(ProxyApiService)
   readonly bindings = signal<Binding[]>([])
   readonly domains = signal<string[]>([])
+  readonly customDomains = signal<string[]>([])
   readonly emails = signal<string[]>([])
   readonly passwordPreferences = signal({ length: 13, symbols: true, numbers: true, letters: true })
   readonly available = signal(0)
@@ -43,11 +44,12 @@ export class DashboardComponent implements OnInit {
     try {
       const data = await this.api.dashboard()
       this.bindings.set(data.bindings)
-      this.domains.set(data.domains.filter((domain: string) => !(domain === 'iam-rich.net' && this.hideIamRichPreference())))
+      this.customDomains.set(data.customDomains)
+      this.domains.set(this.createDomains(data.domains, data.customDomains))
       this.emails.set(data.emails)
       this.available.set(data.available)
       this.passwordPreferences.set(data.passwordPreferences)
-      if (!this.domain()) this.domain.set(data.domains.includes(data.defaultDomain) ? data.defaultDomain : data.domains[0] ?? '')
+      if (!this.domains().includes(this.domain())) this.domain.set(this.domains().includes(data.defaultDomain) ? data.defaultDomain : this.domains()[0] ?? '')
     }
     catch (error) {
       const response = error as any
@@ -97,6 +99,20 @@ export class DashboardComponent implements OnInit {
     const cookieValue = document.cookie.split('; ').find(cookie => cookie.startsWith('proxiedmail.hideIamRich='))?.split('=').slice(1).join('=')
     const storedValue = localStorage.getItem('proxiedmail.hideIamRich')
     return [cookieValue, storedValue].some(value => ['true', '1', 'on'].includes(value?.toLowerCase() ?? ''))
+  }
+  private onlyCustomDomainsPreference() {
+    const cookieValue = document.cookie.split('; ').find(cookie => cookie.startsWith('proxiedmail.onlyCustomDomains='))?.split('=').slice(1).join('=')
+    const storedValue = localStorage.getItem('proxiedmail.onlyCustomDomains')
+    return [cookieValue, storedValue].some(value => ['true', '1', 'on'].includes(value?.toLowerCase() ?? ''))
+  }
+  private createDomains(domains: string[], customDomains: string[]) {
+    const visibleDomains = domains.filter(domain => !(domain === 'iam-rich.net' && this.hideIamRichPreference()))
+    if (this.onlyCustomDomainsPreference() && customDomains.length) {
+      const customDomainSet = new Set(customDomains)
+      const filtered = visibleDomains.filter(domain => customDomainSet.has(domain))
+      if (filtered.length) return filtered
+    }
+    return visibleDomains
   }
   dismissHero() {
     this.heroVisible.set(false)
