@@ -106,3 +106,41 @@ jobs:
           publish_branch: angular
           publish_dir: ${{ runner.temp }}/angular
           force_orphan: true
+
+  quasar:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: quasar/package-lock.json
+
+      - name: Build Quasar Web
+        working-directory: quasar
+        run: |
+          npm ci
+          npm run build
+
+      - name: Prepare Quasar Cloudflare artifact
+        run: |
+          artifact="$RUNNER_TEMP/quasar"
+          mkdir -p "$artifact/dist"
+          cp -R quasar/dist/. "$artifact/dist/"
+          cp quasar/worker.ts quasar/wrangler.jsonc "$artifact/"
+          test -f "$artifact/dist/index.html"
+          test -f "$artifact/worker.ts"
+          test -f "$artifact/wrangler.jsonc"
+
+      - name: Publish Quasar Cloudflare artifact branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ github.token }}
+          publish_branch: quasar
+          publish_dir: ${{ runner.temp }}/quasar
+          force_orphan: true
