@@ -1,0 +1,28 @@
+{
+  "typescript": {
+    "arrowFunction.useParentheses": "preferNone",
+    "trailingCommas": "onlyMultiLine",
+    "bracePosition": "sameLine",
+    "nextControlFlowPosition": "nextLine",
+    "useBraces": "maintain",
+    "quoteProps": "asNeeded",
+    "useTabs": false,
+    "quoteStyle": "preferSingle",
+    "semiColons": "asi",
+    "lineWidth": 1024
+  },
+  "json": {
+  },
+  "markdown": {
+  },
+  "excludes": [
+    "**/node_modules",
+    "**/*-lock.json"
+  ],
+  "plugins": [
+    "npm:@dprint/typescript@0.96.1",
+    "npm:@dprint/json@0.25.0",
+    "npm:@dprint/markdown@0.24.0",
+    "npm:dprint-plugin-markup@0.27.5"
+  ]
+}

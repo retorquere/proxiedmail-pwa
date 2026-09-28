@@ -123,6 +123,30 @@ export const api = {
     return { bindings, domains: domainList(domains), customDomains: domainList(customDomains), emails: emailList(emails), available: bindingsResponse?.meta?.availableProxyBindings || 0, appSettings: settingsBinding ? parseAppSettings(settingsBinding.description) : {},
       settings: settingList, passwordPreferences: { length: Number(setting('password_length')) || 13, symbols: setting('use_symbols') !== 'false', numbers: setting('use_numbers') !== 'false', letters: setting('use_letters') !== 'false' } }
   },
+  async exportConfiguration() {
+    const dashboard = await api.dashboard()
+    const proxies = await Promise.all(dashboard.bindings.map(async binding => {
+      const contacts = await optional(api.contacts(binding), [])
+      return {
+        proxyAddress: binding.address,
+        description: binding.description,
+        callbackUrl: binding.callbackUrl,
+        browsable: binding.browsable,
+        targets: binding.recipients.map(address => ({ address, enabled: binding.states[address] !== false })),
+        usedOn: binding.usedOn,
+        sitePassword: binding.password,
+        contacts: contacts.map(contact => ({ recipientAddress: contact.recipientEmail, reverseProxyAddress: contact.reverseProxyAddress })),
+      }
+    }))
+    return {
+      format: 'proxiedmail-portable-config',
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      settings: Object.fromEntries(dashboard.settings.filter((setting: any) => setting?.key).map((setting: any) => [setting.key, setting.value])),
+      appSettings: dashboard.appSettings,
+      proxies,
+    }
+  },
   async saveAppSettings(settings: Record<string, string>, domains: string[], customDomains: string[]) {
     const bindingsResponse = await request('/api/v1/proxy-bindings?sort=desc')
     const settingsBindings = bindingList(bindingsResponse).filter(isSettingsBinding).sort((left, right) => left.id.localeCompare(right.id))

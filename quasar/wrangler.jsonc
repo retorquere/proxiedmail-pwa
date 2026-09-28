@@ -1,6 +1,6 @@
 {
   "$schema": "../node_modules/wrangler/config-schema.json",
-  "name": "proxiedmail-quasar",
+  "name": "proxiedmail-pwa-quasar",
   "main": "./worker.ts",
   "compatibility_date": "2026-09-01",
   "workers_dev": true,

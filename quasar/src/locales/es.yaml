@@ -1,0 +1,64 @@
+nav:
+  dashboard: Panel
+  domains: Dominios
+  settings: Configuración
+  signOut: Cerrar sesión
+auth:
+  eyebrow: RELEVO DE CORREO PRIVADO
+  welcome: Bienvenido a ProxiedMail
+  description: Administra direcciones privadas sin exponer tu bandeja de entrada.
+  token: Token de API
+  signIn: Iniciar sesión
+dashboard:
+  eyebrow: TU LIBRETA DE DIRECCIONES PRIVADA
+  title: Tu bandeja de entrada es tuya.
+  description: Cada servicio tiene su propia dirección. Clara, privada y fácil de reemplazar.
+  management: GESTIÓN DE PROXIES
+  proxies: Direcciones proxy
+  proxyDescription: Direcciones privadas de reenvío para tus cuentas en línea.
+  refresh: Actualizar
+  active: Proxies activos
+  capacity: Capacidad disponible
+  newProxy: NUEVA DIRECCIÓN PROXY
+  proxy: Proxy
+  domain: Dominio
+  target: Correo de destino
+  create: Crear
+  search: Buscar proxies
+  forwarding: Reenvío
+  recipients: destinatario(s)
+  forwarded: reenviados
+  edit: Editar
+  verified: Verificado
+  verificationRequired: Verificación necesaria
+  empty: Ninguna dirección proxy coincide con la búsqueda.
+domains:
+  eyebrow: DOMINIOS DE LA CUENTA
+  title: Dominios
+  description: Dominios personalizados disponibles para tus direcciones proxy.
+  setup: Estado de configuración
+  verification: Estado de verificación
+  none: No hay dominios personalizados disponibles.
+  notReported: No informado
+settings:
+  eyebrow: CONFIGURACIÓN DE LA CUENTA
+  title: Configuración
+  description: Controla las preferencias e integraciones de la cuenta.
+  language: Idioma
+  english: Inglés
+  spanish: Español
+  account: Configuración de la cuenta
+  retention: Retención de mensajes recibidos
+  defaultDomain: Dominio proxy predeterminado
+  hideIamRich: Ocultar iam-rich.net de la lista de dominios proxy
+  customDomains: Usar solo dominios personalizados
+  replaceTarget: Reemplazar dirección de destino
+  target: Dirección de destino
+  replacement: Dirección de reemplazo
+  replace: Reemplazar destino
+  privacy: Privacidad y envío
+  passwordGenerator: Generador de contraseñas
+  passwordLength: Longitud de contraseña
+  letters: Usar letras
+  numbers: Usar números
+  symbols: Usar símbolos

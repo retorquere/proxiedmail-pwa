@@ -1,0 +1,64 @@
+nav:
+  dashboard: Dashboard
+  domains: Domains
+  settings: Settings
+  signOut: Sign out
+auth:
+  eyebrow: PRIVATE EMAIL RELAY
+  welcome: Welcome to ProxiedMail
+  description: Manage private aliases without exposing your inbox.
+  token: API token
+  signIn: Sign in
+dashboard:
+  eyebrow: YOUR PRIVATE ADDRESS BOOK
+  title: Keep your inbox yours.
+  description: Every service gets its own address. Quiet, clear, and easy to replace.
+  management: PROXY MANAGEMENT
+  proxies: Proxy addresses
+  proxyDescription: Private forwarding addresses for your online accounts.
+  refresh: Refresh
+  active: Active proxies
+  capacity: Available capacity
+  newProxy: NEW PROXY ADDRESS
+  proxy: Proxy
+  domain: Domain
+  target: Target email
+  create: Create
+  search: Search aliases
+  forwarding: Forwarding
+  recipients: recipient(s)
+  forwarded: forwarded
+  edit: Edit
+  verified: Verified
+  verificationRequired: Verification required
+  empty: No proxy addresses match this search.
+domains:
+  eyebrow: ACCOUNT DOMAINS
+  title: Domains
+  description: Custom domains available for your proxy addresses.
+  setup: Setup status
+  verification: Verification status
+  none: No custom domains are available.
+  notReported: Not reported
+settings:
+  eyebrow: ACCOUNT SETTINGS
+  title: Settings
+  description: Control account preferences and integrations.
+  language: Language
+  english: English
+  spanish: Spanish
+  account: Account settings
+  retention: Received-message retention
+  defaultDomain: Default proxy domain
+  hideIamRich: Hide iam-rich.net from the proxy domain list
+  customDomains: Only use custom domains
+  replaceTarget: Replace target address
+  target: Target address
+  replacement: Replacement address
+  replace: Replace target
+  privacy: Privacy and sending
+  passwordGenerator: Password generator
+  passwordLength: Password length
+  letters: Use letters
+  numbers: Use numbers
+  symbols: Use symbols
