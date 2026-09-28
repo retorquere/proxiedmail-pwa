@@ -163,7 +163,7 @@ export default defineComponent({
       catch (caught) {
         error.value = caught instanceof Error
           ? caught.message
-          : 'Unable to load proxy addresses.'
+          : 'Unable to load email addresses.'
       }
       finally {
         loading.value = false
@@ -179,7 +179,7 @@ export default defineComponent({
         await api.create(alias.value, domain.value, forwarding.value)
         alias.value = ''
         forwarding.value = ''
-        notify('Proxy address created.')
+        notify('Email address created.')
         await refresh()
       }
       catch (caught) {
@@ -262,9 +262,9 @@ export default defineComponent({
     }
     function deleteProxy(binding: Binding) {
       Dialog.create({
-        title: 'Delete proxy?',
+        title: 'Delete email address?',
         message:
-          'This removes the proxy address. Disabled proxies remain available for re-enabling.',
+          'This removes the email address. Disabled addresses remain available for re-enabling.',
         cancel: true,
         persistent: true,
       }).onOk(async () => {
@@ -275,7 +275,7 @@ export default defineComponent({
         }
         catch (caught) {
           notify(
-            caught instanceof Error ? caught.message : 'Unable to delete proxy.',
+            caught instanceof Error ? caught.message : 'Unable to delete email address.',
             'negative',
           )
         }

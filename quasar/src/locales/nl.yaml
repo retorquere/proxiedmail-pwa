@@ -4,25 +4,26 @@ nav:
   settings: Instellingen
   signOut: Uitloggen
 auth:
-  eyebrow: PRIVÉ E-MAILDOORSTUURDIENST
+  eyebrow: PRIVÉ EMAILDOORSTUURDIENST
   welcome: Welkom bij ProxiedMail
   description: Beheer privé-aliases zonder je inbox bloot te geven.
   token: API-token
   signIn: Inloggen
 dashboard:
-  eyebrow: JOUW PRIVÉ ADRESBOEK
+  eyebrow: PRIVÉ EMAILPOSTKAMER
   title: Houd je inbox van jou.
-  description: Elke dienst krijgt een eigen adres. Rustig, duidelijk en eenvoudig te vervangen.
-  management: PROXYBEHEER
-  proxies: Proxyadressen
+  description: Elke dienst krijgt een eigen adres. Duidelijk en eenvoudig te vervangen.
+  interface: Een interface voor het beheren van je ProxiedMail-adressen.
+  management: JOUW POSTKAMER
+  proxies: Privé-emailadressen
   proxyDescription: Privé-doorstuuradressen voor je online accounts.
   refresh: Vernieuwen
-  active: Actieve proxies
+  active: Actieve adressen
   capacity: Beschikbare capaciteit
-  newProxy: NIEUW PROXYADRES
-  proxy: Proxy
+  newProxy: NIEUW EMAILADRES
+  proxy: Naam van adres
   domain: Domein
-  target: Doel-e-mailadres
+  target: Doel-emailadres
   create: Maken
   search: Aliassen zoeken
   forwarding: Doorsturen
@@ -31,14 +32,14 @@ dashboard:
   edit: Bewerken
   verified: Geverifieerd
   verificationRequired: Verificatie vereist
-  empty: Geen proxyadressen komen overeen met deze zoekopdracht.
+  empty: Geen emailadressen komen overeen met deze zoekopdracht.
 domains:
   eyebrow: ACCOUNTDOMEINEN
   title: Domeinen
-  description: Aangepaste domeinen die beschikbaar zijn voor je proxyadressen.
+  description: Eigen domeinen die beschikbaar zijn voor je privé-emailadressen.
   setup: Instellingsstatus
   verification: Verificatiestatus
-  none: Er zijn geen aangepaste domeinen beschikbaar.
+  none: Er zijn geen eigen domeinen beschikbaar.
   notReported: Niet gemeld
 settings:
   eyebrow: ACCOUNTINSTELLINGEN
@@ -50,9 +51,10 @@ settings:
   dutch: Nederlands
   account: Accountinstellingen
   retention: Bewaartermijn ontvangen berichten
-  defaultDomain: Standaard proxydomein
-  hideIamRich: iam-rich.net verbergen in de lijst met proxydomeinen
-  customDomains: Alleen aangepaste domeinen gebruiken
+  defaultDomain: Standaard domein
+  hideIamRich: iam-rich.net verbergen in de lijst met domeinen
+  externalDashboard: Naar ProxiedMail.com
+  customDomains: Alleen eigen domeinen gebruiken
   replaceTarget: Doeladres vervangen
   target: Doeladres
   replacement: Vervangend adres

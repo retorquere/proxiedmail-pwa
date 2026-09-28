@@ -26,7 +26,6 @@ q-layout(v-else view="hHh Lpr fFf" class="app-shell")
         | ProxiedMail
       q-tabs(class="gt-sm" active-color="primary" indicator-color="primary")
         q-tab(name="dashboard" :label="$t('nav.dashboard')" @click="nav('dashboard')")
-        q-tab(name="domains" :label="$t('nav.domains')" @click="nav('domains')")
         q-tab(name="settings" :label="$t('nav.settings')" @click="nav('settings')")
       q-space
       q-btn(flat no-caps :label="$t('nav.signOut')" @click="logout")
@@ -37,11 +36,6 @@ q-layout(v-else view="hHh Lpr fFf" class="app-shell")
           q-icon(name="dashboard")
         q-item-section
           | {{ $t('nav.dashboard') }}
-      q-item(clickable v-ripple @click="nav('domains')")
-        q-item-section(avatar)
-          q-icon(name="dns")
-        q-item-section
-          | {{ $t('nav.domains') }}
       q-item(clickable v-ripple @click="nav('settings')")
         q-item-section(avatar)
           q-icon(name="settings")
@@ -65,6 +59,8 @@ q-layout(v-else view="hHh Lpr fFf" class="app-shell")
             | {{ $t('dashboard.title') }}
           p
             | {{ $t('dashboard.description') }}
+          small(class="hero-context")
+            | {{ $t('dashboard.interface') }}
         section(class="section-heading")
           div
             div(class="eyebrow text-primary")
@@ -111,7 +107,7 @@ q-layout(v-else view="hHh Lpr fFf" class="app-shell")
                 strong(class="q-ml-sm ellipsis")
                   | {{ binding.address }}
                 q-space
-                q-btn(flat round dense icon="content_copy" @click="copy(binding.address, 'Proxy address copied.')")
+                q-btn(flat round dense icon="content_copy" @click="copy(binding.address, 'Email address copied.')")
                 q-btn(flat round dense icon="contacts" @click="openContacts(binding)")
                 q-btn(flat dense no-caps :label="$t('dashboard.edit')" @click="beginEdit(binding)")
               p(class="description")
@@ -129,38 +125,6 @@ q-layout(v-else view="hHh Lpr fFf" class="app-shell")
                 q-badge(:color="binding.verificationStates[recipient] ? 'positive' : 'warning'" :label="binding.verificationStates[recipient] ? $t('dashboard.verified') : $t('dashboard.verificationRequired')")
           div(v-if="!filteredBindings.length" class="empty-state")
             | {{ $t('dashboard.empty') }}
-      template(v-else-if="page === 'domains'")
-        section(class="section-heading")
-          div
-            div(class="eyebrow text-primary")
-              | {{ $t('domains.eyebrow') }}
-            h1
-              | {{ $t('domains.title') }}
-            p
-              | {{ $t('domains.description') }}
-          q-btn(outline color="primary" icon="refresh" :label="$t('dashboard.refresh')" @click="loadDomains")
-        div(v-if="loading" class="row justify-center q-pa-xl")
-          q-spinner(color="primary" size="40px")
-        div(v-else class="domain-grid")
-          q-card(v-for="item in customDomains" :key="item.domain" flat bordered)
-            q-card-section
-              strong
-                | {{ item.domain }}
-              q-expansion-item(dense :label="$t('domains.setup')" header-class="q-px-none q-mt-sm")
-                q-list(dense)
-                  q-item
-                    q-item-section
-                      | {{ $t('domains.verification') }}
-                    q-item-section(side)
-                      q-badge(:color="Number(item.status || 0) >= 5 ? 'positive' : 'warning'")
-                        | {{ statusLabel(item) }}
-                  q-item(v-for="key in ['mx', 'spf', 'dkim', 'dmarc']" :key="key")
-                    q-item-section
-                      | {{ key.toUpperCase() }}
-                    q-item-section(side)
-                      | {{ item[key] || item[`${key}_status`] || $t('domains.notReported') }}
-          div(v-if="!customDomains.length" class="empty-state")
-            | {{ $t('domains.none') }}
       template(v-else)
         section(class="section-heading")
           div
@@ -170,8 +134,9 @@ q-layout(v-else view="hHh Lpr fFf" class="app-shell")
               | {{ $t('settings.title') }}
             p
               | {{ $t('settings.description') }}
-            a(href="https://proxiedmail.com/en/board" target="_blank" rel="noopener")
-              | Open full dashboard
+            a(class="proxiedmail-link" href="https://proxiedmail.com/en/board" target="_blank" rel="noopener")
+              q-icon(name="open_in_new")
+              | {{ $t('settings.externalDashboard') }}
         div(class="settings-grid")
           q-card(flat bordered)
             q-card-section
@@ -251,14 +216,14 @@ q-layout(v-else view="hHh Lpr fFf" class="app-shell")
               h2
                 | Export configuration
               p
-                | Download a portable JSON backup of your proxy addresses and account preferences. Authentication tokens are never included.
+                | Download a portable JSON backup of your email addresses and account preferences. Authentication tokens are never included.
               q-btn(outline color="primary" icon="download" label="Download JSON" @click="exportConfiguration")
 q-dialog(v-model="editDialog")
   q-card(class="dialog-card")
     q-card-section(class="row items-center")
       div
         div(class="eyebrow text-primary")
-          | EDIT PROXY
+          | EDIT EMAIL ADDRESS
         strong
           | {{ editBinding?.address }}
       q-space

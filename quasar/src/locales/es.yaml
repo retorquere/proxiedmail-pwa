@@ -10,17 +10,18 @@ auth:
   token: Token de API
   signIn: Iniciar sesión
 dashboard:
-  eyebrow: TU LIBRETA DE DIRECCIONES PRIVADA
+  eyebrow: SALA DE CORREO PRIVADA
   title: Tu bandeja de entrada es tuya.
-  description: Cada servicio tiene su propia dirección. Clara, privada y fácil de reemplazar.
-  management: GESTIÓN DE PROXIES
-  proxies: Direcciones proxy
+  description: Cada servicio tiene su propia dirección. Clara y fácil de reemplazar.
+  interface: Una interfaz para gestionar tus direcciones de ProxiedMail.
+  management: TU SALA DE CORREO
+  proxies: Direcciones de correo privadas
   proxyDescription: Direcciones privadas de reenvío para tus cuentas en línea.
   refresh: Actualizar
-  active: Proxies activos
+  active: Direcciones activas
   capacity: Capacidad disponible
-  newProxy: NUEVA DIRECCIÓN PROXY
-  proxy: Proxy
+  newProxy: NUEVA DIRECCIÓN DE CORREO
+  proxy: Nombre de dirección
   domain: Dominio
   target: Correo de destino
   create: Crear
@@ -31,11 +32,11 @@ dashboard:
   edit: Editar
   verified: Verificado
   verificationRequired: Verificación necesaria
-  empty: Ninguna dirección proxy coincide con la búsqueda.
+  empty: Ninguna dirección de correo coincide con la búsqueda.
 domains:
   eyebrow: DOMINIOS DE LA CUENTA
   title: Dominios
-  description: Dominios personalizados disponibles para tus direcciones proxy.
+  description: Dominios personalizados disponibles para tus direcciones de correo privadas.
   setup: Estado de configuración
   verification: Estado de verificación
   none: No hay dominios personalizados disponibles.
@@ -50,8 +51,9 @@ settings:
   dutch: Nederlands
   account: Configuración de la cuenta
   retention: Retención de mensajes recibidos
-  defaultDomain: Dominio proxy predeterminado
-  hideIamRich: Ocultar iam-rich.net de la lista de dominios proxy
+  defaultDomain: Dominio predeterminado de la sala de correo
+  hideIamRich: Ocultar iam-rich.net de la lista de dominios de la sala de correo
+  externalDashboard: Ir a ProxiedMail.com
   customDomains: Usar solo dominios personalizados
   replaceTarget: Reemplazar dirección de destino
   target: Dirección de destino
