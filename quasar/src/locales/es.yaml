@@ -47,6 +47,7 @@ settings:
   language: Idioma
   english: Inglés
   spanish: Español
+  dutch: Nederlands
   account: Configuración de la cuenta
   retention: Retención de mensajes recibidos
   defaultDomain: Dominio proxy predeterminado

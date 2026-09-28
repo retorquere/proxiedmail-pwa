@@ -89,6 +89,7 @@ export default defineComponent({
     const languageOptions = computed(() => [
       { label: t('settings.english'), value: 'en' },
       { label: t('settings.spanish'), value: 'es' },
+      { label: t('settings.dutch'), value: 'nl' },
     ])
     
     function notify(message: string, color = 'positive') {
@@ -104,7 +105,7 @@ export default defineComponent({
       localStorage.setItem('proxiedmail.hideDashboardHero', 'true')
     }
     function setLocale(value: string) {
-      if (value !== 'en' && value !== 'es') return
+      if (value !== 'en' && value !== 'es' && value !== 'nl') return
       locale.value = value
       localStorage.setItem('proxiedmail.locale', value)
     }

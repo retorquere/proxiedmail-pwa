@@ -1,0 +1,65 @@
+nav:
+  dashboard: Overzicht
+  domains: Domeinen
+  settings: Instellingen
+  signOut: Uitloggen
+auth:
+  eyebrow: PRIVÉ E-MAILDOORSTUURDIENST
+  welcome: Welkom bij ProxiedMail
+  description: Beheer privé-aliases zonder je inbox bloot te geven.
+  token: API-token
+  signIn: Inloggen
+dashboard:
+  eyebrow: JOUW PRIVÉ ADRESBOEK
+  title: Houd je inbox van jou.
+  description: Elke dienst krijgt een eigen adres. Rustig, duidelijk en eenvoudig te vervangen.
+  management: PROXYBEHEER
+  proxies: Proxyadressen
+  proxyDescription: Privé-doorstuuradressen voor je online accounts.
+  refresh: Vernieuwen
+  active: Actieve proxies
+  capacity: Beschikbare capaciteit
+  newProxy: NIEUW PROXYADRES
+  proxy: Proxy
+  domain: Domein
+  target: Doel-e-mailadres
+  create: Maken
+  search: Aliassen zoeken
+  forwarding: Doorsturen
+  recipients: ontvanger(s)
+  forwarded: doorgestuurd
+  edit: Bewerken
+  verified: Geverifieerd
+  verificationRequired: Verificatie vereist
+  empty: Geen proxyadressen komen overeen met deze zoekopdracht.
+domains:
+  eyebrow: ACCOUNTDOMEINEN
+  title: Domeinen
+  description: Aangepaste domeinen die beschikbaar zijn voor je proxyadressen.
+  setup: Instellingsstatus
+  verification: Verificatiestatus
+  none: Er zijn geen aangepaste domeinen beschikbaar.
+  notReported: Niet gemeld
+settings:
+  eyebrow: ACCOUNTINSTELLINGEN
+  title: Instellingen
+  description: Beheer accountvoorkeuren en integraties.
+  language: Taal
+  english: English
+  spanish: Español
+  dutch: Nederlands
+  account: Accountinstellingen
+  retention: Bewaartermijn ontvangen berichten
+  defaultDomain: Standaard proxydomein
+  hideIamRich: iam-rich.net verbergen in de lijst met proxydomeinen
+  customDomains: Alleen aangepaste domeinen gebruiken
+  replaceTarget: Doeladres vervangen
+  target: Doeladres
+  replacement: Vervangend adres
+  replace: Doel vervangen
+  privacy: Privacy en verzenden
+  passwordGenerator: Wachtwoordgenerator
+  passwordLength: Wachtwoordlengte
+  letters: Letters gebruiken
+  numbers: Cijfers gebruiken
+  symbols: Symbolen gebruiken
