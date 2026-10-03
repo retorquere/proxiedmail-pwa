@@ -3,6 +3,12 @@ nav:
   domains: Dominios
   settings: Configuración
   signOut: Cerrar sesión
+install:
+  title: Instalar ProxiedMail
+  description: Añade la aplicación a tu dispositivo para acceder rápidamente y sin navegador.
+  action: Instalar
+  notNow: Ahora no
+  browserAction: Usa la opción Instalar aplicación o Añadir a la pantalla de inicio de tu navegador.
 auth:
   eyebrow: RELEVO DE CORREO PRIVADO
   welcome: Bienvenido a ProxiedMail

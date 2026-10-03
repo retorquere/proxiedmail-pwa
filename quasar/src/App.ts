@@ -9,6 +9,11 @@ import {
   type ProxyContact,
 } from './api'
 
+interface BeforeInstallPromptEvent extends Event {
+  prompt(): Promise<void>
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>
+}
+
 export default defineComponent({
   setup() {
     const { locale, t } = useI18n()
@@ -52,6 +57,12 @@ export default defineComponent({
     const onlyCustomDomains = ref(false)
     const senderNameMode = ref('1')
     const senderCustomName = ref('')
+    const installPrompt = ref<BeforeInstallPromptEvent | null>(null)
+    const installBannerVisible = ref(false)
+    const isStandalone = ref(
+      window.matchMedia('(display-mode: standalone)').matches
+        || (navigator as Navigator & { standalone?: boolean }).standalone === true,
+    )
     const heroVisible = ref(
       localStorage.getItem('proxiedmail.hideDashboardHero') !== 'true',
     )
@@ -74,6 +85,7 @@ export default defineComponent({
         )
         : visibleDomains.value
     )
+    const showInstallSettings = computed(() => !isStandalone.value)
     const editDialog = computed({
       get: () => Boolean(editBinding.value),
       set: value => {
@@ -103,6 +115,21 @@ export default defineComponent({
     function dismissHero() {
       heroVisible.value = false
       localStorage.setItem('proxiedmail.hideDashboardHero', 'true')
+    }
+    function dismissInstallBanner() {
+      installBannerVisible.value = false
+      localStorage.setItem('proxiedmail.hideInstallBanner', 'true')
+    }
+    async function installApp() {
+      if (!installPrompt.value) {
+        notify(t('install.browserAction'), 'info')
+        return
+      }
+      const prompt = installPrompt.value
+      installPrompt.value = null
+      installBannerVisible.value = false
+      await prompt.prompt()
+      await prompt.userChoice
     }
     function setLocale(value: string) {
       if (value !== 'en' && value !== 'es' && value !== 'nl') return
@@ -408,7 +435,19 @@ export default defineComponent({
           'Active, awaiting DKIM verification',
         ][status] || 'All set'
     }
+    function handleInstallPrompt(event: Event) {
+      event.preventDefault()
+      installPrompt.value = event as BeforeInstallPromptEvent
+      installBannerVisible.value = localStorage.getItem('proxiedmail.hideInstallBanner') !== 'true'
+    }
+    function handleAppInstalled() {
+      installPrompt.value = null
+      installBannerVisible.value = false
+      isStandalone.value = true
+    }
     onMounted(() => {
+      window.addEventListener('beforeinstallprompt', handleInstallPrompt)
+      window.addEventListener('appinstalled', handleAppInstalled)
       if (loggedIn.value) refresh()
     })
 
@@ -450,6 +489,8 @@ export default defineComponent({
       onlyCustomDomains,
       senderNameMode,
       senderCustomName,
+      installBannerVisible,
+      showInstallSettings,
       heroVisible,
       filteredBindings,
       visibleDomains,
@@ -458,6 +499,8 @@ export default defineComponent({
       contactDialog,
       nav,
       dismissHero,
+      dismissInstallBanner,
+      installApp,
       setLocale,
       signIn,
       logout,

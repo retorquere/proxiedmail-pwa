@@ -3,6 +3,12 @@ nav:
   domains: Domains
   settings: Settings
   signOut: Sign out
+install:
+  title: Install ProxiedMail
+  description: Add the app to your device for quick, standalone access.
+  action: Install
+  notNow: Not now
+  browserAction: Use your browser's Install app or Add to Home Screen option.
 auth:
   eyebrow: PRIVATE EMAIL RELAY
   welcome: Welcome to ProxiedMail

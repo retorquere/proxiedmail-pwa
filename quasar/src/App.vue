@@ -1,6 +1,16 @@
 <script lang="ts" src="./App.ts"></script>
 
 <template lang="pug">
+q-banner(v-if="installBannerVisible" class="pwa-install-banner" rounded)
+  template(#avatar)
+    q-icon(name="install_mobile" size="28px")
+  div(class="text-weight-bold")
+    | {{ $t('install.title') }}
+  div(class="text-caption")
+    | {{ $t('install.description') }}
+  template(#action)
+    q-btn(flat no-caps :label="$t('install.notNow')" @click="dismissInstallBanner")
+    q-btn(unelevated no-caps color="primary" icon="download" :label="$t('install.action')" @click="installApp")
 main(v-if="!loggedIn" class="login-page")
   q-card(flat bordered class="login-card")
     q-card-section
@@ -147,6 +157,13 @@ q-layout(v-else view="hHh Lpr fFf" class="app-shell")
               q-select(v-model="selectedDomain" outlined :label="$t('settings.defaultDomain')" :options="availableCreateDomains" class="q-mt-md" @update:model-value="saveSetting('random_alias_default_domain', selectedDomain)")
               q-toggle(v-model="hideIamRich" :label="$t('settings.hideIamRich')" class="q-mt-md" @update:model-value="saveLocalPreferences")
               q-toggle(v-model="onlyCustomDomains" :label="$t('settings.customDomains')" :disable="!customDomains.length" @update:model-value="saveLocalPreferences")
+              template(v-if="showInstallSettings")
+                q-separator(class="q-my-lg")
+                h3
+                  | {{ $t('install.title') }}
+                p
+                  | {{ $t('install.description') }}
+                q-btn(outline color="primary" icon="install_mobile" :label="$t('install.action')" @click="installApp")
               q-separator(class="q-my-lg")
               h3
                 | {{ $t('settings.replaceTarget') }}
@@ -213,11 +230,10 @@ q-layout(v-else view="hHh Lpr fFf" class="app-shell")
                 q-banner(dense rounded class="bg-orange-1 text-orange-10")
                   | Treat this API key like a password. Anyone who has it can access your ProxiedMail account.
               q-separator(class="q-my-lg")
-              h2
-                | Export configuration
-              p
-                | Download a portable JSON backup of your email addresses and account preferences. Authentication tokens are never included.
-              q-btn(outline color="primary" icon="download" label="Download JSON" @click="exportConfiguration")
+              q-expansion-item(icon="download" label="Export configuration" header-class="q-px-none text-primary")
+                p
+                  | Download a portable JSON backup of your email addresses and account preferences. Authentication tokens are never included.
+                q-btn(outline color="primary" icon="download" label="Download JSON" @click="exportConfiguration")
 q-dialog(v-model="editDialog")
   q-card(class="dialog-card")
     q-card-section(class="row items-center")

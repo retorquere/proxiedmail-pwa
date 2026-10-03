@@ -3,6 +3,12 @@ nav:
   domains: Domeinen
   settings: Instellingen
   signOut: Uitloggen
+install:
+  title: ProxiedMail installeren
+  description: Voeg de app toe aan je apparaat voor snelle, zelfstandige toegang.
+  action: Installeren
+  notNow: Niet nu
+  browserAction: Gebruik de optie App installeren of Toevoegen aan startscherm van je browser.
 auth:
   eyebrow: PRIVÉ EMAILDOORSTUURDIENST
   welcome: Welkom bij ProxiedMail
