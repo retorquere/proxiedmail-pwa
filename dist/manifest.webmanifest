@@ -1,0 +1,1 @@
+{"name":"ProxiedMail","short_name":"ProxiedMail","description":"Manage private email addresses without exposing your inbox.","start_url":"/","display":"standalone","background_color":"#f5f7f6","theme_color":"#087e8b","lang":"en","scope":"/","icons":[{"src":"/proxiedmail-icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]}
